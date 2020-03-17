@@ -18,6 +18,10 @@ import numpy as np
 import os
 from distutils.util import strtobool
 
+basedir = os.path.dirname(__file__)[:-8]
+print(basedir)
+sys.path.append(basedir)
+
 # 呼び出し方
 # python lb_v1.py learning True True
 # ====================================== パラメータ　要変更 =====================================================
@@ -115,7 +119,9 @@ class Ld(LBLoad):
         this_raceuma_df.drop(["データ区分"], axis=1, inplace=True)
         merged_df = pd.merge(this_race_df, this_raceuma_df, on=["競走コード", "馬番"])
         merged_df = self.tf.normalize_prev_merged_df(merged_df)
-        merged_df = merged_df.drop(["年月日", "月日", "距離", "天候コード", "血統登録番号", "所属", "転厩"], axis=1)
+        merged_df = merged_df.drop(["年月日", "月日", "距離", "天候コード", "血統登録番号", "所属", "転厩",
+                                    "馬場状態コード", "競走種別コード", "ペース", "後３ハロン",
+                                    "タイム", "展開コード", "騎手所属場コード", "テン乗り", "調教師所属場コード"], axis=1)
         return merged_df
 
 
@@ -145,7 +151,8 @@ class SkProc(LBSkProc):
         self.base_df.loc[:, "前走激走"] = self.base_df.apply(lambda x: 1 if (x["単勝人気_1"] > 0.5 and x["確定着順_1"] < 0.3) else 0, axis=1)
         self.base_df.loc[:, "前走逃げそびれ"] = self.base_df.apply(lambda x: 1 if (x["予想展開"] == 1 and x["コーナー順位4_1"] > 0.5) else 0, axis=1)
         self.base_df.drop(
-            ["非根幹_1", "非根幹_2", "主催者コード_1", "主催者コード_2", "場コード_1", "場コード_2", "距離グループ_1", "距離グループ_2", "頭数_1", "頭数_2"],
+            ["騎手名_1", "騎手名_2", "非根幹_1", "非根幹_2", "主催者コード_1", "主催者コード_2", "場コード_1", "場コード_2", "距離グループ_1", "距離グループ_2",
+             "頭数_1", "頭数_2", "コーナー順位4_1", "コーナー順位4_2"],
             axis=1)
 
 class SkModel(LBSkModel):

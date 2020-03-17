@@ -76,6 +76,7 @@ class BaseSkProc(object):
         self._proc_create_base_df()
         self._drop_unnecessary_columns()
         self._set_target_variables()
+        self.base_df.drop("NENGAPPI", axis=1, inplace=True)
         learning_df = pd.merge(self.base_df, self.result_df, on =["RACE_KEY","UMABAN"])
         return learning_df
 
@@ -303,10 +304,7 @@ class BaseSkProc(object):
         if len(first_np) != 0:
             second_np = self._calc_pred_layer('second', this_model_name, first_np)
             y = self._calc_pred_layer('third', this_model_name, second_np)
-            print("check!!!")
-            print(self.index_list)
             if self.index_list == ["RACE_KEY", "NENGAPPI"]:
-                print("check2")
                 pred_df = pd.DataFrame({"RACE_KEY": temp_df["RACE_KEY"],"NENGAPPI": temp_df["NENGAPPI"], "prob": y[:, 1]})
             else:
                 pred_df = pd.DataFrame({"RACE_KEY" : temp_df["RACE_KEY"], "UMABAN": temp_df["UMABAN"],"NENGAPPI": temp_df["NENGAPPI"], "prob": y[:, 1]})
@@ -346,7 +344,6 @@ class BaseSkProc(object):
                 clf = pickle.load(f)
             temp_y = clf.predict_proba(exp_df)
             np_list.append(temp_y)
-        print(np_list)
         if len(np_list) != 0:
             l_train = np_list[0]
             for train_ in np_list[1:]:
@@ -493,8 +490,9 @@ class BaseSkProc(object):
         self._set_target_flag(target)
         temp_df = self._set_predict_target_encoding(df)
         # temp_df.drop("NENGAPPI", axis=1, inplace=True)
-        date_df = df[["RACE_KEY", "NENGAPPI"]].drop_duplicates()
+        #date_df = df[["RACE_KEY", "NENGAPPI"]].drop_duplicates()
         pred_df = self._sub_distribute_predict_model(cls_val, val, target, temp_df)
+        return pred_df
         if pred_df.empty:
             return pd.DataFrame()
         else:

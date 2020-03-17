@@ -3,6 +3,12 @@ import modules.util as mu
 
 import pickle
 
+import os
+import sys
+
+basedir = os.path.dirname(__file__)[:-8]
+print(basedir)
+sys.path.append(basedir)
 
 MODEL_NAME = 'raceuma_ens'
 start_date = '2018/01/01'
@@ -13,13 +19,11 @@ test_flag = True
 
 sk_model = SkModel(MODEL_NAME, MODEL_VERSION, start_date, end_date, mock_flag, test_flag)
 
-sk_model.create_learning_data()
-learning_df = sk_model.learning_df
-predict_df = sk_model.create_predict_data()
+#sk_model.create_learning_data()
+#learning_df = sk_model.learning_df
 
-# 血統登録番号                           2015105636 ヲLearningカラ削除
-print(learning_df.shape)
-print(predict_df.shape)
-mu.check_df(learning_df)
-mu.check_df(predict_df)
+#import pandas as pd
+#pd.set_option('display.max_rows', 500)
+#print(learning_df.iloc[0])
+#mu.check_df(learning_df)
 

@@ -55,6 +55,7 @@ class BaseLoad(object):
         """  race_dfを作成するための処理。race_dfに処理がされたデータをセットする """
         print("set_race_df")
         race_base_df = self.ext.get_race_before_table_base()
+        race_base_df = race_base_df.drop("データ区分", axis=1)
         self.race_df = self._proc_race_df(race_base_df)
         print(self.race_df.shape)
 
@@ -67,6 +68,7 @@ class BaseLoad(object):
         """ raceuma_dfを作成するための処理。raceuma_dfに処理がされたデータをセットする """
         print("set_raceuma_df")
         raceuma_base_df = self.ext.get_raceuma_before_table_base()
+        raceuma_base_df = raceuma_base_df.drop("データ区分", axis=1)
         self.raceuma_df = self._proc_raceuma_df(raceuma_base_df)
         print(self.raceuma_df.shape)
 

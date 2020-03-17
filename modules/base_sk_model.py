@@ -55,7 +55,7 @@ class BaseSkModel(object):
         else:
             dict_path = 'E:\python/'
         self.model_path = dict_path + 'model/' + self.version_str + '/'
-        self.ens_folder_path = dict_path + 'model/' + self.version_str + '/'
+        self.ens_folder_path = dict_path + 'intermediate/' + self.version_str + '_predict/'
 
     def _get_skproc_object(self, version_str, start_date, end_date, model_name, mock_flag, test_flag):
         print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)

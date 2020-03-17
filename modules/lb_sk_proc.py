@@ -80,6 +80,15 @@ class LBSkProc(BaseSkProc):
         hash_chokyoshi_columns = ["調教師コード", "調教師所属場コード", "所属", "転厩", "東西所属コード"]
         hash_chokyoshi_dict_name = "sc_base_hash_chokyoshi"
         self.base_df = mu.hash_eoncoding(self.base_df, hash_chokyoshi_columns,30, hash_chokyoshi_dict_name, self.dict_folder)
+        hash_horse_columns = ["生産者コード", "繁殖登録番号1", "繁殖登録番号5", "馬主コード", "性別コード"]
+        hash_horse_dict_name = "sc_base_hash_horse"
+        self.base_df = mu.hash_eoncoding(self.base_df, hash_horse_columns,30, hash_horse_dict_name, self.dict_folder)
+        hash_prev1_columns = ["騎手名_1", "ペース_1", "馬場状態コード_1", "競走種別コード_1", "展開コード_1", "騎手所属場コード_1", "テン乗り_1"]
+        hash_prev1_dict_name = "sc_base_hash_prev1"
+        self.base_df = mu.hash_eoncoding(self.base_df, hash_prev1_columns, 10, hash_prev1_dict_name, self.dict_folder)
+        hash_prev2_columns = ["騎手名_2", "ペース_2", "馬場状態コード_2", "競走種別コード_2", "展開コード_2", "騎手所属場コード_2", "テン乗り_2"]
+        hash_prev2_dict_name = "sc_base_hash_prev2"
+        self.base_df = mu.hash_eoncoding(self.base_df, hash_prev2_columns, 10, hash_prev2_dict_name, self.dict_folder)
 
     def _rename_key(self, df):
         """ キー名を競走コード→RACE_KEY、馬番→UMABANに変更 """

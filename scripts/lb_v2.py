@@ -18,6 +18,10 @@ import numpy as np
 import os
 from distutils.util import strtobool
 
+basedir = os.path.dirname(__file__)[:-8]
+print(basedir)
+sys.path.append(basedir)
+
 # 呼び出し方
 # python lb_v1.py learning True True
 # ====================================== パラメータ　要変更 =====================================================
@@ -330,6 +334,7 @@ class Ld(LBLoad):
         merged_df = pd.merge(this_race_df, this_raceuma_df, on=["競走コード", "馬番"])
         merged_df = merged_df.drop(['枠番',  'タイム指数', '単勝オッズ', '先行率', 'ペース偏差値', '距離増減', '斤量比', '追込率', '平均タイム',
              "距離", "頭数", "上り係数", "逃げ勝ち", "内勝ち", "外勝ち", "短縮勝ち", "延長勝ち", "人気勝ち", "１番人気",
+             "後３ハロン", "予想展開", "騎手所属場コード", "調教師所属場コード", 'タイム',
              "上がりタイム", "休み明け", "展開脚質", "展開脚色", "年月日", "月日", "距離", "血統登録番号"], axis=1)
         return merged_df
 
