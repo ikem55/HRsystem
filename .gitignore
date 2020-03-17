@@ -1,6 +1,5 @@
 for_test_dict/
 for_test_intermediate/
 for_test_model/
-mock_data/
 venv/
 my_config.py

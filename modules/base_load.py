@@ -34,7 +34,7 @@ class BaseLoad(object):
 
     def _set_folder_path(self, version_str, test_flag):
         if test_flag:
-            dict_path = './for_test_'
+            dict_path = 'C:\HRsystem/HRsystem/for_test_'
         else:
             dict_path = 'E:\python/'
         self.dict_folder = dict_path + 'dict/' + version_str + '/'

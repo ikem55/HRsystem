@@ -524,7 +524,7 @@ if __name__ == "__main__":
     mock_flag = strtobool(args[2])
     test_flag = strtobool(args[3])
     if test_flag:
-        dict_path = './for_test_'
+        dict_path = 'C:\HRsystem\HRsystem/for_test_'
     else:
         dict_path = 'E:\python/'
     INTERMEDIATE_FOLDER = dict_path + 'intermediate/' + MODEL_VERSION + '_' + args[1] + '/' + MODEL_NAME + '/'

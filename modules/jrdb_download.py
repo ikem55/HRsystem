@@ -23,8 +23,8 @@ class JrdbDownload(object):
 
     def __init__(self):
         self.base_uri = 'http://www.jrdb.com/'
-        self.jrdb_id = '15045379'
-        self.jrdb_pw = '27785277'
+        self.jrdb_id = os.environ["jrdb_id"]
+        self.jrdb_pw = os.environ["jrdb_pw"]
         self.download_path = os.environ["PROGRAM_PATH"] + \
             "./import_JRDB/data_org/"
         self.archive_path = os.environ["PROGRAM_PATH"] + \

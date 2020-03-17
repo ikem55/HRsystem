@@ -51,7 +51,7 @@ class BaseSkModel(object):
 
     def _set_folder_path(self, test_flag):
         if test_flag:
-            dict_path = './for_test_'
+            dict_path = 'C:\HRsystem/HRsystem/for_test_'
         else:
             dict_path = 'E:\python/'
         self.model_path = dict_path + 'model/' + self.version_str + '/'
