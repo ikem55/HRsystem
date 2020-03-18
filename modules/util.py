@@ -87,7 +87,6 @@ def hash_eoncoding(df, oh_columns, num, dict_name, dict_folder):
     encoder = ce.HashingEncoder(cols=oh_columns, n_components=num)
     filename = dict_folder + dict_name + '.pkl'
     oh_df = df[oh_columns].astype('str')
-    print(oh_df)
     if os.path.exists(filename):
         ce_fit = load_dict(dict_name, dict_folder)
     else:

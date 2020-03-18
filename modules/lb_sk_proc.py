@@ -52,7 +52,10 @@ class LBSkProc(BaseSkProc):
 
     def _drop_columns_base_df(self):
         print("-- check! this is LBSkProc class: " + sys._getframe().f_code.co_name)
-        self.base_df.drop(["場名", "発走時刻", "登録頭数", "回次", "日次", "データ作成年月日", "年月日", "近走競走コード1", "近走馬番1", "近走競走コード2", "近走馬番2", "近走競走コード3", "近走馬番3", "近走競走コード4", "近走馬番4", "近走競走コード5", "近走馬番5"], axis=1, inplace=True)
+        print(self.base_df.iloc[0])
+        self.base_df.drop(["場名", "発走時刻", "登録頭数", "回次", "日次", "データ作成年月日", "年月日", "近走競走コード1",
+                           "近走馬番1", "近走競走コード2", "近走馬番2", "近走競走コード3", "近走馬番3", "近走競走コード4", "近走馬番4", "近走競走コード5", "近走馬番5",
+                        "調教師所属場コード_1", "調教師所属場コード_2"], axis=1, inplace=True)
 
     def _scale_df(self):
         print("-- check! this is LBSkProc class: " + sys._getframe().f_code.co_name)

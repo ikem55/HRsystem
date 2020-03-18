@@ -145,7 +145,7 @@ class BaseSkModel(object):
         merge_df['predict_rank'] = grouped['prob'].rank(
             "dense", ascending=False)
         return_df = merge_df[['RACE_KEY', 'UMABAN',
-                              'pred', 'prob', 'predict_std', 'predict_rank']]
+                              'pred', 'prob', 'predict_std', 'predict_rank', "target", "target_date"]]
         return return_df
 
     def _import_data(self, df):

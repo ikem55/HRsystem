@@ -3,13 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="b2e0255a-230f-461b-8a6e-df31a58a59ad" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/base_load.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/base_load.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/base_sk_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/base_sk_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/base_sk_proc.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/base_sk_proc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/lb_sk_proc.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/lb_sk_proc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/util.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/lb_v1.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/lb_v1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/lb_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/lb_v2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -20,104 +17,145 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scripts/test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
-              <folding>
-                <element signature="e#0#33#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="base_sk_model.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/base_sk_model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="75" column="50" selection-start-line="75" selection-start-column="50" selection-end-line="75" selection-end-column="50" />
-              <folding>
-                <element signature="e#0#43#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lb_sk_proc.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/lb_sk_proc.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="109">
-              <caret line="77" column="21" lean-forward="true" selection-start-line="77" selection-start-column="21" selection-end-line="77" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#43#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="util.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/modules/util.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="203">
-              <caret line="89" column="15" selection-start-line="89" selection-start-column="15" selection-end-line="89" selection-end-column="15" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lb_load.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/lb_load.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="311">
-              <caret line="31" column="49" selection-start-line="31" selection-start-column="37" selection-end-line="31" selection-end-column="49" />
-              <folding>
-                <element signature="e#0#38#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lb_v1.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scripts/lb_v1.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="430">
-              <caret line="122" column="37" selection-start-line="122" selection-start-column="37" selection-end-line="122" selection-end-column="37" />
-              <folding>
-                <element signature="e#0#40#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="base_sk_proc.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/base_sk_proc.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
-              <caret line="94" column="22" selection-start-line="94" selection-start-column="13" selection-end-line="94" selection-end-column="22" />
-              <folding>
-                <element signature="e#0#38#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lb_v2.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scripts/lb_v2.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="23" lean-forward="true" selection-start-line="20" selection-end-line="23" />
-              <folding>
-                <element signature="e#0#40#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.8279703">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/scripts/test.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="170">
+                  <caret line="10" column="12" lean-forward="true" selection-start-line="10" selection-start-column="12" selection-end-line="10" selection-end-column="12" />
+                  <folding>
+                    <element signature="e#0#33#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="base_sk_model.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/modules/base_sk_model.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="31">
+                  <caret line="115" column="69" lean-forward="true" selection-start-line="115" selection-start-column="69" selection-end-line="115" selection-end-column="69" />
+                  <folding>
+                    <element signature="e#0#43#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="lb_sk_proc.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/modules/lb_sk_proc.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="177">
+                  <caret line="43" column="63" selection-start-line="43" selection-start-column="56" selection-end-line="43" selection-end-column="63" />
+                  <folding>
+                    <element signature="e#0#43#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="base_task_predict.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/modules/base_task_predict.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="186">
+                  <caret line="24" selection-start-line="24" selection-end-line="24" />
+                  <folding>
+                    <element signature="e#0#12#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="lb_load.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/modules/lb_load.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="245">
+                  <caret line="31" column="49" selection-start-line="31" selection-start-column="37" selection-end-line="31" selection-end-column="49" />
+                  <folding>
+                    <element signature="e#0#38#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="base_load.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/modules/base_load.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="288">
+                  <caret line="132" column="61" selection-start-line="132" selection-start-column="29" selection-end-line="132" selection-end-column="61" />
+                  <folding>
+                    <element signature="e#0#44#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="lb_transform.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/modules/lb_transform.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="238">
+                  <caret line="262" column="8" selection-start-line="262" selection-start-column="8" selection-end-line="262" selection-end-column="8" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="lb_v1.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/scripts/lb_v1.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="177">
+                  <caret line="144" column="95" lean-forward="true" selection-start-line="144" selection-start-column="95" selection-end-line="144" selection-end-column="95" />
+                  <folding>
+                    <element signature="e#0#40#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="base_sk_proc.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/modules/base_sk_proc.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="237">
+                  <caret line="308" column="17" selection-start-line="308" selection-start-column="17" selection-end-line="308" selection-end-column="17" />
+                  <folding>
+                    <element signature="e#0#38#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="lb_v2.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/scripts/lb_v2.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="391">
+                  <caret line="23" lean-forward="true" selection-start-line="20" selection-end-line="23" />
+                  <folding>
+                    <element signature="e#0#40#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="util.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/modules/util.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="186">
+                  <caret line="88" selection-start-line="88" selection-end-line="88" />
+                  <folding>
+                    <element signature="e#0#9#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -128,12 +166,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>table_name</find>
-      <find>_calc_grouped_data</find>
-      <find>TABLE_NAME</find>
-      <find>model_name</find>
-      <find>get_filter_df</find>
-      <find>nullレコード削除</find>
       <find>proc_create_predict_data</find>
       <find>create_folder</find>
       <find>create_predict_data</find>
@@ -155,9 +187,15 @@
       <find>後３ハロン_1</find>
       <find>scale_df</find>
       <find>_get_prev_base_df</find>
-      <find>sc_base_hash_month</find>
-      <find>頭数</find>
       <find>後３ハロン</find>
+      <find>頭数</find>
+      <find>調教師所属</find>
+      <find>頭数_2</find>
+      <find>_create_feature</find>
+      <find>調教師所属場コード</find>
+      <find>コーナー順位4</find>
+      <find>sc_base_hash_month</find>
+      <find>コース</find>
     </findStrings>
     <replaceStrings>
       <replace>self.Tf</replace>
@@ -169,8 +207,8 @@
       <replace>-- check! this is LBLoad class:</replace>
     </replaceStrings>
     <dirStrings>
-      <dir>C:\Users\ikem5\Dropbox\python\HRsystem</dir>
       <dir>C:\Users\ikem5\Dropbox\python\HRsystem\modules</dir>
+      <dir>C:\Users\ikem5\Dropbox\python\HRsystem</dir>
     </dirStrings>
   </component>
   <component name="Git.Settings">
@@ -194,20 +232,20 @@
         <option value="$PROJECT_DIR$/my_config.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/modules/jrdb_download.py" />
-        <option value="$PROJECT_DIR$/modules/base_sk_model.py" />
         <option value="$PROJECT_DIR$/modules/base_load.py" />
-        <option value="$PROJECT_DIR$/modules/base_sk_proc.py" />
-        <option value="$PROJECT_DIR$/scripts/test.py" />
         <option value="$PROJECT_DIR$/scripts/lb_v2.py" />
-        <option value="$PROJECT_DIR$/scripts/lb_v1.py" />
-        <option value="$PROJECT_DIR$/modules/lb_sk_proc.py" />
         <option value="$PROJECT_DIR$/modules/util.py" />
+        <option value="$PROJECT_DIR$/modules/lb_sk_proc.py" />
+        <option value="$PROJECT_DIR$/scripts/test.py" />
+        <option value="$PROJECT_DIR$/scripts/lb_v1.py" />
+        <option value="$PROJECT_DIR$/modules/base_sk_proc.py" />
+        <option value="$PROJECT_DIR$/modules/base_sk_model.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="192" />
-    <option name="y" value="48" />
+    <option name="x" value="831" />
+    <option name="y" value="79" />
     <option name="width" value="2864" />
     <option name="height" value="1953" />
   </component>
@@ -309,7 +347,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="scripts/lb_v1.py" />
+      <option name="SCRIPT_NAME" value="scripts/lb_v2.py" />
       <option name="PARAMETERS" value="predict False True" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -381,14 +419,14 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="128" y="32" width="1909" height="1302" extended-state="0" />
+    <frame x="554" y="53" width="1909" height="1302" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10712401" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32968882" />
-      <window_info active="true" anchor="bottom" id="Run" order="10" visible="true" weight="0.4667788" />
+      <window_info active="true" anchor="right" id="Run" order="3" visible="true" weight="0.4591029" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="8" weight="0.20689656" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -539,13 +577,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="246">
           <caret line="114" selection-start-line="114" selection-end-line="114" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/HRsystem/src/venv/Lib/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="237">
-          <caret line="2799" selection-start-line="2799" selection-end-line="2799" />
         </state>
       </provider>
     </entry>
@@ -709,53 +740,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/base_task_predict.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="774">
-          <caret line="76" column="68" selection-start-line="76" selection-start-column="47" selection-end-line="76" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/lb_transform.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="318" column="31" selection-start-line="318" selection-start-column="8" selection-end-line="318" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/base_sk_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="75" column="50" selection-start-line="75" selection-start-column="50" selection-end-line="75" selection-end-column="50" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/base_load.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="97" column="25" selection-start-line="97" selection-start-column="8" selection-end-line="97" selection-end-column="25" />
-          <folding>
-            <element signature="e#0#44#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#33#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scripts/lb_v2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="391">
@@ -766,19 +750,26 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/base_sk_proc.py">
+    <entry file="file://$PROJECT_DIR$/modules/lb_transform.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="94" column="22" selection-start-line="94" selection-start-column="13" selection-end-line="94" selection-end-column="22" />
+        <state relative-caret-position="238">
+          <caret line="262" column="8" selection-start-line="262" selection-start-column="8" selection-end-line="262" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/base_load.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="132" column="61" selection-start-line="132" selection-start-column="29" selection-end-line="132" selection-end-column="61" />
           <folding>
-            <element signature="e#0#38#0" expanded="true" />
+            <element signature="e#0#44#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/lb_load.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="311">
+        <state relative-caret-position="245">
           <caret line="31" column="49" selection-start-line="31" selection-start-column="37" selection-end-line="31" selection-end-column="49" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
@@ -786,32 +777,79 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/lb_v1.py">
+    <entry file="file://C:/HRsystem/src/venv/Lib/site-packages/pandas/core/frame.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="430">
-          <caret line="122" column="37" selection-start-line="122" selection-start-column="37" selection-end-line="122" selection-end-column="37" />
+        <state relative-caret-position="33">
+          <caret line="2793" column="24" lean-forward="true" selection-start-line="2793" selection-start-column="24" selection-end-line="2793" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="88" selection-start-line="88" selection-end-line="88" />
           <folding>
-            <element signature="e#0#40#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/base_task_predict.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="24" selection-start-line="24" selection-end-line="24" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="12" lean-forward="true" selection-start-line="10" selection-start-column="12" selection-end-line="10" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/lb_sk_proc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="109">
-          <caret line="77" column="21" lean-forward="true" selection-start-line="77" selection-start-column="21" selection-end-line="77" selection-end-column="21" />
+        <state relative-caret-position="177">
+          <caret line="43" column="63" selection-start-line="43" selection-start-column="56" selection-end-line="43" selection-end-column="63" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/util.py">
+    <entry file="file://$PROJECT_DIR$/scripts/lb_v1.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="203">
-          <caret line="89" column="15" selection-start-line="89" selection-start-column="15" selection-end-line="89" selection-end-column="15" />
+        <state relative-caret-position="177">
+          <caret line="144" column="95" lean-forward="true" selection-start-line="144" selection-start-column="95" selection-end-line="144" selection-end-column="95" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/base_sk_proc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="237">
+          <caret line="308" column="17" selection-start-line="308" selection-start-column="17" selection-end-line="308" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/base_sk_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="31">
+          <caret line="115" column="69" lean-forward="true" selection-start-line="115" selection-start-column="69" selection-end-line="115" selection-end-column="69" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
           </folding>
         </state>
       </provider>
