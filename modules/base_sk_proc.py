@@ -62,7 +62,7 @@ class BaseSkProc(object):
         if test_flag:
             dict_path = 'C:\HRsystem/HRsystem/for_test_'
         else:
-            dict_path = 'E:\python/'
+            dict_path = 'C:\HRsystem\HRsystem/'
         self.dict_folder = dict_path + 'dict/' + version_str + '/'
         self.model_path = dict_path + 'model/' + version_str + '/'
         self.ens_folder_path = dict_path + 'model/' + version_str + '/'
@@ -76,7 +76,7 @@ class BaseSkProc(object):
         self._proc_create_base_df()
         self._drop_unnecessary_columns()
         self._set_target_variables()
-        self.base_df.drop("NENGAPPI", axis=1, inplace=True)
+        # self.base_df.drop("NENGAPPI", axis=1, inplace=True)
         learning_df = pd.merge(self.base_df, self.result_df, on =["RACE_KEY","UMABAN"])
         return learning_df
 

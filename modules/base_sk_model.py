@@ -39,23 +39,23 @@ class BaseSkModel(object):
     """ アンサンブル学習時に利用するクラス """
     learning_df = ""
 
-    def __init__(self, model_name, version_str, start_date, end_date, mock_flag, test_flag):
+    def __init__(self, model_name, version_str, start_date, end_date, mock_flag, test_flag, mode):
         print(__class__.__name__)
         self.model_name = model_name
         self.version_str = version_str
         self.start_date = start_date
         self.end_date = end_date
-        self._set_folder_path(test_flag)
+        self._set_folder_path(test_flag, mode)
         self.model_folder = self.model_path + model_name + '/'
         self.proc = self._get_skproc_object(version_str, start_date, end_date, model_name, mock_flag, test_flag)
 
-    def _set_folder_path(self, test_flag):
+    def _set_folder_path(self, test_flag, mode):
         if test_flag:
             dict_path = 'C:\HRsystem/HRsystem/for_test_'
         else:
-            dict_path = 'E:\python/'
+            dict_path = 'C:\HRsystem\HRsystem/'
         self.model_path = dict_path + 'model/' + self.version_str + '/'
-        self.ens_folder_path = dict_path + 'intermediate/' + self.version_str + '_predict/'
+        self.ens_folder_path = dict_path + 'intermediate/' + self.version_str + '_' + mode + '/'
 
     def _get_skproc_object(self, version_str, start_date, end_date, model_name, mock_flag, test_flag):
         print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)

@@ -526,16 +526,17 @@ if __name__ == "__main__":
     print("mode：" + args[1])  # learning or predict
     print("mock flag：" + args[2])  # True or False
     print("test mode：" + args[3])  # True or False
+    mode = args[1]
     mock_flag = strtobool(args[2])
     test_flag = strtobool(args[3])
     if test_flag:
         dict_path = 'C:\HRsystem\HRsystem/for_test_'
     else:
-        dict_path = 'E:\python/'
+        dict_path = 'C:\HRsystem\HRsystem/'
     INTERMEDIATE_FOLDER = dict_path + 'intermediate/' + MODEL_VERSION + '_' + args[1] + '/' + MODEL_NAME + '/'
     print("intermediate_folder:" + INTERMEDIATE_FOLDER)
 
-    if args[1] == "learning":
+    if mode == "learning":
         if test_flag:
             print("Test mode")
             start_date = '2018/01/01'
@@ -547,15 +548,15 @@ if __name__ == "__main__":
             print("use mock data")
         print("MODE:learning mock_flag: " + str(args[2]) + "  start_date:" + start_date + " end_date:" + end_date)
 
-        sk_model = SkModel(MODEL_NAME, MODEL_VERSION, start_date, end_date, mock_flag, test_flag)
+        sk_model = SkModel(MODEL_NAME, MODEL_VERSION, start_date, end_date, mock_flag, test_flag, mode)
 
         luigi.build([End_baoz_learning(start_date=start_date, end_date=end_date, skmodel=sk_model,
                                        intermediate_folder=INTERMEDIATE_FOLDER)], local_scheduler=True)
 
-    elif args[1] == "predict":
+    elif mode == "predict":
         if test_flag:
             print("Test mode")
-            start_date = '2018/01/01'
+            start_date = '2018/01/10'
             end_date = '2018/01/11'
         else:
             base_start_date = '2019/01/01'
@@ -565,7 +566,7 @@ if __name__ == "__main__":
             print("use mock data")
         print("MODE:predict mock_flag:" + str(args[2]) + "  start_date:" + start_date + " end_date:" + end_date)
 
-        sk_model = SkModel(MODEL_NAME, MODEL_VERSION, start_date, end_date, mock_flag, test_flag)
+        sk_model = SkModel(MODEL_NAME, MODEL_VERSION, start_date, end_date, mock_flag, test_flag, mode)
         if test_flag:
             print("set test table")
             table_name = TABLE_NAME + "_test"

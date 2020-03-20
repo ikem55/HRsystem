@@ -8,10 +8,7 @@ import sys
 from datetime import datetime as dt
 from datetime import timedelta
 
-CONN_STR = (
-    r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
-    r'DBQ=C:\BaoZ\DB\MasterDB\MyDB.MDB;'
-)
+
 
 class LBSkModel(BaseSkModel):
     """
@@ -22,9 +19,18 @@ class LBSkModel(BaseSkModel):
     class_list = ['競走種別コード' , '場コード']
     ens_folder_path = './for_test_model/lb/'
     table_name = '地方競馬レース馬'
+    conn_str = (
+        r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+        r'DBQ=C:\BaoZ\DB\MasterDB\MyDB.MDB;'
+    )
 
     def set_table_name(self, table_name):
+        """ test用のテーブルをセットする """
         self.table_name = table_name
+        self.conn_str = (
+            r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+            r'DBQ=C:\BaoZ\DB\MasterDB\test_MyDB.MDB;'
+        )
 
     def _get_skproc_object(self, version_str, start_date, end_date, model_name, mock_flag, test_flag):
         print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
@@ -36,7 +42,7 @@ class LBSkModel(BaseSkModel):
 
         :param dataframe df: dataframe
         """
-        cnxn = pyodbc.connect(CONN_STR)
+        cnxn = pyodbc.connect(self.conn_str)
         crsr = cnxn.cursor()
         re_df = df.replace([np.inf, -np.inf], np.nan).dropna()
         date_list = df['target_date'].drop_duplicates()
@@ -51,7 +57,7 @@ class LBSkModel(BaseSkModel):
 
     @classmethod
     def get_recent_day(cls, start_date):
-        cnxn = pyodbc.connect(CONN_STR)
+        cnxn = pyodbc.connect(cls.conn_str)
         select_sql = "SELECT target_date from " + cls.table_name
         df = pd.read_sql(select_sql, cnxn)
         if not df.empty:

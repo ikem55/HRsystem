@@ -36,7 +36,7 @@ class BaseLoad(object):
         if test_flag:
             dict_path = 'C:\HRsystem/HRsystem/for_test_'
         else:
-            dict_path = 'E:\python/'
+            dict_path = 'C:\HRsystem\HRsystem/'
         self.dict_folder = dict_path + 'dict/' + version_str + '/'
 
     def _get_extract_object(self, version_str, start_date, end_date, mock_flag, test_flag):
