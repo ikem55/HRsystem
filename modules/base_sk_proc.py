@@ -83,7 +83,7 @@ class BaseSkProc(object):
     def proc_create_predict_data(self):
         self._proc_create_base_df()
         print("nullレコード削除：" + str(self.base_df.isnull().any().sum()))
-        self.base_df.dropna(how='any', axis=0, inplace=True)
+        # self.base_df.dropna(how='any', axis=0, inplace=True)
         self._drop_unnecessary_columns()
         return self.base_df
 
@@ -520,20 +520,3 @@ class BaseSkProc(object):
         self._set_label_list(df)
         df_temp = self._set_target_encoding(df, False, "").copy()
         return df_temp
-
-    def _calc_grouped_data(self, df):
-        """ 与えられたdataframe(予測値）に対して偏差化とランク化を行ったdataframeを返す
-
-        :param dataframe df: dataframe
-        :return: dataframe
-        """
-        grouped = df.groupby(["RACE_KEY", "target"])
-        grouped_df = grouped.describe()['prob'].reset_index()
-        merge_df = pd.merge(df, grouped_df, on=["RACE_KEY", "target"])
-        merge_df['predict_std'] = (
-            merge_df['prob'] - merge_df['mean']) / merge_df['std'] * 10 + 50
-        df['predict_rank'] = grouped['prob'].rank("dense", ascending=False)
-        merge_df = pd.merge(merge_df, df[["RACE_KEY", "UMABAN", "predict_rank", "target"]], on=["RACE_KEY", "UMABAN", "target"])
-        return_df = merge_df[['RACE_KEY', 'UMABAN',
-                              'pred', 'prob', 'predict_std', 'predict_rank', 'target', 'target_date']]
-        return return_df

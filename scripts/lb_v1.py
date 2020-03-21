@@ -206,6 +206,9 @@ if __name__ == "__main__":
             base_start_date = '2019/01/01'
             start_date = SkModel.get_recent_day(base_start_date)
             end_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
+            if start_date > end_date:
+                print("change start_date")
+                start_date = end_date
         if mock_flag:
             print("use mock data")
         print("MODE:predict mock_flag:" + str(args[2]) + "  start_date:" + start_date + " end_date:" + end_date)

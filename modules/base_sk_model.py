@@ -137,13 +137,12 @@ class BaseSkModel(object):
         :param dataframe df: dataframe
         :return: dataframe
         """
-        grouped = df.groupby("RACE_KEY")
+        grouped = df.groupby(["RACE_KEY", "target"])
         grouped_df = grouped.describe()['prob'].reset_index()
-        merge_df = pd.merge(df, grouped_df, on="RACE_KEY")
+        merge_df = pd.merge(df, grouped_df, on=["RACE_KEY", "target"])
         merge_df['predict_std'] = (
             merge_df['prob'] - merge_df['mean']) / merge_df['std'] * 10 + 50
-        merge_df['predict_rank'] = grouped['prob'].rank(
-            "dense", ascending=False)
+        merge_df['predict_rank'] = grouped['prob'].rank("dense", ascending=False)
         return_df = merge_df[['RACE_KEY', 'UMABAN',
                               'pred', 'prob', 'predict_std', 'predict_rank', "target", "target_date"]]
         return return_df
