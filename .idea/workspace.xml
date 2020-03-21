@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b2e0255a-230f-461b-8a6e-df31a58a59ad" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/scripts/delete_mdb_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/clean_init_mdb_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -13,7 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="vertical" split-proportion="0.58536583">
+    <splitter split-orientation="vertical" split-proportion="0.8095238">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="base_task_learning.py" pinned="false" current-in-tab="false">
@@ -31,7 +31,7 @@
           <file leaf-file-name="lb_sk_proc.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/modules/lb_sk_proc.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="536">
+                <state relative-caret-position="1394">
                   <caret line="87" column="93" selection-start-line="87" selection-start-column="93" selection-end-line="87" selection-end-column="93" />
                   <folding>
                     <element signature="e#0#43#0" expanded="true" />
@@ -43,8 +43,8 @@
           <file leaf-file-name="lb_sk_model.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/modules/lb_sk_model.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="457">
-                  <caret line="53" column="49" lean-forward="true" selection-start-line="53" selection-start-column="49" selection-end-line="53" selection-end-column="49" />
+                <state relative-caret-position="1020">
+                  <caret line="60" column="64" selection-start-line="60" selection-start-column="54" selection-end-line="60" selection-end-column="64" />
                   <folding>
                     <element signature="e#0#45#0" expanded="true" />
                   </folding>
@@ -55,7 +55,7 @@
           <file leaf-file-name="base_task_predict.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/modules/base_task_predict.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="818">
+                <state relative-caret-position="1292">
                   <caret line="81" selection-start-line="81" selection-end-line="81" />
                   <folding>
                     <element signature="e#0#12#0" expanded="true" />
@@ -64,11 +64,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="lb_v2.py" pinned="false" current-in-tab="false">
+          <file leaf-file-name="lb_v2.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/scripts/lb_v2.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1754">
-                  <caret line="579" lean-forward="true" selection-start-line="579" selection-end-line="579" />
+                <state relative-caret-position="308">
+                  <caret line="513" column="27" selection-start-line="513" selection-start-column="27" selection-end-line="513" selection-end-column="27" />
                   <folding>
                     <element signature="e#0#40#0" expanded="true" />
                   </folding>
@@ -79,8 +79,8 @@
           <file leaf-file-name="lb_v1.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/scripts/lb_v1.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="3111">
-                  <caret line="183" column="21" lean-forward="true" selection-start-line="183" selection-start-column="21" selection-end-line="183" selection-end-column="21" />
+                <state relative-caret-position="274">
+                  <caret line="155" column="36" lean-forward="true" selection-start-line="155" selection-start-column="36" selection-end-line="156" selection-end-column="27" />
                   <folding>
                     <element signature="e#0#40#0" expanded="true" />
                   </folding>
@@ -91,8 +91,8 @@
           <file leaf-file-name="base_sk_model.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/modules/base_sk_model.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-182">
-                  <caret line="118" column="21" lean-forward="true" selection-start-line="118" selection-start-column="21" selection-end-line="118" selection-end-column="21" />
+                <state relative-caret-position="1870">
+                  <caret line="118" column="21" selection-start-line="118" selection-start-column="21" selection-end-line="118" selection-end-column="21" />
                   <folding>
                     <element signature="e#0#43#0" expanded="true" />
                   </folding>
@@ -100,11 +100,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="lb_extract.py" pinned="false" current-in-tab="true">
+          <file leaf-file-name="lb_extract.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/modules/lb_extract.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="818">
-                  <caret line="66" column="26" selection-start-line="66" selection-start-column="26" selection-end-line="66" selection-end-column="26" />
+                <state relative-caret-position="64">
+                  <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
                 </state>
               </provider>
             </entry>
@@ -112,7 +112,7 @@
           <file leaf-file-name="base_sk_proc.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/modules/base_sk_proc.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="389">
+                <state relative-caret-position="3451">
                   <caret line="220" selection-start-line="220" selection-end-line="220" />
                   <folding>
                     <element signature="e#0#38#0" expanded="true" />
@@ -124,12 +124,21 @@
         </leaf>
       </split-first>
       <split-second>
-        <leaf>
-          <file leaf-file-name="delete_mdb_data.py" pinned="false" current-in-tab="true">
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file leaf-file-name="delete_mdb_data.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/scripts/delete_mdb_data.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="136">
-                  <caret line="8" column="21" selection-start-line="8" selection-start-column="21" selection-end-line="8" selection-end-column="21" />
+                <state relative-caret-position="34">
+                  <caret line="2" column="24" selection-end-line="15" selection-end-column="13" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="clean_init_mdb_data.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/scripts/clean_init_mdb_data.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="41">
+                  <caret line="30" column="57" lean-forward="true" selection-start-line="30" selection-start-column="57" selection-end-line="30" selection-end-column="57" />
                 </state>
               </provider>
             </entry>
@@ -218,18 +227,19 @@
         <option value="$PROJECT_DIR$/modules/lb_extract.py" />
         <option value="$PROJECT_DIR$/modules/base_load.py" />
         <option value="$PROJECT_DIR$/scripts/lb_v1.py" />
-        <option value="$PROJECT_DIR$/scripts/lb_v2.py" />
         <option value="$PROJECT_DIR$/modules/base_sk_proc.py" />
         <option value="$PROJECT_DIR$/modules/base_sk_model.py" />
         <option value="$PROJECT_DIR$/modules/lb_sk_model.py" />
         <option value="$PROJECT_DIR$/scripts/delete_mdb_data.py" />
+        <option value="$PROJECT_DIR$/scripts/clean_init_mdb_data.py" />
+        <option value="$PROJECT_DIR$/scripts/lb_v2.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1210" />
-    <option name="y" value="28" />
-    <option name="width" value="2373" />
+    <option name="x" value="1636" />
+    <option name="y" value="27" />
+    <option name="width" value="1949" />
     <option name="height" value="1953" />
   </component>
   <component name="ProjectView">
@@ -281,7 +291,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.delete_mdb_data">
+  <component name="RunManager" selected="Python.clean_init_mdb_data">
     <configuration name="base_qlearning (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="HRsystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -313,6 +323,24 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="C:\Users\ikem5\Dropbox\python\HRsystem\modules\bk_base_qlearning.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="clean_init_mdb_data" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="HRsystem" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/clean_init_mdb_data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -354,24 +382,6 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="lb_v1" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="HRsystem" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/lb_v1.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
     <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="HRsystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -392,19 +402,19 @@
     </configuration>
     <list>
       <item itemvalue="Python.lb_script_test" />
-      <item itemvalue="Python.lb_v1" />
       <item itemvalue="Python.base_qlearning" />
       <item itemvalue="Python.base_qlearning (1)" />
       <item itemvalue="Python.test" />
       <item itemvalue="Python.delete_mdb_data" />
+      <item itemvalue="Python.clean_init_mdb_data" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.clean_init_mdb_data" />
         <item itemvalue="Python.delete_mdb_data" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.base_qlearning (1)" />
         <item itemvalue="Python.base_qlearning" />
-        <item itemvalue="Python.lb_v1" />
       </list>
     </recent_temporary>
   </component>
@@ -422,45 +432,45 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="807" y="19" width="1582" height="1302" extended-state="0" />
+    <frame x="1091" y="18" width="1299" height="1302" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1065051" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23891051" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32968882" />
+      <window_info anchor="bottom" id="Run" order="10" visible="true" weight="0.13456686" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="8" weight="0.20689656" />
-      <window_info active="true" anchor="right" id="Run" order="3" visible="true" weight="0.3864796" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="9" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="2" weight="0.3995272" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32968882" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.097103916" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="5" />
-      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info active="true" anchor="right" id="Run" order="3" visible="true" weight="0.35477" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Python Console" order="8" weight="0.20689656" />
       <window_info anchor="bottom" id="Debug" order="2" weight="0.3995272" />
       <window_info anchor="bottom" id="Terminal" order="9" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" />
-      <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
+      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Python Console" order="8" weight="0.20689656" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -475,13 +485,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/modules/bk_base_qlearning.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8279">
-          <caret line="496" column="60" selection-start-line="496" selection-start-column="55" selection-end-line="496" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/lb_load.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1649">
@@ -675,32 +678,17 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/jrdb_sql.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/jrdb_download.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
           <caret line="26" column="44" selection-start-line="26" selection-start-column="44" selection-end-line="26" selection-end-column="44" />
-          <folding>
-            <element signature="e#0#21#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/jrdb_import.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/my_config.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -720,9 +708,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="425">
           <caret line="31" column="49" selection-start-line="31" selection-start-column="37" selection-end-line="31" selection-end-column="49" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -744,9 +729,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="10" column="12" selection-start-line="10" selection-start-column="12" selection-end-line="10" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#33#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -764,15 +746,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="231">
           <caret line="38" column="46" selection-start-line="38" selection-start-column="46" selection-end-line="38" selection-end-column="46" />
-          <folding>
-            <element signature="e#0#44#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/lb_sk_proc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="536">
+        <state relative-caret-position="1394">
           <caret line="87" column="93" selection-start-line="87" selection-start-column="93" selection-end-line="87" selection-end-column="93" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
@@ -780,19 +759,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/lb_v2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1754">
-          <caret line="579" lean-forward="true" selection-start-line="579" selection-end-line="579" />
-          <folding>
-            <element signature="e#0#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/base_sk_proc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="389">
+        <state relative-caret-position="3451">
           <caret line="220" selection-start-line="220" selection-end-line="220" />
           <folding>
             <element signature="e#0#38#0" expanded="true" />
@@ -802,7 +771,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/base_task_predict.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="818">
+        <state relative-caret-position="1292">
           <caret line="81" selection-start-line="81" selection-end-line="81" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
@@ -812,45 +781,62 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/base_sk_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-182">
-          <caret line="118" column="21" lean-forward="true" selection-start-line="118" selection-start-column="21" selection-end-line="118" selection-end-column="21" />
+        <state relative-caret-position="1870">
+          <caret line="118" column="21" selection-start-line="118" selection-start-column="21" selection-end-line="118" selection-end-column="21" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/lb_v1.py">
+    <entry file="file://$PROJECT_DIR$/scripts/delete_mdb_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3111">
-          <caret line="183" column="21" lean-forward="true" selection-start-line="183" selection-start-column="21" selection-end-line="183" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#40#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="34">
+          <caret line="2" column="24" selection-end-line="15" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/clean_init_mdb_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="41">
+          <caret line="30" column="57" lean-forward="true" selection-start-line="30" selection-start-column="57" selection-end-line="30" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/lb_extract.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="64">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/lb_sk_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="457">
-          <caret line="53" column="49" lean-forward="true" selection-start-line="53" selection-start-column="49" selection-end-line="53" selection-end-column="49" />
+        <state relative-caret-position="1020">
+          <caret line="60" column="64" selection-start-line="60" selection-start-column="54" selection-end-line="60" selection-end-column="64" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/lb_extract.py">
+    <entry file="file://$PROJECT_DIR$/scripts/lb_v1.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="818">
-          <caret line="66" column="26" selection-start-line="66" selection-start-column="26" selection-end-line="66" selection-end-column="26" />
+        <state relative-caret-position="274">
+          <caret line="155" column="36" lean-forward="true" selection-start-line="155" selection-start-column="36" selection-end-line="156" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scripts/delete_mdb_data.py">
+    <entry file="file://$PROJECT_DIR$/scripts/lb_v2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="21" selection-start-line="8" selection-start-column="21" selection-end-line="8" selection-end-column="21" />
+        <state relative-caret-position="308">
+          <caret line="513" column="27" selection-start-line="513" selection-start-column="27" selection-end-line="513" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

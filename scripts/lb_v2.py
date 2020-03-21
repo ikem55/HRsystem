@@ -511,6 +511,7 @@ class SkProc(LBSkProc):
 
 class SkModel(LBSkModel):
     class_list = ['競走種別コード', '場コード', 'コース']
+    table_name = TABLE_NAME
 
     def _get_skproc_object(self, version_str, start_date, end_date, model_name, mock_flag, test_flag):
         proc = SkProc(version_str, start_date, end_date, model_name, mock_flag, test_flag, self.obj_column_list)
