@@ -84,7 +84,7 @@ baoz_ra_crsr.execute("DELETE FROM レースマスタ WHERE 開催月日 <= #" + 
 baoz_ra_crsr.commit()
 baoz_ra_crsr.execute("DELETE FROM WIN5T WHERE 月日 <= #" + end_date + "#")
 baoz_ra_crsr.commit()
-baoz_ra_crsr.execute("DELETE FROM 競走馬マスタ WHERE 競走馬抹消年月日 <= #2000/01/01#")
+baoz_ra_crsr.execute("DELETE FROM 競走馬マスタ WHERE 競走馬抹消年月日 <= #1990/01/01#")
 baoz_ra_crsr.commit()
 baoz_ra_crsr.execute("DELETE FROM 票数T WHERE データ作成年月日 <= #" + end_date + "#")
 baoz_ra_crsr.commit()
