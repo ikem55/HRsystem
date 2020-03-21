@@ -2,8 +2,10 @@ import luigi
 from luigi.util import requires
 
 import modules.util as mu
+from modules.base_slack import OperationSlack
 
 import pandas as pd
+from datetime import datetime as dt
 
 class Sub_get_exp_data(luigi.Task):
     """
@@ -20,6 +22,8 @@ class Sub_get_exp_data(luigi.Task):
         渡されたexp_data_nameに基づいてSK_DATA_MODELから説明変数のデータを取得する処理を実施。pickelファイル形式でデータを保存
         """
         print("----" + __class__.__name__ + ": run")
+        slack = OperationSlack()
+        slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") + " start predict job:" + self.skmodel.version_str)
         with self.output().open("w") as target:
             print("------ モデル毎に予測データが違うので指定してデータ作成を実行")
             predict_df = self.skmodel.create_predict_data()
@@ -80,6 +84,9 @@ class End_baoz_predict(luigi.Task):
             all_pred_df.dropna(inplace=True)
             print(all_pred_df["RACE_KEY"])
             self.skmodel.proc_import_data(all_pred_df)
+            slack = OperationSlack()
+            slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") +
+                " finish predict job:" + self.skmodel.version_str)
             print(__class__.__name__ + " says: task finished".format(task=self.__class__.__name__))
 
     def output(self):
