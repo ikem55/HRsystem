@@ -384,3 +384,157 @@ def label_encoding(sr, dict_name, dict_folder):
     le.classes_ = le_classes
     sr_ce = le.transform(sr.astype('str'))
     return sr_ce
+
+
+def get_tansho_df(df):
+    """ 単勝配当のデータフレームを作成する。同着対応のため横になっているデータを縦に結合する。
+
+    :param dataframe df:
+    :return: dataframe
+    """
+    tansho_df1 = df[["競走コード", "単勝馬番1", "単勝払戻金1"]]
+    tansho_df2 = df[["競走コード", "単勝馬番2", "単勝払戻金2"]]
+    tansho_df3 = df[["競走コード", "単勝馬番3", "単勝払戻金3"]]
+    df_list = [tansho_df1, tansho_df2, tansho_df3]
+    return_df = arrange_return_df(df_list)
+    return return_df
+
+def get_fukusho_df(df):
+    """ 複勝配当のデータフレームを作成する。同着対応のため横になっているデータを縦に結合する。
+
+    :param dataframe df:
+    :return: dataframe
+    """
+    fukusho_df1 = df[["競走コード", "複勝馬番1", "複勝払戻金1"]]
+    fukusho_df2 = df[["競走コード", "複勝馬番2", "複勝払戻金2"]]
+    fukusho_df3 = df[["競走コード", "複勝馬番3", "複勝払戻金3"]]
+    fukusho_df4 = df[["競走コード", "複勝馬番4", "複勝払戻金4"]]
+    fukusho_df5 = df[["競走コード", "複勝馬番5", "複勝払戻金5"]]
+    df_list = [fukusho_df1, fukusho_df2, fukusho_df3, fukusho_df4, fukusho_df5]
+    return_df = arrange_return_df(df_list)
+    return return_df
+
+def get_wide_df( df):
+    """ ワイド配当のデータフレームを作成する。同着対応のため横になっているデータを縦に結合する。
+
+    :param dataframe df:
+    :return: dataframe
+    """
+    wide_df1 = df[["競走コード", "ワイド連番1", "ワイド払戻金1"]]
+    wide_df2 = df[["競走コード", "ワイド連番2", "ワイド払戻金2"]]
+    wide_df3 = df[["競走コード", "ワイド連番3", "ワイド払戻金3"]]
+    wide_df4 = df[["競走コード", "ワイド連番4", "ワイド払戻金4"]]
+    wide_df5 = df[["競走コード", "ワイド連番5", "ワイド払戻金5"]]
+    wide_df6 = df[["競走コード", "ワイド連番6", "ワイド払戻金6"]]
+    wide_df7 = df[["競走コード", "ワイド連番7", "ワイド払戻金7"]]
+    df_list = [wide_df1, wide_df2, wide_df3, wide_df4, wide_df5, wide_df6, wide_df7]
+    return_df = arrange_return_df(df_list)
+    return_df.loc[:, "馬番"] = return_df["馬番"].map(eparate_umaban)
+    return return_df
+
+def get_umaren_df(df):
+    """ 馬連配当のデータフレームを作成する。同着対応のため横になっているデータを縦に結合する。
+
+    :param dataframe df:
+    :return: dataframe
+    """
+    umaren_df1 = df[["競走コード", "馬連連番1", "馬連払戻金1"]]
+    umaren_df2 = df[["競走コード", "馬連連番2", "馬連払戻金2"]]
+    umaren_df3 = df[["競走コード", "馬連連番3", "馬連払戻金3"]]
+    df_list = [umaren_df1, umaren_df2, umaren_df3]
+    return_df = arrange_return_df(df_list)
+    return_df.loc[:, "馬番"] = return_df["馬番"].map(separate_umaban)
+    return return_df
+
+def get_umatan_df(df):
+    """ 馬単配当のデータフレームを作成する。同着対応のため横になっているデータを縦に結合する。
+
+    :param dataframe df:
+    :return: dataframe
+    """
+    umatan_df1 = df[["競走コード", "馬単連番1", "馬単払戻金1"]]
+    umatan_df2 = df[["競走コード", "馬単連番2", "馬単払戻金2"]]
+    umatan_df3 = df[["競走コード", "馬単連番3", "馬単払戻金3"]]
+    umatan_df4 = df[["競走コード", "馬単連番4", "馬単払戻金4"]]
+    umatan_df5 = df[["競走コード", "馬単連番5", "馬単払戻金5"]]
+    umatan_df6 = df[["競走コード", "馬単連番6", "馬単払戻金6"]]
+    df_list = [umatan_df1, umatan_df2, umatan_df3, umatan_df4, umatan_df5, umatan_df6]
+    return_df = arrange_return_df(df_list)
+    return_df.loc[:, "馬番"] = return_df["馬番"].map(separate_umaban)
+    return return_df
+
+def get_sanrenpuku_df(df):
+    """  三連複配当のデータフレームを作成する。同着対応のため横になっているデータを縦に結合する。
+
+    :param dataframe df:
+    :return: dataframe
+    """
+    sanrenpuku1 = df[["競走コード", "三連複連番1", "三連複払戻金1"]]
+    sanrenpuku2 = df[["競走コード", "三連複連番2", "三連複払戻金2"]]
+    sanrenpuku3 = df[["競走コード", "三連複連番3", "三連複払戻金3"]]
+    df_list = [sanrenpuku1, sanrenpuku2, sanrenpuku3]
+    return_df = arrange_return_df(df_list)
+    return_df.loc[:, "馬番"] = return_df["馬番"].map(separate_umaban)
+    return return_df
+
+def get_sanrentan_df(df):
+    """ 三連単配当のデータフレームを作成する。同着対応のため横になっているデータを縦に結合する。
+
+    :param dataframe df:
+    :return: dataframe
+    """
+    sanrentan1 = df[["競走コード", "三連単連番1", "三連単払戻金1"]]
+    sanrentan2 = df[["競走コード", "三連単連番2", "三連単払戻金2"]]
+    sanrentan3 = df[["競走コード", "三連単連番3", "三連単払戻金3"]]
+    sanrentan4 = df[["競走コード", "三連単連番4", "三連単払戻金4"]]
+    sanrentan5 = df[["競走コード", "三連単連番5", "三連単払戻金5"]]
+    sanrentan6 = df[["競走コード", "三連単連番6", "三連単払戻金6"]]
+    df_list = [sanrentan1, sanrentan2, sanrentan3, sanrentan4, sanrentan5, sanrentan6]
+    return_df = arrange_return_df(df_list)
+    return_df.loc[:, "馬番"] = return_df["馬番"].map(separate_umaban)
+    return return_df
+
+def arrange_return_df(df_list):
+    """ 内部処理用、配当データの列を競走コード、馬番、払戻に統一する
+
+    :param list df_list: dataframeのリスト
+    :return: dataframe
+    """
+    for df in df_list:
+        df.columns = ["競走コード", "馬番", "払戻"]
+    return_df = pd.concat(df_list)
+    temp_return_df = return_df[return_df["払戻"] != 0]
+    return temp_return_df
+
+def separate_umaban(x):
+    """ 内部処理用。馬番結果の文字をリスト(4,6),(12,1,3)とかに変換する.0,00といった値の場合は０のリストを返す
+
+    :param str x: str
+    :return: list
+    """
+    umaban = str(x)
+    if len(umaban) <= 2:
+        return [0, 0, 0]
+    if len(umaban) % 2 != 0:
+        umaban = '0' + umaban
+    if len(umaban) == 6:
+        list_umaban = [int(umaban[0:2]), int(umaban[2:4]), int(umaban[4:6])]
+    else:
+        list_umaban = [int(umaban[0:2]), int(umaban[2:4])]
+    return list_umaban
+
+def get_haraimodoshi_dict(haraimodoshi_df):
+        """ 払戻用のデータを作成する。extオブジェクトから各払戻データを取得して辞書化して返す。
+
+        :return: dict {"tansho_df": tansho_df, "fukusho_df": fukusho_df}
+        """
+        tansho_df = get_tansho_df(haraimodoshi_df)
+        fukusho_df = get_fukusho_df(haraimodoshi_df)
+        umaren_df = get_umaren_df(haraimodoshi_df)
+        wide_df = get_wide_df(haraimodoshi_df)
+        umatan_df = get_umatan_df(haraimodoshi_df)
+        sanrenpuku_df = get_sanrenpuku_df(haraimodoshi_df)
+        sanrentan_df = get_sanrentan_df(haraimodoshi_df)
+        dict_haraimodoshi = {"tansho_df": tansho_df, "fukusho_df": fukusho_df, "umaren_df": umaren_df,
+                             "wide_df": wide_df, "umatan_df": umatan_df, "sanrenpuku_df": sanrenpuku_df, "sanrentan_df": sanrentan_df}
+        return dict_haraimodoshi

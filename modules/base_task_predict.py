@@ -79,7 +79,6 @@ class End_baoz_predict(luigi.Task):
                     print(check_df.shape)
                     if not check_df.empty:
                         pred_df = self.skmodel.proc_predict_sk_model(filter_df, cls_val, val)
-                        print(pred_df["RACE_KEY"])
                         all_pred_df = pd.concat([all_pred_df, pred_df])
             all_pred_df.dropna(inplace=True)
             print(all_pred_df["RACE_KEY"])
