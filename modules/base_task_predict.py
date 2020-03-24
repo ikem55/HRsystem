@@ -60,9 +60,6 @@ class End_baoz_predict(luigi.Task):
         print("---" + __class__.__name__ + ": run")
         with self.output().open("w") as target:
             exp_data = pd.read_pickle(self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl')
-            ## 場所ごとの処理
-            mu.check_df(exp_data)
-
             print("------ 分類軸毎の学習モデルを作成")
             all_pred_df = pd.DataFrame()
             class_list = self.skmodel.class_list
@@ -71,7 +68,7 @@ class End_baoz_predict(luigi.Task):
                 val_list = self.skmodel.get_val_list(exp_data, cls_val)
                 for val in val_list:
                     # 対象の競馬場のデータを取得する
-                    print(" cls_val:" + cls_val + " val:" + val)
+                    print("=============== cls_val:" + cls_val + " val:" + val + " ===========================")
                     filter_df = self.skmodel.get_filter_df(exp_data, cls_val, val)
                     # 予測を実施
                     check_df = filter_df.dropna()
@@ -81,7 +78,6 @@ class End_baoz_predict(luigi.Task):
                         pred_df = self.skmodel.proc_predict_sk_model(filter_df, cls_val, val)
                         all_pred_df = pd.concat([all_pred_df, pred_df])
             all_pred_df.dropna(inplace=True)
-            print(all_pred_df["RACE_KEY"])
             self.skmodel.proc_import_data(all_pred_df)
             slack = OperationSlack()
             slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") +

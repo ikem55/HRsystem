@@ -3,16 +3,33 @@ from modules.base_report import LBReport
 from datetime import datetime as dt
 from datetime import timedelta
 
-start_date = '2019/11/01'
+n = -60
+start_date = (dt.now() + timedelta(days=n)).strftime('%Y/%m/%d')
 end_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
 mock_flag = False
 slack = SummarySlack()
 rep = LBReport(start_date, end_date, mock_flag)
 
-bet_df = rep.get_bet_df()
-today_bet_df = rep.get_todays_bet_df(bet_df)
-bet_text = rep.get_todays_text(today_bet_df)
 
-slack.post_slack_text(bet_text)
+post_text = ''
 
-slack.upload_gsheet(bet_df)
+if rep.check_flag:
+    todays_bet_text = rep.get_todays_bet_text()
+    recent_bet_text = rep.get_recent_bet_text()
+    trend_text = rep.get_trend_text()
+    summary_text = rep.get_summary_text()
+
+    post_text += todays_bet_text + "\r\n"
+    post_text += recent_bet_text + "\r\n"
+    post_text += trend_text + "\r\n"
+    post_text += summary_text + "\r\n"
+
+else:
+    post_text = "no data"
+
+test = False
+
+if test:
+    print(post_text)
+else:
+    slack.post_slack_text(post_text)

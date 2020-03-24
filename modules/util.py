@@ -429,7 +429,7 @@ def get_wide_df( df):
     wide_df7 = df[["競走コード", "ワイド連番7", "ワイド払戻金7"]]
     df_list = [wide_df1, wide_df2, wide_df3, wide_df4, wide_df5, wide_df6, wide_df7]
     return_df = arrange_return_df(df_list)
-    return_df.loc[:, "馬番"] = return_df["馬番"].map(eparate_umaban)
+    return_df.loc[:, "馬番"] = return_df["馬番"].map(separate_umaban)
     return return_df
 
 def get_umaren_df(df):
@@ -524,17 +524,17 @@ def separate_umaban(x):
     return list_umaban
 
 def get_haraimodoshi_dict(haraimodoshi_df):
-        """ 払戻用のデータを作成する。extオブジェクトから各払戻データを取得して辞書化して返す。
+    """ 払戻用のデータを作成する。extオブジェクトから各払戻データを取得して辞書化して返す。
 
-        :return: dict {"tansho_df": tansho_df, "fukusho_df": fukusho_df}
-        """
-        tansho_df = get_tansho_df(haraimodoshi_df)
-        fukusho_df = get_fukusho_df(haraimodoshi_df)
-        umaren_df = get_umaren_df(haraimodoshi_df)
-        wide_df = get_wide_df(haraimodoshi_df)
-        umatan_df = get_umatan_df(haraimodoshi_df)
-        sanrenpuku_df = get_sanrenpuku_df(haraimodoshi_df)
-        sanrentan_df = get_sanrentan_df(haraimodoshi_df)
-        dict_haraimodoshi = {"tansho_df": tansho_df, "fukusho_df": fukusho_df, "umaren_df": umaren_df,
-                             "wide_df": wide_df, "umatan_df": umatan_df, "sanrenpuku_df": sanrenpuku_df, "sanrentan_df": sanrentan_df}
-        return dict_haraimodoshi
+    :return: dict {"tansho_df": tansho_df, "fukusho_df": fukusho_df}
+    """
+    tansho_df = get_tansho_df(haraimodoshi_df)
+    fukusho_df = get_fukusho_df(haraimodoshi_df)
+    umaren_df = get_umaren_df(haraimodoshi_df)
+    wide_df = get_wide_df(haraimodoshi_df)
+    umatan_df = get_umatan_df(haraimodoshi_df)
+    sanrenpuku_df = get_sanrenpuku_df(haraimodoshi_df)
+    sanrentan_df = get_sanrentan_df(haraimodoshi_df)
+    dict_haraimodoshi = {"tansho_df": tansho_df, "fukusho_df": fukusho_df, "umaren_df": umaren_df,
+                         "wide_df": wide_df, "umatan_df": umatan_df, "sanrenpuku_df": sanrenpuku_df, "sanrentan_df": sanrentan_df}
+    return dict_haraimodoshi

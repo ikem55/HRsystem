@@ -295,7 +295,7 @@ class BaseSkProc(object):
         self._train_3rd_layer(second_train, second_test, this_model_name)
 
     def _predict_raceuma_ens(self, this_model_name, temp_df):
-        print("this_model_name: " + this_model_name)
+        print("======= this_model_name: " + this_model_name + " ==========")
 
         temp_df = temp_df.replace(np.inf,np.nan).fillna(temp_df.replace(np.inf,np.nan).mean())
         exp_df = temp_df.drop(self.index_list, axis=1).to_numpy()
@@ -489,14 +489,8 @@ class BaseSkProc(object):
         """
         self._set_target_flag(target)
         temp_df = self._set_predict_target_encoding(df)
-        # temp_df.drop("NENGAPPI", axis=1, inplace=True)
-        #date_df = df[["RACE_KEY", "NENGAPPI"]].drop_duplicates()
         pred_df = self._sub_distribute_predict_model(cls_val, val, target, temp_df)
         return pred_df
-        if pred_df.empty:
-            return pd.DataFrame()
-        else:
-            return pd.merge(pred_df, date_df, on="RACE_KEY")
 
 
     def _sub_distribute_predict_model(self, cls_val, val, target, temp_df):
