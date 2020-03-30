@@ -28,6 +28,12 @@ class BaseExtract(object):
         self.mock_path_zandaka = self.mock_path + 'zandaka.pkl'
         self.mock_path_horse = self.mock_path + 'horse.pkl'
         self.mock_path_mydb = self.mock_path + 'mydb.pkl'
+        self.mock_path_tansho = self.mock_path + 'tansho.pkl'
+        self.mock_path_fukusho = self.mock_path + 'fukusho.pkl'
+        self.mock_path_umaren = self.mock_path + 'umaren.pkl'
+        self.mock_path_umatan = self.mock_path + 'umatan.pkl'
+        self.mock_path_wide = self.mock_path + 'wide.pkl'
+        self.mock_path_sanrenpuku = self.mock_path + 'sanrenpuku.pkl'
 
     def create_mock_data(self):
         """ mock dataを作成する  """
@@ -39,6 +45,12 @@ class BaseExtract(object):
         zandaka_df = self.get_zandaka_table_base()
         horse_df = self.get_horse_table_base()
         mydb_df = self.get_mydb_table_base()
+        tansho_df = self.get_tansho_table_base()
+        fukusho_df = self.get_fukusho_table_base()
+        umaren_df = self.get_umaren_table_base()
+        umatan_df = self.get_umatan_table_base()
+        wide_df = self.get_wide_table_base()
+        sanrenpuku_df = self.get_sanrenpuku_table_base()
 
         self.set_mock_path()
         race_df.to_pickle(self.mock_path_race)
@@ -48,6 +60,12 @@ class BaseExtract(object):
         zandaka_df.to_pickle(self.mock_path_zandaka)
         horse_df.to_pickle(self.mock_path_horse)
         mydb_df.to_pickle(self.mock_path_mydb)
+        tansho_df.to_pickle(self.mock_path_tansho)
+        fukusho_df.to_pickle(self.mock_path_fukusho)
+        umaren_df.to_pickle(self.mock_path_umaren)
+        umatan_df.to_pickle(self.mock_path_umatan)
+        wide_df.to_pickle(self.mock_path_wide)
+        sanrenpuku_df.to_pickle(self.mock_path_sanrenpuku)
 
     def get_bet_table_base(self):
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
@@ -76,17 +94,21 @@ class BaseExtract(object):
     def get_horse_table_base(self):
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
-    def _connect_baoz_mdb(self):
+    def get_tansho_table_base(self):
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
-    def _connect_baoz_ex_mdb(self):
+    def get_fukusho_table_base(self):
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
-    def _connect_baoz_bet_mdb(self):
+    def get_umaren_table_base(self):
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
-    def _connect_baoz_ra_mdb(self):
+    def get_umatan_table_base(self):
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
-    def _connect_baoz_my_mdb(self):
+    def get_wide_table_base(self):
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
+
+    def get_sanrenpuku_table_base(self):
+        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
+

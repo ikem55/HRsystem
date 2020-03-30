@@ -122,5 +122,4 @@ print(score_df.sort_values('av_fuku', ascending=False).head())
 
 print("----------- total_rank -----------------")
 print(score_df.sort_values('total_rank').head(10))
-score_df.to_pickle('score_df.pkl')
 print(score_df.describe())

@@ -122,6 +122,96 @@ class LBExtract(BaseExtract):
             df = df_org.astype({'主催者コード': object})
         return df
 
+    def get_tansho_table_base(self):
+        """ 残高テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_tansho)
+        else:
+            cnxn = self._connect_baoz_o1_mdb()
+            select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 単勝全オッズ, 単勝票数合計 FROM 単複枠オッズT WHERE データ作成年月日 >= #' + \
+                self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            df = df_org.rename(columns={'単勝全オッズ':'全オッズ', '単勝票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})# (オッズ4桁999.9倍で設定)*繰り返し28、データ区分　2: 前日売最終 4:確定 5:確定(月曜) 9:レース中止 10:該当レコード削除(提供ミスなどの理由による)
+        return df
+
+    def get_fukusho_table_base(self):
+        """ 残高テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_fukusho)
+        else:
+            cnxn = self._connect_baoz_o1_mdb()
+            select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 複勝全オッズ, 複勝票数合計 FROM 単複枠オッズT WHERE データ作成年月日 >= #' + \
+                self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            df = df_org.rename(columns={'複勝全オッズ':'全オッズ', '複勝票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})# (最低オッズ4桁999.9倍で設定・最高オッズ4桁)*繰り返し28
+        return df
+
+    def get_umaren_table_base(self):
+        """ 残高テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_umaren)
+        else:
+            cnxn = self._connect_baoz_o2_mdb()
+            select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 馬連全オッズ, 馬連票数合計 FROM 馬連オッズT WHERE データ作成年月日 >= #' + \
+                self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            df = df_org.rename(columns={'馬連全オッズ':'全オッズ', '馬連票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})# (オッズ6桁99999.9倍で設定)*繰り返し153(18!)
+        return df
+
+    def get_umatan_table_base(self):
+        """ 残高テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_umatan)
+        else:
+            cnxn = self._connect_baoz_o4_mdb()
+            select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 馬単全オッズ, 馬単票数合計 FROM 馬単オッズT WHERE データ作成年月日 >= #' + \
+                self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            df = df_org.rename(columns={'馬単全オッズ':'全オッズ', '馬単票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})
+        return df
+
+    def get_wide_table_base(self):
+        """ 残高テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_wide)
+        else:
+            cnxn = self._connect_baoz_o3_mdb()
+            select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, ワイド全オッズ, ワイド票数合計 FROM ワイドオッズT WHERE データ作成年月日 >= #' + \
+                self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            df = df_org.rename(columns={'ワイド全オッズ':'全オッズ', 'ワイド票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})#(連番4桁・最低オッズ5桁9999.9倍で設定・最高オッズ5桁・人気3桁)*繰り返し153
+        return df
+
+    def get_sanrenpuku_table_base(self):
+        """ 残高テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_sanrenpuku)
+        else:
+            cnxn = self._connect_baoz_o5n_mdb()
+            select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 三連複全オッズ, 三連複票数合計 FROM 三連複オッズNT WHERE データ作成年月日 >= #' + \
+                self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            df = df_org.rename(columns={'三連複全オッズ':'全オッズ', '三連複票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})#(オッズ6桁99999.9倍で設定)*繰り返し816
+        return df
+
     def get_mydb_table_base(self):
         """ 地方競馬テーブル（自分で作成したデータ）からデータを取得する。mock_flagがTrueの時はmockデータを取得する。
 
@@ -183,6 +273,66 @@ class LBExtract(BaseExtract):
         conn_str = (
             r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
             r'DBQ=C:\BaoZ\DB\MasterDB\BaoZ-RA.MDB;'
+        )
+        cnxn = pyodbc.connect(conn_str)
+        return cnxn
+
+    def _connect_baoz_o1_mdb(self):
+        """ BaoZ-O1.mdbとの接続をする。単複枠オッズT・枠単オッズTとの接続に使用。
+
+        :return: cnxn
+        """
+        conn_str = (
+            r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+            r'DBQ=C:\BaoZ\DB\MasterDB\BaoZ-O1.MDB;'
+        )
+        cnxn = pyodbc.connect(conn_str)
+        return cnxn
+
+    def _connect_baoz_o2_mdb(self):
+        """ BaoZ-O2.mdbとの接続をする。馬連オッズTとの接続に使用。
+
+        :return: cnxn
+        """
+        conn_str = (
+            r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+            r'DBQ=C:\BaoZ\DB\MasterDB\BaoZ-O2.MDB;'
+        )
+        cnxn = pyodbc.connect(conn_str)
+        return cnxn
+
+    def _connect_baoz_o3_mdb(self):
+        """ BaoZ-O3.mdbとの接続をする。ワイドオッズTとの接続に使用。
+
+        :return: cnxn
+        """
+        conn_str = (
+            r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+            r'DBQ=C:\BaoZ\DB\MasterDB\BaoZ-O3.MDB;'
+        )
+        cnxn = pyodbc.connect(conn_str)
+        return cnxn
+
+    def _connect_baoz_o4_mdb(self):
+        """ BaoZ-O4.mdbとの接続をする。馬単オッズTとの接続に使用。
+
+        :return: cnxn
+        """
+        conn_str = (
+            r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+            r'DBQ=C:\BaoZ\DB\MasterDB\BaoZ-O4.MDB;'
+        )
+        cnxn = pyodbc.connect(conn_str)
+        return cnxn
+
+    def _connect_baoz_o5n_mdb(self):
+        """ BaoZ-O5N.mdbとの接続をする。三連複オッズNTとの接続に使用。
+
+        :return: cnxn
+        """
+        conn_str = (
+            r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+            r'DBQ=C:\BaoZ\DB\MasterDB\BaoZ-O5N.MDB;'
         )
         cnxn = pyodbc.connect(conn_str)
         return cnxn

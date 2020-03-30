@@ -100,11 +100,12 @@ class BaseReport(object):
         all_race_count = ''
         for key, val in race_status.iteritems():
             all_race_count += 'St' + str(key) + ':' + str(val) + 'R | '
-        final_race_time = ' 最終レース:' + race_df["発走時刻"].max().strftime('%H:%M')
+        self.final_race_time = race_df["発走時刻"].max()
+        final_race = ' 最終レース:' + self.final_race_time.strftime('%H:%M')
         current_text += '== 開催情報(' + dt.now().strftime('%Y/%m/%d %H') + '時点情報) ==\r\n'
         current_text += ' 開催場所: ' + kaisai_text + '\r\n'
         current_text += ' レース進捗：' + all_race_count + '\r\n'
-        current_text += final_race_time + '\r\n'
+        current_text += final_race + '\r\n'
         return current_text
 
     def get_trend_text(self):
