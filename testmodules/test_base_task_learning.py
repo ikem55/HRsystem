@@ -113,7 +113,7 @@ class TestBaseTaskLearning(TestBaseCommon):
     def test_21_proc_learning_sk_model(self):
         """ 学習モデルの作成が問題なくできることを確認。test_02の結果を使いたい"""
         print("--  " + sys._getframe().f_code.co_name + " start --")
-        # self.clean_folder()
+        self.clean_folder()
         te_p = self.intermediate_folder
         model_third_folder = self.skmodel.ens_folder_path + self.model_name +'/third/'
         class_list = self.skmodel.class_list
