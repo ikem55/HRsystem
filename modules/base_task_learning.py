@@ -83,7 +83,7 @@ class End_baoz_learning(luigi.Task):
     def run(self):
         # 目的変数、場コード毎に学習を実施し、学習モデルを作成して中間フォルダに格納する
         print("---" + __class__.__name__ + ": run")
-        self.clean_folder()
+        # self.clean_folder()
         with self.output().open("w") as target:
             print("------ 分類軸毎の学習モデルを作成")
             class_list = self.skmodel.class_list

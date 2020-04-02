@@ -1,6 +1,7 @@
 for_test_dict/
 for_test_intermediate/
 for_test_model/
+testmodules/.pytest_cache
 venv/
 my_config.py
 localBaoz-510313930ad5.json

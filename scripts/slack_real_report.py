@@ -14,7 +14,6 @@ post_text = ''
 
 now_time = dt.now()
 
-
 def post_summary():
     n = -60
     start_date = (dt.now() + timedelta(days=n)).strftime('%Y/%m/%d')
@@ -55,6 +54,7 @@ if rep.check_flag:
     post_text += bet_text + "\r\n"
     if now_time > rep.final_race_time:
         post_summary()
+        slack.stop_hrsystem_vm()
 
 else:
     post_text = "no data"

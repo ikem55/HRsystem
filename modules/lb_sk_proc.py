@@ -9,8 +9,8 @@ class LBSkProc(BaseSkProc):
     """
     地方競馬の機械学習処理プロセスを取りまとめたクラス。
     """
-    dict_folder = './for_test_dict/lb/'
-    model_path = './for_test_model/lb/'
+    dict_folder = ""
+    model_path = ""
     index_list = ["RACE_KEY", "UMABAN", "NENGAPPI"]
 
     def _get_load_object(self, version_str, start_date, end_date, mock_flag, test_flag):

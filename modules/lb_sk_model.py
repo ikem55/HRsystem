@@ -15,9 +15,9 @@ class LBSkModel(BaseSkModel):
     地方競馬の機械学習モデルを定義
     """
     version_str = 'lb'
-    model_path = './for_test_model/lb/'
+    model_path = ""
     class_list = ['競走種別コード' , '場コード']
-    ens_folder_path = './for_test_model/lb/'
+    ens_folder_path = ""
     table_name = '地方競馬レース馬'
     conn_str = (
         r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'

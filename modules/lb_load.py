@@ -10,8 +10,6 @@ class LBLoad(BaseLoad):
     """
     地方競馬のデータロードクラス
     """
-    dict_folder = './for_test_dict/base/'
-    """ 辞書フォルダのパス """
 
     def _get_extract_object(self, start_date, end_date, mock_flag):
         """ 利用するExtクラスを指定する """

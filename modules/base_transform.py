@@ -9,8 +9,6 @@ class BaseTransform(object):
     辞書データの格納等の処理があるため、基本的にはインスタンス化して実行するが、不要な場合はクラスメソッドでの実行を可とする。
     辞書データの作成は、ない場合は作成、ある場合は読み込み、を基本方針とする(learning_modeによる判別はしない）
     """
-#    dict_folder = '../for_test_dict/base/'
-#    """ 辞書フォルダのパス """
 
     def __init__(self, start_date, end_date):
         print(__class__.__name__)

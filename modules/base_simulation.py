@@ -95,29 +95,106 @@ class BaseSimulation(object):
             df["odds"][index] = odds_array
         return df
 
-    def get_umaren_kaime(self, df1, df2):
-        """ df1とdf2の組み合わせの馬連の買い目リストを作成, dfは競走コード,馬番のセット """
+    def get_1tou_kaime(self, df1, odds_df):
+        """ df1の買い目リストを作成, dfは競走コード,馬番のセット """
         # df1の馬番を横持に変換
         df1_gp = df1.groupby("競走コード")["馬番"].apply(list)
-        df2_gp = df2.groupby("競走コード")["馬番"].apply(list)
-        merge_df = pd.merge(df1_gp, df2_gp, on="競走コード")
-        merge_df = pd.merge(merge_df, self.umaren_df, on="競走コード")
+        merge_df = pd.merge(df1_gp, odds_df, on="競走コード")
         race_key_list = []
         umaban_list = []
         odds_list = []
         for index, row in merge_df.iterrows():
-            uma1 = row["馬番_x"]
-            uma2 = [i for i in row["馬番_y"] if i not in uma1]
-            for element in itertools.product(uma1, uma2):
-                odds = row["odds"][element[0]][element[1]]
+            uma1 = row["馬番"]
+            for element in uma1:
+                odds = row["odds"][element]
                 race_key_list += [row["競走コード"]]
-                umaban_list += [sorted(element)] # 連系なのでソート
+                umaban_list += [element]
                 odds_list += [odds]
         kaime_df = pd.DataFrame(
             data={"競走コード": race_key_list, "馬番": umaban_list, "オッズ": odds_list},
             columns=["競走コード","馬番","オッズ"]
         )
         kaime_df = kaime_df[kaime_df["オッズ"] != 0]
+        return kaime_df
+
+    def get_2tou_kaime(self, df1, df2, odds_df, ren=True):
+        """ df1とdf2の組み合わせの馬連の買い目リストを作成, dfは競走コード,馬番のセット """
+        # df1の馬番を横持に変換
+        df1_gp = df1.groupby("競走コード")["馬番"].apply(list)
+        df2_gp = df2.groupby("競走コード")["馬番"].apply(list)
+        merge_df = pd.merge(df1_gp, df2_gp, on="競走コード")
+        merge_df = pd.merge(merge_df, odds_df, on="競走コード")
+        race_key_list = []
+        umaban_list = []
+        check_umaban_list = []
+        uma1_list = []
+        uma2_list = []
+        odds_list = []
+        for index, row in merge_df.iterrows():
+            uma1 = row["馬番_x"]
+            uma2 = row["馬番_y"]
+            for element in itertools.product(uma1, uma2):
+                if element[0] != element[1]:
+                    odds = row["odds"][element[0]][element[1]]
+                    race_key_list += [row["競走コード"]]
+                    if ren:
+                        umaban_list += [sorted(element)] # 連系なのでソート
+                        check_umaban_list += [str(sorted(element))]
+                    else:
+                        umaban_list += [element] # 単系の場合はソートしない
+                        check_umaban_list += [str(element)]
+                    uma1_list += [element[0]]
+                    uma2_list += [element[1]]
+                    odds_list += [odds]
+        kaime_df = pd.DataFrame(
+            data={"競走コード": race_key_list, "馬番": umaban_list, "オッズ": odds_list, "馬番1": uma1_list, "馬番2": uma2_list},
+            columns=["競走コード","馬番","オッズ", "馬番1", "馬番2"]
+        )
+        kaime_df = kaime_df[kaime_df["オッズ"] != 0]
+        kaime_df = kaime_df.drop_duplicates(subset=["競走コード", "チェック馬番"]).drop("チェック馬番", axis=1)
+        return kaime_df
+
+    def get_3tou_kaime(self, df1, df2, df3, odds_df, ren=True):
+        """ df1とdf2.df3の組み合わせの馬連の買い目リストを作成, dfは競走コード,馬番のセット """
+        #### 注意、馬１－馬２－馬３の組み合わせで馬１にある数字は馬２から除外されるようなので得点は小数点で計算する方がよさそう
+        # df1の馬番を横持に変換
+        df1_gp = df1.groupby("競走コード")["馬番"].apply(list)
+        df2_gp = df2.groupby("競走コード")["馬番"].apply(list)
+        df3_gp = df3.groupby("競走コード")["馬番"].apply(list)
+        merge_df = pd.merge(df1_gp, df2_gp, on="競走コード")
+        merge_df = pd.merge(merge_df, df3_gp, on="競走コード")
+        merge_df = pd.merge(merge_df, odds_df, on="競走コード")
+        race_key_list = []
+        umaban_list = []
+        check_umaban_list = []
+        uma1_list = []
+        uma2_list = []
+        uma3_list = []
+        odds_list = []
+        for index, row in merge_df.iterrows():
+            uma1 = row["馬番_x"]
+            uma2 = row["馬番_y"]
+            uma3 = row["馬番"]
+            for element in itertools.product(uma1, uma2, uma3):
+                if not(element[0] == element[1] or element[0] == element[2] or element[1] == element[2]):
+                    odds = row["odds"][element[0]][element[1]][element[2]]
+                    race_key_list += [row["競走コード"]]
+                    if ren:
+                        umaban_list += [sorted(element)] # 連系なのでソート
+                        check_umaban_list += [str(sorted(element))]
+                    else:
+                        umaban_list += [element] # 単系の場合はソートしない
+                        check_umaban_list += [str(element)]
+                    uma1_list += [element[0]]
+                    uma2_list += [element[1]]
+                    uma3_list += [element[2]]
+                    odds_list += [odds]
+        kaime_df = pd.DataFrame(
+            data={"競走コード": race_key_list, "馬番": umaban_list, "チェック馬番": check_umaban_list, "オッズ": odds_list, "馬番1": uma1_list, "馬番2": uma2_list, "馬番3": uma3_list},
+            columns=["競走コード", "馬番", "チェック馬番", "オッズ", "馬番1", "馬番2", "馬番3"]
+        )
+        kaime_df = kaime_df[kaime_df["オッズ"] != 0]
+        kaime_df = kaime_df.drop_duplicates(subset=["競走コード", "チェック馬番"]).drop("チェック馬番", axis=1)
         return kaime_df
 
     def check_result_kaime(self, kaime_df, result_df):
@@ -137,28 +214,125 @@ class BaseSimulation(object):
         max_return = hit_df["払戻"].max()
         sum_return = hit_df["払戻"].sum()
         avg = round(df["払戻"].mean() , 1)
-        hit_rate = round(hit_count / all_count * 100 , 1)
-        race_hit_rate = round(hit_count / race_count * 100 , 1)
+        hit_rate = round(hit_count / all_count * 100 , 1) if all_count !=0 else 0
+        race_hit_rate = round(hit_count / race_count * 100 , 1) if race_count !=0 else 0
         sr = pd.Series(data=[cond_text, all_count, hit_count, race_count, avg, hit_rate, race_hit_rate, avg_return, std_return, max_return, all_count * 100 , sum_return]
                        , index=["条件", "件数", "的中数", "レース数", "回収率", "的中率", "R的中率", "払戻平均", "払戻偏差", "最大払戻", "購入総額", "払戻総額"])
+        return sr.fillna(0)
+
+    def simulation_tansho(self, cond1):
+        check_df = self.create_tansho_base_df(cond1)
+        cond_text = cond1
+        sr = self.calc_summary(check_df, cond_text)
         return sr
 
-    def simulation_umaren(self, cond1, cond2, filter_odds_low, filter_odds_high):
+    def create_tansho_base_df(self, cond1):
+        self.sim_tansho()
+        df1 = self.raceuma_df.query(cond1)[["競走コード", "馬番"]]
+        kaime_df = self.get_1tou_kaime(df1, self.tansho_df)
+        check_df = pd.merge(kaime_df, self.result_tansho_df, on=["競走コード", "馬番"], how="left").fillna(0)
+        return check_df
+
+    def simulation_fukusho(self, cond1):
+        check_df = self.create_fukusho_base_df(cond1)
+        cond_text = cond1
+        sr = self.calc_summary(check_df, cond_text)
+        return sr
+
+    def create_fukusho_base_df(self, cond1):
+        self.sim_fukusho()
+        df1 = self.raceuma_df.query(cond1)[["競走コード", "馬番"]]
+        kaime_df = self.get_1tou_kaime(df1, self.fukusho_df)
+        check_df = pd.merge(kaime_df, self.result_fukusho_df, on=["競走コード", "馬番"], how="left").fillna(0)
+        return check_df
+
+    def simulation_umaren(self, cond1, cond2):
+        check_df = self.create_umaren_base_df(cond1, cond2)
+        cond_text = "馬1." + cond1 + " AND 馬2." + cond2
+        sr = self.calc_summary(check_df, cond_text)
+        return sr
+
+    def create_umaren_base_df(self, cond1, cond2):
         self.sim_umaren()
         df1 = self.raceuma_df.query(cond1)[["競走コード", "馬番"]]
         df2 = self.raceuma_df.query(cond2)[["競走コード", "馬番"]]
-        umaren_kaime_df = self.get_umaren_kaime(df1, df2)
-        umaren_kaime_df = umaren_kaime_df[(umaren_kaime_df["オッズ"] >= filter_odds_low) & (umaren_kaime_df["オッズ"] <= filter_odds_high)]
-        check_umaren_df = self.check_result_kaime(umaren_kaime_df, self.result_umaren_df)
-        cond_text = "馬1: " + cond1 + " 馬2:" + cond2
-        sr = self.calc_summary(check_umaren_df, cond_text)
+        kaime_df = self.get_2tou_kaime(df1, df2, self.umaren_df)
+        check_df = self.check_result_kaime(kaime_df, self.result_umaren_df)
+        return check_df
+
+    def simulation_wide(self, cond1, cond2):
+        check_df = self.create_wide_base_df(cond1, cond2)
+        cond_text = "馬1." + cond1 + " AND 馬2." + cond2
+        sr = self.calc_summary(check_df, cond_text)
         return sr
 
+    def create_wide_base_df(self, cond1, cond2):
+        self.sim_wide()
+        df1 = self.raceuma_df.query(cond1)[["競走コード", "馬番"]]
+        df2 = self.raceuma_df.query(cond2)[["競走コード", "馬番"]]
+        kaime_df = self.get_2tou_kaime(df1, df2, self.wide_df)
+        check_df = self.check_result_kaime(kaime_df, self.result_wide_df)
+        return check_df
+
+    def simulation_umatan(self, cond1, cond2):
+        check_df = self.create_umatan_base_df(cond1, cond2)
+        cond_text = "馬1." + cond1 + " AND 馬2." + cond2
+        sr = self.calc_summary(check_df, cond_text)
+        return sr
+
+    def create_umatan_base_df(self, cond1, cond2):
+        self.sim_umatan()
+        df1 = self.raceuma_df.query(cond1)[["競走コード", "馬番"]]
+        df2 = self.raceuma_df.query(cond2)[["競走コード", "馬番"]]
+        kaime_df = self.get_2tou_kaime(df1, df2, self.umatan_df, ren=False)
+        check_df = self.check_result_kaime(kaime_df, self.result_umatan_df)
+        return check_df
+
+
+    def simulation_sanrenpuku(self, cond1, cond2, cond3):
+        check_df = self.create_sanrenpuku_base_df(cond1, cond2, cond3)
+        cond_text = "馬1." + cond1 + " AND 馬2." + cond2 + " AND 馬3." + cond3
+        sr = self.calc_summary(check_df, cond_text)
+        return sr
+
+    def create_sanrenpuku_base_df(self, cond1, cond2, cond3):
+        self.sim_sanrenpuku()
+        df1 = self.raceuma_df.query(cond1)[["競走コード", "馬番"]]
+        df2 = self.raceuma_df.query(cond2)[["競走コード", "馬番"]]
+        df3 = self.raceuma_df.query(cond3)[["競走コード", "馬番"]]
+        kaime_df = self.get_3tou_kaime(df1, df2, df3, self.sanrenpuku_df)
+        check_df = self.check_result_kaime(kaime_df, self.result_sanrenpuku_df)
+        return check_df
+
+    def sim_tansho(self):
+        self._set_haraimodoshi_dict()
+        self.result_tansho_df = self.dict_haraimodoshi["tansho_df"]
+        self._set_tansho_df()
+
+    def sim_fukusho(self):
+        self._set_haraimodoshi_dict()
+        self.result_fukusho_df = self.dict_haraimodoshi["fukusho_df"]
+        self._set_fukusho_df()
 
     def sim_umaren(self):
         self._set_haraimodoshi_dict()
         self.result_umaren_df = self.dict_haraimodoshi["umaren_df"]
         self._set_umaren_df()
+
+    def sim_wide(self):
+        self._set_haraimodoshi_dict()
+        self.result_wide_df = self.dict_haraimodoshi["wide_df"]
+        self._set_wide_df()
+
+    def sim_umatan(self):
+        self._set_haraimodoshi_dict()
+        self.result_umatan_df = self.dict_haraimodoshi["umatan_df"]
+        self._set_umatan_df()
+
+    def sim_sanrenpuku(self):
+        self._set_haraimodoshi_dict()
+        self.result_sanrenpuku_df = self.dict_haraimodoshi["sanrenpuku_df"]
+        self._set_sanrenpuku_df()
 
     def _set_haraimodoshi_dict(self):
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)

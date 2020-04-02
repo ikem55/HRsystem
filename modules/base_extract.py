@@ -8,7 +8,7 @@ class BaseExtract(object):
     """
     mock_flag = False
     """ mockデータを使うかの判断に使用するフラグ。Trueの場合はMockデータを使う """
-    mock_path = './mock_data/base/'
+    mock_path = '../mock_data/base/'
     """ mockファイルが格納されているフォルダのパス """
 
     def __init__(self, start_date, end_date, mock_flag):

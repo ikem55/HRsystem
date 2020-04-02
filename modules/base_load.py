@@ -1,6 +1,7 @@
 from modules.base_extract import BaseExtract
 from modules.base_transform import BaseTransform as Tf
 import modules.util as mu
+import my_config as mc
 
 from datetime import datetime as dt
 from datetime import timedelta
@@ -12,7 +13,7 @@ class BaseLoad(object):
     race,raceuma,prev_raceといった塊ごとのデータを作成する。learning_df等の最終データの作成はsk_proc側に任せる
 
     """
-    dict_folder = './for_test_dict/base/'
+    dict_folder = ""
     """ 辞書フォルダのパス """
     mock_flag = False
     """ mockデータを利用する場合はTrueにする """
@@ -28,18 +29,15 @@ class BaseLoad(object):
         self.start_date = start_date
         self.end_date = end_date
         self.mock_flag = mock_flag
-        self._set_folder_path(version_str, test_flag)
+        self.dict_path = mc.return_base_path(test_flag)
+        self._set_folder_path(version_str)
         self.ext = self._get_extract_object(start_date, end_date, mock_flag)
         self.tf = self._get_transform_object(start_date, end_date)
 
-    def _set_folder_path(self, version_str, test_flag):
-        if test_flag:
-            dict_path = 'C:\HRsystem/HRsystem/for_test_'
-        else:
-            dict_path = 'C:\HRsystem\HRsystem/'
-        self.dict_folder = dict_path + 'dict/' + version_str + '/'
+    def _set_folder_path(self, version_str):
+        self.dict_folder = self.dict_path + 'dict/' + version_str + '/'
 
-    def _get_extract_object(self, version_str, start_date, end_date, mock_flag, test_flag):
+    def _get_extract_object(self, start_date, end_date, mock_flag):
         """ 利用するExtクラスを指定する """
         print("-- check! this is BaseLoad class: " + sys._getframe().f_code.co_name)
         ext = BaseExtract(start_date, end_date, mock_flag)

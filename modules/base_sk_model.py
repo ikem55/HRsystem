@@ -1,4 +1,6 @@
 from modules.base_sk_proc import BaseSkProc
+import my_config as mc
+
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
@@ -16,14 +18,16 @@ class BaseSkModel(object):
     """ モデルのバージョン名 """
     model_name = ''
     """ 学習モデルの名前（XGBoostとか）。init時の引数で定義される """
-    model_path = './for_test_model/base/'
+    model_path = ""
     """ モデルデータが格納される親フォルダ。 """
     class_list = ['競走種別コード', '場コード']
     """ 分類軸のリスト。このリスト毎に学習モデルを生成 """
     obj_column_list = ['WIN_FLAG', 'JIKU_FLAG', 'ANA_FLAG']
     """ 説明変数のリスト。このリストの説明変数毎に処理を実施する """
-    ens_folder_path = './for_test_model/base/'
+    ens_folder_path = ""
     """ モデルデータが格納される親フォルダ。 """
+    dict_folder = ""
+    """ 辞書フォルダのパス """
     index_list = ["RACE_KEY", "UMABAN", "NENGAPPI"]
     """ 対象データの主キー。ModeがRaceの場合はRACEにする """
     clfs = [RandomForestClassifier(n_estimators=100, n_jobs=-1, criterion='gini'),
@@ -45,17 +49,15 @@ class BaseSkModel(object):
         self.version_str = version_str
         self.start_date = start_date
         self.end_date = end_date
-        self._set_folder_path(test_flag, mode)
+        self.dict_path = mc.return_base_path(test_flag)
+        self._set_folder_path(mode)
         self.model_folder = self.model_path + model_name + '/'
         self.proc = self._get_skproc_object(version_str, start_date, end_date, model_name, mock_flag, test_flag)
 
-    def _set_folder_path(self, test_flag, mode):
-        if test_flag:
-            dict_path = 'C:\HRsystem/HRsystem/for_test_'
-        else:
-            dict_path = 'C:\HRsystem\HRsystem/'
-        self.model_path = dict_path + 'model/' + self.version_str + '/'
-        self.ens_folder_path = dict_path + 'intermediate/' + self.version_str + '_' + mode + '/'
+    def _set_folder_path(self, mode):
+        self.model_path = self.dict_path + 'model/' + self.version_str + '/'
+        self.dict_folder = self.dict_path + 'dict/' + self.version_str + '/'
+        self.ens_folder_path = self.dict_path + 'intermediate/' + self.version_str + '_' + mode + '/'
 
     def _get_skproc_object(self, version_str, start_date, end_date, model_name, mock_flag, test_flag):
         print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
@@ -70,6 +72,10 @@ class BaseSkModel(object):
         """
         self.start_date = start_date
         self.end_date = end_date
+
+    def set_table_name(self, table_name):
+        """ test用のテーブルをセットする """
+        self.table_name = table_name
 
     def create_learning_data(self):
         """ 学習用データを作成。処理はprocを呼び出す """
@@ -126,12 +132,12 @@ class BaseSkModel(object):
         grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
         date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
         temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
-        grouped_df = self._calc_grouped_data(temp_grouped_df)
+        grouped_df = self.calc_grouped_data(temp_grouped_df)
         import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
         print(import_df)
         self._import_data(import_df)
 
-    def _calc_grouped_data(self, df):
+    def calc_grouped_data(self, df):
         """ 与えられたdataframe(予測値）に対して偏差化とランク化を行ったdataframeを返す
 
         :param dataframe df: dataframe

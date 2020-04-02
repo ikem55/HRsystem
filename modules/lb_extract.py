@@ -6,8 +6,7 @@ class LBExtract(BaseExtract):
     """
     地方競馬に関するデータ抽出処理
     """
-    mock_path = './mock_data/lb/'
-
+    mock_path = '../mock_data/lb/'
 
     def get_race_table_base(self):
         """ レーステーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。

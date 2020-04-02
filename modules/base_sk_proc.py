@@ -1,5 +1,6 @@
 from modules.base_load import BaseLoad
 import modules.util as mu
+import my_config as mc
 
 import pandas as pd
 import os
@@ -7,6 +8,7 @@ import numpy as np
 import pickle
 import json
 import sys
+import shutil
 import category_encoders as ce
 
 from sklearn.model_selection import train_test_split
@@ -23,9 +25,9 @@ class BaseSkProc(object):
     """
     mock_flag = False
     """ mockデータを利用する場合はTrueにする """
-    dict_folder = './for_test_dict/base/'
+    dict_folder = ""
     """ 辞書フォルダのパス """
-    model_path = './for_test_model/base/'
+    model_path = ""
     """ モデルデータが格納される親フォルダ。set_model_pathメソッドを使うことで変更可能。 """
     ens_folder_path = ""
     """ モデルデータが格納される親フォルダ。。SkModelクラスから値をセットする """
@@ -52,20 +54,17 @@ class BaseSkProc(object):
         self.start_date = start_date
         self.end_date = end_date
         self.model_name = model_name
-        self._set_folder_path(version_str, test_flag)
+        self.dict_path = mc.return_base_path(test_flag)
+        self._set_folder_path(version_str)
         self.model_folder = self.model_path + model_name + '/'
         self.ld = self._get_load_object(version_str, start_date, end_date, mock_flag, version_str)
         self.mock_flag = mock_flag
         self.obj_column_list = obj_column_list
 
-    def _set_folder_path(self, version_str, test_flag):
-        if test_flag:
-            dict_path = 'C:\HRsystem/HRsystem/for_test_'
-        else:
-            dict_path = 'C:\HRsystem\HRsystem/'
-        self.dict_folder = dict_path + 'dict/' + version_str + '/'
-        self.model_path = dict_path + 'model/' + version_str + '/'
-        self.ens_folder_path = dict_path + 'model/' + version_str + '/'
+    def _set_folder_path(self, version_str):
+        self.dict_folder = self.dict_path + 'dict/' + version_str + '/'
+        self.model_path = self.dict_path + 'model/' + version_str + '/'
+        self.ens_folder_path = self.dict_path + 'model/' + version_str + '/'
 
     def _get_load_object(self, version_str, start_date, end_date, mock_flag, test_flag):
         print("-- check! this is BaseSkProc class: " + sys._getframe().f_code.co_name)
@@ -285,14 +284,25 @@ class BaseSkProc(object):
     def _learning_raceuma_ens(self, this_model_name):
         print("this_model_name: " + this_model_name)
         self.folder_path = self.ens_folder_path + self.model_name + '/'
-        self._transform_test_df_to_np()
-        self._train_1st_layer(this_model_name)
+        self._clean_folder()
+        if os.path.exists(self.model_folder + 'third/' + this_model_name + '.pickle'):
+            print("-- skip --")
+        else:
+            self._transform_test_df_to_np()
+            self._train_1st_layer(this_model_name)
 
-        first_train, first_test = self._read_npy('first', this_model_name)
-        self._train_2nd_layer(first_train, first_test, this_model_name)
+            first_train, first_test = self._read_npy('first', this_model_name)
+            self._train_2nd_layer(first_train, first_test, this_model_name)
 
-        second_train, second_test = self._read_npy('second', this_model_name)
-        self._train_3rd_layer(second_train, second_test, this_model_name)
+            second_train, second_test = self._read_npy('second', this_model_name)
+            self._train_3rd_layer(second_train, second_test, this_model_name)
+
+    def _clean_folder(self):
+        for folder in ['first/train/', 'first/test/', 'second/train/', 'second/test/', 'third/train/', 'third/test/', 'third/param/']:
+            model_folder = self.folder_path + folder
+            if os.path.exists(model_folder):
+                shutil.rmtree(model_folder)
+            os.makedirs(model_folder)
 
     def _predict_raceuma_ens(self, this_model_name, temp_df):
         print("======= this_model_name: " + this_model_name + " ==========")
@@ -364,8 +374,8 @@ class BaseSkProc(object):
         print("---------------- start train_1st_layer ------------------")
         for clf in self.clfs:
             clf_name = "first/" + str(clf)[1:3] + '_' + this_model_name
-            print(clf_name)
             folder_path = self.folder_path + 'first/'
+            print(clf_name)
             save_clf = self._blend_proba(clf, X_train=self.X_train, y=self.y_train, X_test=self.X_test, save_preds="1", n_splits=3, folder_path=folder_path, this_model_name = this_model_name)
             self._save_learning_model(save_clf, clf_name)
 
@@ -374,8 +384,8 @@ class BaseSkProc(object):
         print("---------------- start train_2nd_layer ------------------")
         for clf in self.clfs:
             clf_name = "second/" + str(clf)[1:3] + '_' + this_model_name
-            print(clf_name)
             folder_path = self.folder_path + 'second/'
+            print(clf_name)
             save_clf = self._blend_proba(clf, X_train=first_train, y=self.y_train, X_test=first_test, save_preds="2", n_splits=3, folder_path=folder_path, this_model_name = this_model_name)
             self._save_learning_model(save_clf, clf_name)
 
@@ -388,6 +398,7 @@ class BaseSkProc(object):
 
         clf_name = "third/" + this_model_name
         folder_path = self.folder_path + 'third/'
+        print(clf_name)
         save_clf = self._blend_proba(clf, X_train=second_train, y=self.y_train, X_test=second_test, save_test_only="3", n_splits=3, folder_path=folder_path, this_model_name = this_model_name)
         self._save_learning_model(save_clf, clf_name)
 

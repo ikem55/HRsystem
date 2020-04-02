@@ -4,6 +4,7 @@ from modules.lb_load import LBLoad
 from modules.lb_sk_model import LBSkModel
 from modules.lb_sk_proc import LBSkProc
 import modules.util as mu
+import my_config as mc
 
 import luigi
 from modules.base_task_learning import End_baoz_learning
@@ -173,10 +174,7 @@ if __name__ == "__main__":
     mode = args[1]
     mock_flag = strtobool(args[2])
     test_flag = strtobool(args[3])
-    if test_flag:
-        dict_path = 'C:\HRsystem\HRsystem/for_test_'
-    else:
-        dict_path = 'C:\HRsystem\HRsystem/'
+    dict_path = mc.return_base_path(test_flag)
     INTERMEDIATE_FOLDER = dict_path + 'intermediate/' + MODEL_VERSION + '_' + args[1] + '/' + MODEL_NAME + '/'
     print("intermediate_folder:" + INTERMEDIATE_FOLDER)
 

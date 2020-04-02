@@ -12,7 +12,6 @@ class LBTransform(BaseTransform):
     """
     地方競馬に関するデータ変換処理をまとめたクラス
     """
-#    dict_folder = '../for_test_dict/lb/'
 
     def __init__(self, start_date, end_date):
         """ LocalBaozExtractオブジェクトを生成してデータを呼び出す準備をする
