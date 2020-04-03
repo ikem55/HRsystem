@@ -21,7 +21,7 @@ class Sub_get_learning_data(luigi.Task):
         # SkModelを読んで学習データを作成する。すべてのデータを作成後、競馬場毎のデータを作成する
         print("----" + __class__.__name__ + ": run")
         slack = OperationSlack()
-        slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") + " start predict job:" + self.skmodel.version_str)
+        slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") + " start Sub_get_learning_data job:" + self.skmodel.version_str)
         with self.output().open("w") as target:
             print("------ learning_dfを作成")
             self.skmodel.create_learning_data()
@@ -41,6 +41,9 @@ class Sub_get_learning_data(luigi.Task):
                     print(filter_df.shape)
                     print(filter_df.dropna().shape)
                     filter_df.to_pickle(self.intermediate_folder + "learning_" + cls_val + "_" + val + ".pkl")
+
+            slack.post_slack_text(
+                dt.now().strftime("%Y/%m/%d %H:%M:%S") + " finish Sub_get_learning_data job:" + self.skmodel.version_str)
             print(__class__.__name__ + " says: task finished".format(task=self.__class__.__name__))
 
     def output(self):
@@ -60,11 +63,15 @@ class Sub_create_feature_select_data(luigi.Task):
     def run(self):
         # 特徴量作成処理を実施。learningの全データ分を取得してSkModel特徴作成処理を実行する
         print("---" + __class__.__name__ + ": run")
+        slack = OperationSlack()
+        slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") + " start Sub_create_feature_select_data job:" + self.skmodel.version_str)
         with self.output().open("w") as target:
             file_name = self.intermediate_folder + "_learning_all.pkl"
             with open(file_name, 'rb') as f:
                 learning_df = pickle.load(f)
                 self.skmodel.create_featrue_select_data(learning_df)
+            slack.post_slack_text(dt.now().strftime(
+                "%Y/%m/%d %H:%M:%S") + " finish Sub_create_feature_select_data job:" + self.skmodel.version_str)
             print(__class__.__name__ + " says: task finished".format(task=self.__class__.__name__))
 
     def output(self):
@@ -87,6 +94,8 @@ class End_baoz_learning(luigi.Task):
     def run(self):
         # 目的変数、場コード毎に学習を実施し、学習モデルを作成して中間フォルダに格納する
         print("---" + __class__.__name__ + ": run")
+        slack = OperationSlack()
+        slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") + " start End_baoz_learning job:" + self.skmodel.version_str)
         self.create_folder()
         with self.output().open("w") as target:
             print("------ 分類軸毎の学習モデルを作成")
@@ -94,23 +103,28 @@ class End_baoz_learning(luigi.Task):
             for cls_val in class_list:
                 print("------ " + cls_val + "毎のデータを抽出して処理を実施")
                 file_name = self.intermediate_folder + cls_val + "_list.pkl"
+                created_model_list = [s for s in os.listdir(self.skmodel.model_folder + 'third/') if cls_val in s]
                 with open(file_name, 'rb') as f:
                     val_list = pickle.load(f)
                     for val in val_list:
                         # 対象の競馬場のデータを取得する
                         print(" cls_val:" + cls_val + " val:" + val)
-                        file_name = self.intermediate_folder + "learning_" + cls_val + "_" + val + ".pkl"
-                        with open(file_name, 'rb') as f:
-                            df = pickle.load(f)
-                            # 学習を実施
-                            check_df = df.dropna()
-                            print(df.shape)
-                            print(check_df.shape)
-                            if not check_df.empty:
-                                self.skmodel.proc_learning_sk_model(df, cls_val, val)
-            slack = OperationSlack()
+                        created_model_list_val = [s for s in created_model_list if val in s]
+                        print(created_model_list_val)
+                        if len(created_model_list_val) == len(self.skmodel.obj_column_list):
+                            print("\r\n ----- skip create model ---- \r\n")
+                        else:
+                            file_name = self.intermediate_folder + "learning_" + cls_val + "_" + val + ".pkl"
+                            with open(file_name, 'rb') as f:
+                                df = pickle.load(f)
+                                # 学習を実施
+                                check_df = df.dropna()
+                                print(df.shape)
+                                print(check_df.shape)
+                                if not check_df.empty:
+                                    self.skmodel.proc_learning_sk_model(df, cls_val, val)
             slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") +
-                " finish predict job:" + self.skmodel.version_str)
+                " finish End_baoz_learning job:" + self.skmodel.version_str)
             print(__class__.__name__ + " says: task finished".format(task=self.__class__.__name__))
 
 

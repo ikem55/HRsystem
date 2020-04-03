@@ -11,7 +11,6 @@ class BaseTransform(object):
     """
 
     def __init__(self, start_date, end_date):
-        print(__class__.__name__)
         self.start_date = start_date
         self.end_date = end_date
 

@@ -44,7 +44,6 @@ class BaseSkModel(object):
     learning_df = ""
 
     def __init__(self, model_name, version_str, start_date, end_date, mock_flag, test_flag, mode):
-        print(__class__.__name__)
         self.model_name = model_name
         self.version_str = version_str
         self.start_date = start_date

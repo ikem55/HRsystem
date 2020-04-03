@@ -120,15 +120,17 @@ class TestBaseTaskLearning(TestBaseCommon):
         class_list = self.skmodel.class_list
         for cls_val in class_list:
             file_name = self.intermediate_folder + cls_val + "_list.pkl"
+            created_model_list = [s for s in os.listdir(self.skmodel.model_folder + 'third/') if cls_val in s]
             with open(file_name, 'rb') as f:
                 val_list = pickle.load(f)
                 tr_list = [s for s in os.listdir(te_p) if cls_val in s]
                 for val in val_list:
-                    # すでにthirdモデルができていればスキップ
-                    model_check = [s for s in model_third_folder if cls_val + '_' + val in s]
-                    if len(model_check) == 0:
+                    created_model_list_val = [s for s in created_model_list if val in s]
+                    print(created_model_list_val)
+                    if len(created_model_list_val) == len(self.skmodel.obj_column_list):
+                        print("-----------------------------\r\n --- skip create learning model -- \r\n")
+                    else:
                         data_file_name = [s for s in tr_list if val in s]
-                        print(data_file_name)
                         with open(self.intermediate_folder + data_file_name[0], 'rb') as f:
                             df = pickle.load(f)
                             # 学習を実施

@@ -50,7 +50,6 @@ class BaseSkProc(object):
     folder_path = ""
 
     def __init__(self, version_str, start_date, end_date, model_name, mock_flag, test_flag, obj_column_list):
-        print(__class__.__name__)
         self.start_date = start_date
         self.end_date = end_date
         self.model_name = model_name
@@ -246,18 +245,24 @@ class BaseSkProc(object):
         :param str target: str
         """
         this_model_name = self.model_name + "_" + cls_val + '_' + val + '_' + target
-        self._set_target_flag(target)
-        df = df.fillna(df.median())
-        df = df.dropna() #SMOTEでNaNがあると処理できないため
-        print(df.shape)
-        if df.empty:
-            print("--------- alert !!! no data")
+        if os.path.exists(self.model_folder + 'third/' + this_model_name + '.pickle'):
+            print("\r\n -- skip create learning model -- \r\n")
         else:
-            self._set_learning_data(df, target)
-            self._divide_learning_data()
-            self._load_learning_target_encoding()
-            self._set_smote_data()
-            self._learning_raceuma_ens(this_model_name)
+            self._set_target_flag(target)
+            df = df.fillna(df.median())
+            df = df.dropna() #SMOTEでNaNがあると処理できないため
+            print(df.shape)
+            if df.empty:
+                print("--------- alert !!! no data")
+            else:
+                self._set_learning_data(df, target)
+                self._divide_learning_data()
+                if self.y_train.sum() == 0:
+                    print("---- wrong data --- skip learning")
+                else:
+                    self._load_learning_target_encoding()
+                    self._set_smote_data()
+                    self._learning_raceuma_ens(this_model_name)
 
     def _load_learning_target_encoding(self):
         """ TargetEncodeを行う。すでに作成済みのエンコーダーから値をセットする  """
@@ -287,17 +292,17 @@ class BaseSkProc(object):
         print("this_model_name: " + this_model_name)
         self.folder_path = self.ens_folder_path + self.model_name + '/'
         self._clean_folder()
-        if os.path.exists(self.model_folder + 'third/' + this_model_name + '.pickle'):
-            print("-- skip --")
-        else:
-            self._transform_test_df_to_np()
-            self._train_1st_layer(this_model_name)
+#        if os.path.exists(self.model_folder + 'third/' + this_model_name + '.pickle'):
+#            print("-- skip --")
+#        else:
+        self._transform_test_df_to_np()
+        self._train_1st_layer(this_model_name)
 
-            first_train, first_test = self._read_npy('first', this_model_name)
-            self._train_2nd_layer(first_train, first_test, this_model_name)
+        first_train, first_test = self._read_npy('first', this_model_name)
+        self._train_2nd_layer(first_train, first_test, this_model_name)
 
-            second_train, second_test = self._read_npy('second', this_model_name)
-            self._train_3rd_layer(second_train, second_test, this_model_name)
+        second_train, second_test = self._read_npy('second', this_model_name)
+        self._train_3rd_layer(second_train, second_test, this_model_name)
 
     def _clean_folder(self):
         for folder in ['first/train/', 'first/test/', 'second/train/', 'second/test/', 'third/train/', 'third/test/', 'third/param/']:

@@ -25,7 +25,6 @@ class BaseLoad(object):
     grouped_raceuma_prev_df = ""
 
     def __init__(self, version_str, start_date, end_date, mock_flag, test_flag):
-        print(__class__.__name__)
         self.start_date = start_date
         self.end_date = end_date
         self.mock_flag = mock_flag
