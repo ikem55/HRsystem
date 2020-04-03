@@ -127,7 +127,7 @@ class BaseSkModel(object):
         return predict_df
 
 
-    def proc_import_data(self, all_df):
+    def create_import_data(self, all_df):
         """ データフレームをアンサンブル化（Vote）して格納 """
         grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
         date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
@@ -135,7 +135,7 @@ class BaseSkModel(object):
         grouped_df = self.calc_grouped_data(temp_grouped_df)
         import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
         print(import_df)
-        self._import_data(import_df)
+        return import_df
 
     def calc_grouped_data(self, df):
         """ 与えられたdataframe(予測値）に対して偏差化とランク化を行ったdataframeを返す
@@ -154,7 +154,7 @@ class BaseSkModel(object):
                               'pred', 'prob', 'predict_std', 'predict_rank', "target", "target_date"]]
         return return_df
 
-    def _import_data(self, df):
+    def import_data(self, df):
         print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
 
     @classmethod

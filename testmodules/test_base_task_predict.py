@@ -77,11 +77,7 @@ class TestBaseTaskPredict(TestBaseCommon):
                     all_pred_df = pd.concat([all_pred_df, pred_df])
                 break
         all_pred_df.dropna(inplace=True)
-        grouped_all_df = all_pred_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
-        date_df = all_pred_df[["RACE_KEY", "target_date"]].drop_duplicates()
-        temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
-        grouped_df = self.skmodel.calc_grouped_data(temp_grouped_df)
-        import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
+        import_df = self.skmodel.create_import_data(all_pred_df)
         # not empty check
         self.assertFalse(len(import_df.index) == 0)
         # 必要な列があるかチェック

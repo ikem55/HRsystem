@@ -1,10 +1,12 @@
 import luigi
 from luigi.mock import MockTarget
+from modules.base_slack import OperationSlack
 
 import os
 import shutil
 import pickle
 from luigi.util import requires
+from datetime import datetime as dt
 
 
 class Sub_get_learning_data(luigi.Task):
@@ -18,6 +20,8 @@ class Sub_get_learning_data(luigi.Task):
     def run(self):
         # SkModelを読んで学習データを作成する。すべてのデータを作成後、競馬場毎のデータを作成する
         print("----" + __class__.__name__ + ": run")
+        slack = OperationSlack()
+        slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") + " start predict job:" + self.skmodel.version_str)
         with self.output().open("w") as target:
             print("------ learning_dfを作成")
             self.skmodel.create_learning_data()
@@ -83,7 +87,7 @@ class End_baoz_learning(luigi.Task):
     def run(self):
         # 目的変数、場コード毎に学習を実施し、学習モデルを作成して中間フォルダに格納する
         print("---" + __class__.__name__ + ": run")
-        self.clean_folder()
+        self.create_folder()
         with self.output().open("w") as target:
             print("------ 分類軸毎の学習モデルを作成")
             class_list = self.skmodel.class_list
@@ -104,19 +108,20 @@ class End_baoz_learning(luigi.Task):
                             print(check_df.shape)
                             if not check_df.empty:
                                 self.skmodel.proc_learning_sk_model(df, cls_val, val)
+            slack = OperationSlack()
+            slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") +
+                " finish predict job:" + self.skmodel.version_str)
             print(__class__.__name__ + " says: task finished".format(task=self.__class__.__name__))
 
 
-    def clean_folder(self):
+    def create_folder(self):
         for folder in ['first/train/', 'first/test/', 'second/train/', 'second/test/', 'third/train/', 'third/test/', 'third/param/']:
-            del_folder = self.intermediate_folder + folder
-            if os.path.exists(del_folder):
-                shutil.rmtree(del_folder)
-            os.makedirs(del_folder)
+            int_folder = self.intermediate_folder + folder
+            if not os.path.exists(int_folder):
+                os.makedirs(int_folder)
             model_folder = self.skmodel.model_folder + folder
-            if os.path.exists(model_folder):
-                shutil.rmtree(model_folder)
-            os.makedirs(model_folder)
+            if not os.path.exists(model_folder):
+                os.makedirs(model_folder)
 
     def output(self):
         # 学習は何度も繰り返せるようにMockのoutputを返す

@@ -16,6 +16,7 @@ class Sub_get_exp_data(luigi.Task):
     end_date = luigi.Parameter()
     skmodel = luigi.Parameter()
     intermediate_folder = luigi.Parameter()
+    export_mode = luigi.Parameter()
 
     def run(self):
         """
@@ -78,7 +79,12 @@ class End_baoz_predict(luigi.Task):
                         pred_df = self.skmodel.proc_predict_sk_model(filter_df, cls_val, val)
                         all_pred_df = pd.concat([all_pred_df, pred_df])
             all_pred_df.dropna(inplace=True)
-            self.skmodel.proc_import_data(all_pred_df)
+            import_df = self.skmodel.create_import_data(all_pred_df)
+            if self.export_mode:
+                print("export data")
+                import_df.to_pickle(self.intermediate_folder + 'export_data.pkl')
+            else:
+                self.skmodel.import_data(import_df)
             slack = OperationSlack()
             slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") +
                 " finish predict job:" + self.skmodel.version_str)

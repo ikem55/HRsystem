@@ -37,7 +37,7 @@ class LBSkModel(BaseSkModel):
         proc = LBSkProc(version_str, start_date, end_date, model_name, mock_flag, test_flag, self.obj_column_list)
         return proc
 
-    def _import_data(self, df):
+    def import_data(self, df):
         """ 計算した予測値のdataframeを地方競馬DBに格納する
 
         :param dataframe df: dataframe

@@ -575,7 +575,7 @@ if __name__ == "__main__":
             sk_model.set_table_name(table_name)
 
         luigi.build([End_baoz_predict(start_date=start_date, end_date=end_date, skmodel=sk_model,
-                                      intermediate_folder=INTERMEDIATE_FOLDER)], local_scheduler=True)
+                                      intermediate_folder=INTERMEDIATE_FOLDER)], local_scheduler=True, export_mode=False)
 
     else:
         print("error")

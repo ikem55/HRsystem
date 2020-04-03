@@ -37,14 +37,11 @@ class TestBaseCommon(unittest.TestCase):
         contain_check = not_contain_columns_set.isdisjoint(all_columns_set)
         return contain_check
 
-
-    def clean_folder(self):
+    def create_folder(self):
         for folder in ['first/train/', 'first/test/', 'second/train/', 'second/test/', 'third/train/', 'third/test/', 'third/param/']:
-            del_folder = self.intermediate_folder + folder
-            if os.path.exists(del_folder):
-                shutil.rmtree(del_folder)
-            os.makedirs(del_folder)
+            int_folder = self.intermediate_folder + folder
+            if not os.path.exists(int_folder):
+                os.makedirs(int_folder)
             model_folder = self.skmodel.model_folder + folder
-            if os.path.exists(model_folder):
-                shutil.rmtree(model_folder)
-            os.makedirs(model_folder)
+            if not os.path.exists(model_folder):
+                os.makedirs(model_folder)

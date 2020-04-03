@@ -175,10 +175,7 @@ class BaseSkProc(object):
         """
         df = df.drop(self.index_list, axis=1)
         self.y_df = df[target_column].copy()
-        print(self.obj_column_list)
         self.x_df = df.drop(self.obj_column_list, axis=1).copy()
-        print(self.x_df.shape)
-        print(self.y_df.shape)
         self._set_label_list(self.x_df)
 
 
@@ -193,10 +190,10 @@ class BaseSkProc(object):
         """ 学習データをtrainとtestに分ける。オブジェクトのx_df,y_dfからX_train,X_test,y_train,y_testに分けてセットする """
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.x_df, self.y_df, test_size=0.25, random_state=None)
-        print("obj data check: y_train")
-        print(self.y_train.value_counts())
-        print("obj data check: y_test")
-        print(self.y_test.value_counts())
+        #print("obj data check: y_train")
+        #print(self.y_train.value_counts())
+        #print("obj data check: y_test")
+        #print(self.y_test.value_counts())
 
     def _create_learning_target_encoding(self):
         """ TargetEncodeの計算を行い、計算結果のエンコード値をセットする """
@@ -270,12 +267,17 @@ class BaseSkProc(object):
     def _set_smote_data(self):
         """ 学習データのSMOTE処理を行い学習データを更新する  """
         # 対象数が少ない場合はサンプリングレートを下げる
-        if self.y_train[self.y_train == 1].shape[0] >= 6:
+        positive_count_train = self.y_train.sum()
+        negative_count_train = len(self.y_train) - positive_count_train
+        print("check y_train value 0:" + str(negative_count_train) + " 1:" + str(positive_count_train))
+        if positive_count_train >= 6:
             smote = BorderlineSMOTE()
             self.X_train, self.y_train = smote.fit_sample(self.X_train, self.y_train)
         else:
+            print("----- RandomOverSampler ----- ")
             ros = RandomOverSampler(
-                ratio={1: self.X_train.shape[0], 0: self.X_train.shape[0] // 3}, random_state=71)
+                # ratio={1: self.X_train.shape[0], 0: self.X_train.shape[0] // 3}, random_state=71)
+                ratio={1: negative_count_train, 0: negative_count_train}, random_state=71)
             # 学習用データに反映
             self.X_train, self.y_train = ros.fit_sample(self.X_train, self.y_train)
         print("-- after sampling: " + str(np.unique(self.y_train, return_counts=True)))

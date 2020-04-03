@@ -113,7 +113,8 @@ class TestBaseTaskLearning(TestBaseCommon):
     def test_21_proc_learning_sk_model(self):
         """ 学習モデルの作成が問題なくできることを確認。test_02の結果を使いたい"""
         print("--  " + sys._getframe().f_code.co_name + " start --")
-        self.clean_folder()
+        ### 途中から実行できるようにしたいがファイル処理を考えないといけない。
+        self.create_folder()
         te_p = self.intermediate_folder
         model_third_folder = self.skmodel.ens_folder_path + self.model_name +'/third/'
         class_list = self.skmodel.class_list
@@ -127,6 +128,7 @@ class TestBaseTaskLearning(TestBaseCommon):
                     model_check = [s for s in model_third_folder if cls_val + '_' + val in s]
                     if len(model_check) == 0:
                         data_file_name = [s for s in tr_list if val in s]
+                        print(data_file_name)
                         with open(self.intermediate_folder + data_file_name[0], 'rb') as f:
                             df = pickle.load(f)
                             # 学習を実施
