@@ -112,13 +112,15 @@ class BaseSkModel(object):
         :param dataframe df: dataframe
         :param str basho: str
         """
-        if not df.empty:
+        if len(df.index) >= 30:
             print("----- アンサンブル学習用のクラスをセット -----")
             self.proc.set_ensemble_params(self.clfs, self.index_list, self.ens_folder_path)
             print(df.shape)
             for target in self.obj_column_list:
                 print(target)
                 self.proc.learning_sk_model(df, cls_val, val, target)
+        else:
+            print("---- 少数レコードのため学習スキップ -- " + str(len(df.index)))
 
     def create_predict_data(self):
         """ 予測用データを作成。処理はprocを呼び出す """

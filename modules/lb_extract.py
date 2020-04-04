@@ -227,6 +227,23 @@ class LBExtract(BaseExtract):
                 {'target': object, 'target_date': object})
         return df
 
+    def create_mydb_table(self, table_name):
+        """ mydbに予測データを作成する """
+        cnxn = self._connect_baoz_my_mdb()
+        create_table_sql = 'CREATE TABLE ' + table_name + ' (' \
+            '競走コード DOUBLE, 馬番 BYTE, 予測フラグ SINGLE, 予測値 SINGLE, ' \
+            '予測値偏差 SINGLE, 予測値順位 BYTE, target VARCHAR(255), target_date VARCHAR(255),' \
+            ' PRIMARY KEY(競走コード, 馬番, target));'
+        crsr = cnxn.cursor()
+        table_list = []
+        for talble_info in crsr.tables(tableType='TABLE'):
+            table_list.append(talble_info.table_name)
+        print(table_list)
+        if not table_name in table_list:
+            print(create_table_sql)
+            crsr.execute(create_table_sql)
+            crsr.commit()
+
 
     def _connect_baoz_mdb(self):
         """ BaoZ.mdbとの接続をする。レースT,残高Tとの接続に使用

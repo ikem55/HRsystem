@@ -45,7 +45,7 @@ class Ext(LBExtract):
 
 class Tf(LBTransform):
     def create_feature_race_df(self, race_df):
-        """ 特徴となる値を作成する。月日→月、距離→根幹、距離グループを作成して列として付与する。
+        """ 特徴となる値を作成する。ナイター、季節、非根幹、距離グループ、頭数グループ、コースを作成して列として付与する。
 
         :param dataframe race_df:
         :return: dataframe
@@ -61,7 +61,7 @@ class Tf(LBTransform):
         return temp_race_df
 
     def choose_race_result_column(self, race_df):
-        """ レースデータから必要な列に絞り込む。列はデータ区分、主催者コード、競走コード、月日、距離、場コード、頭数、予想勝ち指数、予想決着指数, 競走種別コード
+        """ レースデータから必要な列に絞り込む。列は'主催者コード', '発走時刻', '月日', '競走コード', '距離', '場コード', '頭数', 'ペース', 'トラックコード', '後３ハロン'
 
         :param dataframe race_df:
         :return: dataframe
@@ -71,7 +71,7 @@ class Tf(LBTransform):
         return temp_race_df
 
     def create_feature_race_result_df(self, race_df, race_winner_df):
-        """  race_ddfのデータから特徴量を作成して列を追加する。月日→月、距離→非根幹、距離グループを作成
+        """  race_dfの結果データから特徴量を作成して列を追加する。どのような馬が勝ったか（逃げ、内、外、短縮延長、人気等）を作成
 
         :param dataframe race_df:
         :return: dataframe
