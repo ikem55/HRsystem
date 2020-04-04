@@ -5,6 +5,7 @@ from scripts.lb_v2 import SkModel as LBv2SkModel
 from scripts.lb_v3 import SkModel as LBv3SkModel
 
 class TestLBTaskLearning(TestBaseTaskLearning):
+    clean_flag = True
 
     def setUp(self):
         """ テスト実施前に必要な処理を記載する。呼び出しクラスやフォルダの指定等 """
@@ -18,6 +19,7 @@ class TestLBTaskLearning(TestBaseTaskLearning):
 
 
 class TestLBv1TaskLearning(TestBaseTaskLearning):
+    clean_flag = True
 
     def setUp(self):
         """ テスト実施前に必要な処理を記載する。呼び出しクラスやフォルダの指定等 """
@@ -30,6 +32,7 @@ class TestLBv1TaskLearning(TestBaseTaskLearning):
         self._proc_check_folder()
 
 class TestLBv2TaskLearning(TestBaseTaskLearning):
+    clean_flag = True
 
     def setUp(self):
         """ テスト実施前に必要な処理を記載する。呼び出しクラスやフォルダの指定等 """
@@ -42,7 +45,7 @@ class TestLBv2TaskLearning(TestBaseTaskLearning):
         self._proc_check_folder()
 
 class TestLBv3TaskLearning(TestBaseTaskLearning):
-    clean_flag = False
+    clean_flag = True
 
     def setUp(self):
         """ テスト実施前に必要な処理を記載する。呼び出しクラスやフォルダの指定等 """

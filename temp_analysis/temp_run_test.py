@@ -2,16 +2,17 @@ from testmodules.test_lb_task_learning import TestLBv1TaskLearning, TestLBv2Task
 from testmodules.test_lb_task_predict import TestLBv1TaskPredict, TestLBv2TaskPredict, TestLBv3TaskPredict
 import unittest
 
+
+class TempTestLBv3TaskPredict(TestLBv3TaskPredict):
+  clean_flag = True
+
 def suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestLBv1TaskLearning))
-  suite.addTest(unittest.makeSuite(TestLBv1TaskPredict))
-  suite.addTest(unittest.makeSuite(TestLBv2TaskLearning))
-  suite.addTest(unittest.makeSuite(TestLBv2TaskPredict))
-  suite.addTest(unittest.makeSuite(TestLBv3TaskLearning))
-  suite.addTest(unittest.makeSuite(TestLBv3TaskPredict))
+  suite.addTest(unittest.makeSuite(TempTestLBv3TaskPredict))
   return suite
 
+## 部分的なテストを実施するときに利用
+# 上のクラスでテンポラリクラスを作ってclean_flagを設定
 
 if __name__ == '__main__':
   runner = unittest.TextTestRunner()
