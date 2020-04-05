@@ -49,5 +49,6 @@ if export_mode:
                               intermediate_folder=intermediate_folder, export_mode=True)], local_scheduler=True)
 else:
     print("import mode")
-    import_df = pickle.load(intermediate_folder + 'export_data.pkl')
-    sk_model.import_data(import_df)
+    with open(intermediate_folder + 'export_data.pkl', 'rb') as f:
+        import_df = pickle.load(f)
+        sk_model.import_data(import_df)

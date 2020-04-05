@@ -1,5 +1,6 @@
 from modules.base_extract import BaseExtract
 import pandas as pd
+import numpy as np
 import pyodbc
 
 class LBExtract(BaseExtract):
@@ -7,6 +8,7 @@ class LBExtract(BaseExtract):
     地方競馬に関するデータ抽出処理
     """
     mock_path = '../mock_data/lb/'
+    row_cnt = 1000
 
     def get_race_table_base(self):
         """ レーステーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
@@ -26,6 +28,22 @@ class LBExtract(BaseExtract):
                                 '天候コード': object, '馬場状態コード': object, '投票フラグ': object, '波乱度': object, '馬券発売フラグ': object, '予想計算状況フラグ': object})
         return_df = df[df["主催者コード"] == 2].copy()
         return return_df
+
+    def _get_cur_data(self, cnxn, select_sql):
+        ### カーソル処理したときにデータ型をうまく読み込めない。。。
+        cur = cnxn.cursor()
+        cur.execute(select_sql)
+        db_columns = [column[0] for column in cur.description]
+        print(cur.description)
+        db_types = [column[1] for column in cur.description]
+        print(db_types)
+        rows = cur.fetchmany(self.row_cnt)
+        while len(rows) > 0:
+            df_org = pd.DataFrame(np.array(rows))
+            rows = cur.fetchmany(self.row_cnt)
+        cur.close()
+        df_org.columns = db_columns
+        return df_org.copy()
 
     def get_race_before_table_base(self):
         temp_df = self.get_race_table_base()
