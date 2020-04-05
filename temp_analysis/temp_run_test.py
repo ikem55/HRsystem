@@ -3,12 +3,12 @@ from testmodules.test_lb_task_predict import TestLBv1TaskPredict, TestLBv2TaskPr
 import unittest
 
 
-class TempTestLBv3TaskPredict(TestLBv3TaskPredict):
+class TempTest1(TestLBv1TaskLearning):
   clean_flag = True
 
 def suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TempTestLBv3TaskPredict))
+  suite.addTest(unittest.makeSuite(TempTest1))
   return suite
 
 ## 部分的なテストを実施するときに利用

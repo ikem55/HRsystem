@@ -21,6 +21,7 @@ class LBExtract(BaseExtract):
                          ', 後３ハロン, 後４ハロン, トラックコード,  馬場状態コード, 前半タイム, 予想計算済み, 予想勝ち指数, ペース, 初出走頭数, 混合, 予想決着指数, 投票フラグ, 波乱度, 馬券発売フラグ, 予想計算状況フラグ, メインレース, タイム指数誤差, 登録頭数, 回次, 日次 FROM レースT WHERE 月日 >= #' + \
                 self.start_date + '# AND 月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.astype({'トラック種別コード': object, '主催者コード': object, '場コード': object, '競走種別コード': object, '競走条件コード': object, 'トラックコード': object,
                                 '天候コード': object, '馬場状態コード': object, '投票フラグ': object, '波乱度': object, '馬券発売フラグ': object, '予想計算状況フラグ': object})
         return_df = df[df["主催者コード"] == 2].copy()
@@ -44,6 +45,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT * FROM 出走馬T WHERE 年月日 >= #' + \
                 self.start_date + '# AND 年月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             race_df = self.get_race_table_base()["競走コード"]
             temp_df = pd.merge(df_org, race_df, on="競走コード")
             df = temp_df.astype({'血統登録番号': object, '性別コード': object, '展開コード': object, '騎手コード': object, '騎手所属場コード': object,
@@ -69,6 +71,7 @@ class LBExtract(BaseExtract):
             cnxn = self._connect_baoz_ra_mdb()
             select_sql = 'SELECT * FROM 競走馬マスタ WHERE データ作成年月日 >= #2016/01/01#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.astype({'血統登録番号': object, '競走馬抹消区分': object, 'JRA施設在厩フラグ': object, '馬記号コード': object, '性別コード': object, '毛色コード': object, '繁殖登録番号1': object, '繁殖登録番号2': object, '繁殖登録番号3': object, '繁殖登録番号4': object, '繁殖登録番号5': object, '繁殖登録番号6': object,
                                 '繁殖登録番号7': object, '繁殖登録番号8': object, '繁殖登録番号9': object, '繁殖登録番号10': object, '繁殖登録番号11': object, '繁殖登録番号12': object, '繁殖登録番号13': object, '繁殖登録番号14': object, '東西所属コード': object, '調教師コード': object, '生産者コード': object, '馬主コード': object})
         return df
@@ -86,6 +89,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT * FROM 投票記録T WHERE 日付 >= #' + \
                 self.start_date + '# AND 日付 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.astype(
                 {'式別': object, 'レース種別': object, 'PAT_ID': object, '投票方法': object})
         return df
@@ -103,6 +107,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT * FROM 払戻T WHERE データ作成年月日 >= #' + \
                 self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.astype({'不成立フラグ': object, '特払フラグ': object, '返還フラグ': object, '返還馬番情報': object, '返還枠番情報': object, '返還同枠情報': object, '単勝馬番1': object, '単勝馬番2': object, '単勝馬番3': object, '複勝馬番1': object, '複勝馬番2': object, '複勝馬番3': object, '複勝馬番4': object, '複勝馬番5': object, '枠連連番1': object, '枠連連番2': object, '枠連連番3': object, '馬連連番1': object, '馬連連番2': object, '馬連連番3': object, 'ワイド連番1': object, 'ワイド連番2': object,
                                 'ワイド連番3': object, 'ワイド連番4': object, 'ワイド連番5': object, 'ワイド連番6': object, 'ワイド連番7': object, '枠単連番1': object, '枠単連番2': object, '枠単連番3': object, '馬単連番1': object, '馬単連番2': object, '馬単連番3': object, '馬単連番4': object, '馬単連番5': object, '馬単連番6': object, '三連複連番1': object, '三連複連番2': object, '三連複連番3': object, '三連単連番1': object, '三連単連番2': object, '三連単連番3': object, '三連単連番4': object, '三連単連番5': object, '三連単連番6': object})
         return df
@@ -118,6 +123,7 @@ class LBExtract(BaseExtract):
             cnxn = self._connect_baoz_mdb()
             select_sql = 'SELECT * FROM 残高T'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.astype({'主催者コード': object})
         return df
 
@@ -133,6 +139,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 単勝全オッズ, 単勝票数合計 FROM 単複枠オッズT WHERE データ作成年月日 >= #' + \
                 self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.rename(columns={'単勝全オッズ':'全オッズ', '単勝票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})# (オッズ4桁999.9倍で設定)*繰り返し28、データ区分　2: 前日売最終 4:確定 5:確定(月曜) 9:レース中止 10:該当レコード削除(提供ミスなどの理由による)
         return df
 
@@ -148,6 +155,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 複勝全オッズ, 複勝票数合計 FROM 単複枠オッズT WHERE データ作成年月日 >= #' + \
                 self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.rename(columns={'複勝全オッズ':'全オッズ', '複勝票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})# (最低オッズ4桁999.9倍で設定・最高オッズ4桁)*繰り返し28
         return df
 
@@ -163,6 +171,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 馬連全オッズ, 馬連票数合計 FROM 馬連オッズT WHERE データ作成年月日 >= #' + \
                 self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.rename(columns={'馬連全オッズ':'全オッズ', '馬連票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})# (オッズ6桁99999.9倍で設定)*繰り返し153(18!)
         return df
 
@@ -178,6 +187,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 馬単全オッズ, 馬単票数合計 FROM 馬単オッズT WHERE データ作成年月日 >= #' + \
                 self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.rename(columns={'馬単全オッズ':'全オッズ', '馬単票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})
         return df
 
@@ -193,6 +203,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, ワイド全オッズ, ワイド票数合計 FROM ワイドオッズT WHERE データ作成年月日 >= #' + \
                 self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.rename(columns={'ワイド全オッズ':'全オッズ', 'ワイド票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})#(連番4桁・最低オッズ5桁9999.9倍で設定・最高オッズ5桁・人気3桁)*繰り返し153
         return df
 
@@ -208,6 +219,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT データ区分, データ作成年月日, 競走コード, 登録頭数, 三連複全オッズ, 三連複票数合計 FROM 三連複オッズNT WHERE データ作成年月日 >= #' + \
                 self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.rename(columns={'三連複全オッズ':'全オッズ', '三連複票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})#(オッズ6桁99999.9倍で設定)*繰り返し816
         return df
 
@@ -223,6 +235,7 @@ class LBExtract(BaseExtract):
             select_sql = 'SELECT * FROM 地方競馬レース馬V1 WHERE target_date >= #' + \
                 self.start_date + '# AND target_date <= #' + self.end_date + '#'
             df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
             df = df_org.astype(
                 {'target': object, 'target_date': object})
         return df
@@ -243,6 +256,8 @@ class LBExtract(BaseExtract):
             print(create_table_sql)
             crsr.execute(create_table_sql)
             crsr.commit()
+        crsr.close()
+        cnxn.close()
 
 
     def _connect_baoz_mdb(self):
