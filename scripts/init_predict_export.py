@@ -46,7 +46,7 @@ else:
 
 if export_mode:
     luigi.build([End_baoz_predict(start_date=start_date, end_date=end_date, skmodel=sk_model,
-                              intermediate_folder=intermediate_folder)], local_scheduler=True, export_mode=True)
+                              intermediate_folder=intermediate_folder, export_mode=True)], local_scheduler=True)
 else:
     print("import mode")
     import_df = pickle.load(intermediate_folder + 'export_data.pkl')
