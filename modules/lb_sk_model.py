@@ -53,7 +53,7 @@ class LBSkModel(BaseSkModel):
                 f"INSERT INTO " + self.table_name + " (競走コード, 馬番, 予測フラグ, 予測値, 予測値偏差, 予測値順位, target, target_date) VALUES (?,?,?,?,?,?,?,?)",
                 target_df.itertuples(index=False)
             )
-        cnxn.commit()
+            cnxn.commit()
 
     @classmethod
     def get_recent_day(cls, start_date):

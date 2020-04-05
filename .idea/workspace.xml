@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b2e0255a-230f-461b-8a6e-df31a58a59ad" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/lb_extract.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/lb_extract.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/init_predict_export.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/init_predict_export.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/lb_sk_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/lb_sk_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp_analysis/calc_rate_score.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp_analysis/calc_rate_score.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -14,7 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5">
+    <splitter split-orientation="horizontal" split-proportion="0.64526314">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="lb_extract.py" pinned="false" current-in-tab="false">
@@ -32,17 +31,38 @@
           <file leaf-file-name="my_config.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/my_config.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="374">
-                  <caret line="22" column="35" selection-start-line="22" selection-start-column="35" selection-end-line="22" selection-end-column="35" />
+                <state relative-caret-position="289">
+                  <caret line="17" column="17" lean-forward="true" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="init_predict_export.py" pinned="false" current-in-tab="true">
+          <file leaf-file-name="init_predict_export.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/scripts/init_predict_export.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="714">
-                  <caret line="53" column="4" selection-start-line="53" selection-start-column="4" selection-end-line="53" selection-end-column="4" />
+                <state relative-caret-position="627">
+                  <caret line="53" column="23" lean-forward="true" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="lb_sk_model.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/modules/lb_sk_model.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="675">
+                  <caret line="55" column="12" selection-start-line="55" selection-start-column="12" selection-end-line="55" selection-end-column="12" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="calc_rate_score.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/temp_analysis/calc_rate_score.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="433">
+                  <caret line="49" column="29" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
+                  <folding>
+                    <element signature="e#0#40#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -111,8 +131,8 @@
           <file leaf-file-name="util.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/modules/util.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="34">
-                  <caret line="46" column="4" selection-start-line="46" selection-start-column="4" selection-end-line="46" selection-end-column="4" />
+                <state relative-caret-position="248">
+                  <caret line="92" selection-start-line="91" selection-end-line="92" />
                 </state>
               </provider>
             </entry>
@@ -130,7 +150,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>create_feature_raceuma_df</find>
       <find>create_base_df_feature</find>
       <find>scale_df</find>
       <find>距離</find>
@@ -160,6 +179,7 @@
       <find>_connect_baoz_ra_mdb</find>
       <find>load</find>
       <find>cursor</find>
+      <find>予測値偏差</find>
     </findStrings>
     <replaceStrings>
       <replace>self.Tf</replace>
@@ -171,6 +191,7 @@
       <replace>-- check! this is LBLoad class:</replace>
       <replace>C:\HRsystem\HRsystem/</replace>
       <replace>lb_v3</replace>
+      <replace>predict_std</replace>
     </replaceStrings>
     <dirStrings>
       <dir>C:\Users\ikem5\Dropbox\python\HRsystem\modules</dir>
@@ -200,7 +221,6 @@
         <option value="$PROJECT_DIR$/modules/base_simulation.py" />
         <option value="$PROJECT_DIR$/modules/base_slack.py" />
         <option value="$PROJECT_DIR$/tests/test_base_task_learning.py" />
-        <option value="$PROJECT_DIR$/modules/lb_sk_model.py" />
         <option value="$PROJECT_DIR$/modules/lb_sk_proc.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/testmodules/test_base_common.py" />
@@ -209,7 +229,6 @@
         <option value="$PROJECT_DIR$/modules/base_load.py" />
         <option value="$PROJECT_DIR$/modules/base_transform.py" />
         <option value="$PROJECT_DIR$/modules/base_task_learning.py" />
-        <option value="$PROJECT_DIR$/temp_analysis/calc_rate_score.py" />
         <option value="$PROJECT_DIR$/scripts/slack_real_report.py" />
         <option value="$PROJECT_DIR$/modules/lb_load.py" />
         <option value="$PROJECT_DIR$/modules/base_sk_proc.py" />
@@ -227,13 +246,15 @@
         <option value="$PROJECT_DIR$/modules/lb_transform.py" />
         <option value="$PROJECT_DIR$/modules/lb_extract.py" />
         <option value="$PROJECT_DIR$/scripts/init_predict_export.py" />
+        <option value="$PROJECT_DIR$/temp_analysis/calc_rate_score.py" />
+        <option value="$PROJECT_DIR$/modules/lb_sk_model.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="678" />
+    <option name="x" value="1021" />
     <option name="y" value="106" />
-    <option name="width" value="2723" />
+    <option name="width" value="2378" />
     <option name="height" value="1905" />
   </component>
   <component name="ProjectView">
@@ -301,7 +322,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.temp_run_test">
+  <component name="RunManager" selected="Python.calc_rate_score">
     <configuration name="calc_rate_score" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="HRsystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -416,10 +437,10 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.calc_rate_score" />
         <item itemvalue="Python.temp_run_test" />
         <item itemvalue="Python.run_test" />
         <item itemvalue="Python.slack_real_report" />
-        <item itemvalue="Python.calc_rate_score" />
         <item itemvalue="Python tests.py.test for test_base_task_learning.TestBaseTaskLearning.test_21_proc_learning_sk_model" />
       </list>
     </recent_temporary>
@@ -443,15 +464,15 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="452" y="71" width="1815" height="1270" extended-state="0" />
+    <frame x="681" y="71" width="1585" height="1270" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10771793" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20814767" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="8" weight="0.20689656" />
-      <window_info anchor="right" id="Run" order="3" visible="true" weight="0.29094946" />
+      <window_info active="true" anchor="bottom" id="Run" order="10" visible="true" weight="0.29040623" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="9" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -601,13 +622,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/lb_sk_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="46" column="62" lean-forward="true" selection-start-line="46" selection-start-column="62" selection-end-line="46" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/base_qlearning.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3842">
@@ -668,13 +682,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3638">
           <caret line="219" column="8" selection-start-line="219" selection-start-column="8" selection-end-line="219" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/temp_analysis/calc_rate_score.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="963">
-          <caret line="182" column="59" selection-start-line="182" selection-start-column="59" selection-end-line="182" selection-end-column="59" />
         </state>
       </provider>
     </entry>
@@ -861,13 +868,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/my_config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="35" selection-start-line="22" selection-start-column="35" selection-end-line="22" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/base_transform.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="868">
@@ -877,15 +877,39 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/util.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="46" column="4" selection-start-line="46" selection-start-column="4" selection-end-line="46" selection-end-column="4" />
+        <state relative-caret-position="248">
+          <caret line="92" selection-start-line="91" selection-end-line="92" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="17" column="17" lean-forward="true" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/temp_analysis/calc_rate_score.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="433">
+          <caret line="49" column="29" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/init_predict_export.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="714">
-          <caret line="53" column="4" selection-start-line="53" selection-start-column="4" selection-end-line="53" selection-end-column="4" />
+        <state relative-caret-position="627">
+          <caret line="53" column="23" lean-forward="true" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/lb_sk_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="55" column="12" selection-start-line="55" selection-start-column="12" selection-end-line="55" selection-end-column="12" />
         </state>
       </provider>
     </entry>
