@@ -51,9 +51,9 @@ def sim_rate(df1, df2, df3, result_df):
     merge_df = pd.merge(merge_df, df3, on =["競走コード", "馬番"])
     merge_df = pd.merge(merge_df, result_df, on =["競走コード", "馬番"])
     iter_range = 5
-    lb_v1_rate = range(0, 101, iter_range)
-    lb_v2_rate = range(0, 101, iter_range)
-    lb_v3_rate = range(0, 101, iter_range)
+    lb_v1_rate = range(5, 101, iter_range)
+    lb_v2_rate = range(5, 101, iter_range)
+    lb_v3_rate = range(5, 101, iter_range)
 
     lb_v1_list = []
     lb_v2_list = []
@@ -74,7 +74,7 @@ def sim_rate(df1, df2, df3, result_df):
                     merge_df["配分値"] = merge_df["偏差v1"] * v1 / 100 + merge_df["偏差v2"] * v2 / 100 + merge_df["偏差v3"] * v3 / 100
                     grouped = merge_df.groupby("競走コード")
                     merge_df["順位"] = grouped['配分値'].rank("dense", ascending=False)
-                    target_df = merge_df[merge_df["順位"] <= 2].copy()
+                    target_df = merge_df[merge_df["順位"] == 1].copy()
                     cnt_list.append(len(target_df))
                     lb_v1_list.append(v1)
                     lb_v2_list.append(v2)
@@ -92,12 +92,12 @@ def sim_rate(df1, df2, df3, result_df):
         columns=['count', 'v1_rate', 'v2_rate', 'v3_rate', 'av_win', 'av_ren', 'av_fuku', 'tan_return', 'fuku_return']
     )
     score_df.loc[:, 'tan_return_rank'] = score_df['tan_return'].rank(ascending=False)
-    score_df.loc[:, 'fuku_return_rank'] = score_df['tan_return'].rank(ascending=False)
+    score_df.loc[:, 'fuku_return_rank'] = score_df['fuku_return'].rank(ascending=False)
     score_df.loc[:, 'av_win_rank'] = score_df['av_win'].rank(ascending=False)
     score_df.loc[:, 'av_ren_rank'] = score_df['av_ren'].rank(ascending=False)
     score_df.loc[:, 'av_fuku_rank'] = score_df['av_fuku'].rank(ascending=False)
-    score_df.loc[:, 'win_rank'] = score_df['tan_return_rank'] + score_df['av_win_rank']
-    score_df.loc[:, 'jiku_rank'] = score_df['fuku_return_rank'] + score_df['av_ren_rank']
+    score_df.loc[:, 'win_rank'] = score_df['tan_return_rank']# + score_df['av_win_rank']
+    score_df.loc[:, 'jiku_rank'] = score_df['fuku_return_rank']# + score_df['av_ren_rank']
     score_df.loc[:, 'ana_rank'] = score_df['tan_return_rank'] + score_df['fuku_return_rank']
     return score_df
 
@@ -107,9 +107,9 @@ def sim_rate_umaren(df1, df2, df3, result_df, pair_df, umaren_df):
     merge_df = pd.merge(merge_df, df3, on =["競走コード", "馬番"])
     merge_df = pd.merge(merge_df, result_df, on =["競走コード", "馬番"])
     iter_range = 5
-    lb_v1_rate = range(0, 101, iter_range)
-    lb_v2_rate = range(0, 101, iter_range)
-    lb_v3_rate = range(0, 101, iter_range)
+    lb_v1_rate = range(5, 101, iter_range)
+    lb_v2_rate = range(5, 101, iter_range)
+    lb_v3_rate = range(5, 101, iter_range)
 
     lb_v1_list = []
     lb_v2_list = []
@@ -129,7 +129,7 @@ def sim_rate_umaren(df1, df2, df3, result_df, pair_df, umaren_df):
                     merge_df["配分値"] = merge_df["偏差v1"] * v1 / 100 + merge_df["偏差v2"] * v2 / 100 + merge_df["偏差v3"] * v3 / 100
                     grouped = merge_df.groupby("競走コード")
                     merge_df["順位"] = grouped['配分値'].rank("dense", ascending=False)
-                    candidate_df = merge_df[merge_df["順位"] <= 2].copy()
+                    candidate_df = merge_df[merge_df["順位"] == 1].copy()
                     target_df = pd.merge(candidate_df, pair_df, on ="競走コード").fillna(0)
                     target_df = pd.merge(target_df, umaren_df , on ="競走コード", how="left").fillna(0)
                     target_df["削除フラグ"] = target_df.apply(lambda x: 1 if x["馬番_x"] == x["馬番_y"] else 0, axis=1)
@@ -157,7 +157,7 @@ def sim_rate_umaren(df1, df2, df3, result_df, pair_df, umaren_df):
     score_df.loc[:, 'fuku_return_rank'] = score_df['tan_return'].rank(ascending=False)
     score_df.loc[:, 'umaren_return_rank'] = score_df['umaren_return'].rank(ascending=False)
     score_df.loc[:, 'umaren_hit_rank'] = score_df['umaren_hit'].rank(ascending=False)
-    score_df.loc[:, 'ana_rank'] = score_df['umaren_return_rank'] + score_df['umaren_hit_rank']
+    score_df.loc[:, 'ana_rank'] = score_df['umaren_return_rank']# + score_df['umaren_hit_rank']
     return score_df
 
 
@@ -207,5 +207,5 @@ ana_rate = score_ana_df.iloc[0]
 
 dict_rate = {"win_rate": win_rate, "jiku_rate": jiku_rate, "ana_rate": ana_rate}
 print(dict_rate)
-with open(dict_path + 'temp_analysis/output/score_rate.pkl', 'w') as f:
+with open(dict_path + 'temp_analysis/output/score_rate.pkl', 'wb') as f:
     pickle.dump(dict_rate, f)
