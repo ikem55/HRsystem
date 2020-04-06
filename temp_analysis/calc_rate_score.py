@@ -207,5 +207,5 @@ ana_rate = score_ana_df.iloc[0]
 
 dict_rate = {"win_rate": win_rate, "jiku_rate": jiku_rate, "ana_rate": ana_rate}
 print(dict_rate)
-with open('temp_analysis/output/score_rete.pkl', 'w') as f:
+with open(dict_path + 'temp_analysis/output/score_rate.pkl', 'w') as f:
     pickle.dump(dict_rate, f)
