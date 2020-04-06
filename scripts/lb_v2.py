@@ -572,7 +572,8 @@ if __name__ == "__main__":
         if test_flag:
             print("set test table")
             table_name = TABLE_NAME + "_test"
-            sk_model.set_table_name(table_name)
+            sk_model.set_test_table(table_name)
+            sk_model.create_mydb_table(table_name)
 
         luigi.build([End_baoz_predict(start_date=start_date, end_date=end_date, skmodel=sk_model,
                                       intermediate_folder=INTERMEDIATE_FOLDER, export_mode=False)], local_scheduler=True)

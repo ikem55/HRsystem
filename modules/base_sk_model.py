@@ -72,7 +72,7 @@ class BaseSkModel(object):
         self.start_date = start_date
         self.end_date = end_date
 
-    def set_table_name(self, table_name):
+    def set_test_table(self, table_name):
         """ test用のテーブルをセットする """
         self.table_name = table_name
 

@@ -1,6 +1,5 @@
 from modules.lb_extract import LBExtract
 from modules.lb_simulation import LBSimulation
-import pyodbc
 import pandas as pd
 import numpy as np
 import my_config as mc
@@ -21,53 +20,39 @@ mock_flag = False
 ext = LBExtract(start_date, end_date, mock_flag)
 sim = LBSimulation(start_date, end_date, mock_flag)
 
-"""
-def connect_baoz_my_mdb():
-    conn_str = (
-        r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
-        r'DBQ=C:\BaoZ\DB\MasterDB\MyDB.MDB;'
-    )
-    cnxn = pyodbc.connect(conn_str)
-    return cnxn
-
-
-cnxn = connect_baoz_my_mdb()
-select_sql_v1 = 'SELECT * FROM 地方競馬レース馬V1 WHERE target_date >= #' + \
-             start_date + '# AND target_date <= #' + end_date + '#'
-lb_v1_df = pd.read_sql(select_sql_v1, cnxn)
-
-select_sql = 'SELECT * FROM 地方競馬レース馬V2 WHERE target_date >= #' + \
-             start_date + '# AND target_date <= #' + end_date + '#'
-lb_v2_df = pd.read_sql(select_sql, cnxn)
-"""
-
 dict_path = mc.return_base_path(False)
 intermediate_folder = dict_path + 'intermediate/'
 
-with open(intermediate_folder + 'lb_v1_lb_v1/raceuma_ens/export_data.pkl', 'rb') as f:
-    lb_v1_df = pickle.load(f)
-with open(intermediate_folder + 'lb_v2_lb_v2/raceuma_ens/export_data.pkl', 'rb') as f:
-    lb_v2_df = pickle.load(f)
+def get_type_df_list(df, type):
+    df.rename(columns={"RACE_KEY": "競走コード", "UMABAN": "馬番", "predict_std": "予測値偏差"}, inplace=True)
 
-lb_v1_win_df = lb_v1_df[lb_v1_df["target"] == "WIN_FLAG"][["RACE_KEY", "UMABAN", "predict_std"]].rename(columns={"predict_std": "偏差v1"})
-lb_v2_win_df = lb_v2_df[lb_v2_df["target"] == "WIN_FLAG"][["RACE_KEY", "UMABAN", "predict_std"]].rename(columns={"predict_std": "偏差v2"})
-lb_v1_jiku_df = lb_v1_df[lb_v1_df["target"] == "JIKU_FLAG"][["RACE_KEY", "UMABAN", "predict_std"]].rename(columns={"predict_std": "偏差v1"})
-lb_v2_jiku_df = lb_v2_df[lb_v2_df["target"] == "JIKU_FLAG"][["RACE_KEY", "UMABAN", "predict_std"]].rename(columns={"predict_std": "偏差v2"})
-lb_v1_ana_df = lb_v1_df[lb_v1_df["target"] == "ANA_FLAG"][["RACE_KEY", "UMABAN", "predict_std"]].rename(columns={"predict_std": "偏差v1"})
-lb_v2_ana_df = lb_v2_df[lb_v2_df["target"] == "ANA_FLAG"][["RACE_KEY", "UMABAN", "predict_std"]].rename(columns={"predict_std": "偏差v2"})
+    win_df = df[df["target"] == "WIN_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(
+        columns={"予測値偏差": "偏差" + type})
+    jiku_df = df[df["target"] == "JIKU_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(
+        columns={"予測値偏差": "偏差" + type})
+    ana_df = df[df["target"] == "ANA_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(
+        columns={"予測値偏差": "偏差" + type})
+    return [win_df, jiku_df, ana_df]
 
-raceuma_df = ext.get_raceuma_table_base()
-result_df = raceuma_df[["RACE_KEY", "UMABAN", "確定着順", "単勝配当", "複勝配当"]].copy()
-result_df.loc[:, "勝"] = result_df["確定着順"].apply(lambda x: 1 if x == 1 else 0)
-result_df.loc[:, "連"] = result_df["確定着順"].apply(lambda x: 1 if x in (1, 2) else 0)
-result_df.loc[:, "複"] = result_df["確定着順"].apply(lambda x: 1 if x in (1, 2, 3) else 0)
+"""
+print(lb_v1_df.iloc[0])
+lb_v1_df.rename(columns={"RACE_KEY":"競走コード", "UMABAN": "馬番", "predict_std": "予測値偏差"}, inplace=True)
+lb_v2_df.rename(columns={"RACE_KEY":"競走コード", "UMABAN": "馬番", "predict_std": "予測値偏差"}, inplace=True)
+
+lb_v1_win_df = lb_v1_df[lb_v1_df["target"] == "WIN_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(columns={"予測値偏差": "偏差v1"})
+lb_v2_win_df = lb_v2_df[lb_v2_df["target"] == "WIN_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(columns={"予測値偏差": "偏差v2"})
+lb_v1_jiku_df = lb_v1_df[lb_v1_df["target"] == "JIKU_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(columns={"予測値偏差": "偏差v1"})
+lb_v2_jiku_df = lb_v2_df[lb_v2_df["target"] == "JIKU_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(columns={"予測値偏差": "偏差v2"})
+lb_v1_ana_df = lb_v1_df[lb_v1_df["target"] == "ANA_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(columns={"予測値偏差": "偏差v1"})
+lb_v2_ana_df = lb_v2_df[lb_v2_df["target"] == "ANA_FLAG"][["競走コード", "馬番", "予測値偏差"]].rename(columns={"予測値偏差": "偏差v2"})
+"""
 
 def sim_rate(df1, df2, result_df):
-    merge_df = pd.merge(df1, df2, on =["RACE_KEY", "UMABAN"])
-    merge_df = pd.merge(merge_df, result_df, on =["RACE_KEY", "UMABAN"])
+    merge_df = pd.merge(df1, df2, on =["競走コード", "馬番"])
+    merge_df = pd.merge(merge_df, result_df, on =["競走コード", "馬番"])
     iter_range = 5
-    lb_v1_rate = range(20, 81, iter_range)
-    lb_v2_rate = range(20, 81, iter_range)
+    lb_v1_rate = range(0, 101, iter_range)
+    lb_v2_rate = range(0,1011, iter_range)
 
     lb_v1_list = []
     lb_v2_list = []
@@ -84,7 +69,7 @@ def sim_rate(df1, df2, result_df):
             if v1 + v2 == 100:
                 # print(str(v1) + "  " + str(v2))
                 merge_df["配分値"] = merge_df["偏差v1"] * v1 / 100 + merge_df["偏差v2"] * v2 / 100
-                grouped = merge_df.groupby("RACE_KEY")
+                grouped = merge_df.groupby("競走コード")
                 merge_df["順位"] = grouped['配分値'].rank("dense", ascending=False)
                 target_df = merge_df[merge_df["順位"] <= 2].copy()
                 cnt_list.append(len(target_df))
@@ -113,9 +98,9 @@ def sim_rate(df1, df2, result_df):
     return score_df
 
 
-def sim_rate_umaren(df1, df2, pair_df, umaren_df):
-    merge_df = pd.merge(df1, df2, on =["RACE_KEY", "UMABAN"])
-    merge_df = pd.merge(merge_df, result_df, on =["RACE_KEY", "UMABAN"])
+def sim_rate_umaren(df1, df2, result_df, pair_df, umaren_df):
+    merge_df = pd.merge(df1, df2, on =["競走コード", "馬番"])
+    merge_df = pd.merge(merge_df, result_df, on =["競走コード", "馬番"])
     iter_range = 5
     lb_v1_rate = range(20, 81, iter_range)
     lb_v2_rate = range(20, 81, iter_range)
@@ -134,15 +119,15 @@ def sim_rate_umaren(df1, df2, pair_df, umaren_df):
             if v1 + v2 == 100:
                 # print(str(v1) + "  " + str(v2))
                 merge_df["配分値"] = merge_df["偏差v1"] * v1 / 100 + merge_df["偏差v2"] * v2 / 100
-                grouped = merge_df.groupby("RACE_KEY")
+                grouped = merge_df.groupby("競走コード")
                 merge_df["順位"] = grouped['配分値'].rank("dense", ascending=False)
                 candidate_df = merge_df[merge_df["順位"] <= 2].copy()
-                target_df = pd.merge(candidate_df, pair_df, on ="RACE_KEY").fillna(0)
-                target_df = pd.merge(target_df, umaren_df , on ="RACE_KEY", how="left").fillna(0)
-                target_df["削除フラグ"] = target_df.apply(lambda x: 1 if x["UMABAN_x"] == x["UMABAN_y"] else 0, axis=1)
-                target_df["削除フラグ"] = target_df.apply(lambda x: 1 if type(x["UMABAN"]) is int  else x["削除フラグ"], axis=1)
+                target_df = pd.merge(candidate_df, pair_df, on ="競走コード").fillna(0)
+                target_df = pd.merge(target_df, umaren_df , on ="競走コード", how="left").fillna(0)
+                target_df["削除フラグ"] = target_df.apply(lambda x: 1 if x["馬番_x"] == x["馬番_y"] else 0, axis=1)
+                target_df["削除フラグ"] = target_df.apply(lambda x: 1 if type(x["馬番"]) is int  else x["削除フラグ"], axis=1)
                 target_df = target_df[target_df["削除フラグ"] == 0]
-                target_df["結果"] = target_df.apply(lambda x: x["払戻"] if x["UMABAN_x"] in x["UMABAN"] and x["UMABAN_y"] in x["UMABAN"] else 0 , axis=1 )
+                target_df["結果"] = target_df.apply(lambda x: x["払戻"] if x["馬番_x"] in x["馬番"] and x["馬番_y"] in x["馬番"] else 0 , axis=1 )
                 target_df["的中"] = target_df.apply(lambda x: 0 if x["結果"] == 0 else 1, axis=1)
                 # print(target_df.head())
                 cnt_list.append(len(target_df))
@@ -170,23 +155,34 @@ def sim_rate_umaren(df1, df2, pair_df, umaren_df):
 pd.set_option('display.max_columns', 200)
 pd.set_option('display.max_rows', 200)
 
+
+with open(intermediate_folder + 'lb_v1_lb_v1/raceuma_ens/export_data.pkl', 'rb') as f:
+    lb_v1_df = pickle.load(f)
+with open(intermediate_folder + 'lb_v2_lb_v2/raceuma_ens/export_data.pkl', 'rb') as f:
+    lb_v2_df = pickle.load(f)
+
+lb_v1_list = get_type_df_list(lb_v1_df, "v1")
+lb_v2_list = get_type_df_list(lb_v2_df, "v2")
+
+
+raceuma_df = ext.get_raceuma_table_base()
+result_df = raceuma_df[["競走コード", "馬番", "確定着順", "単勝配当", "複勝配当"]].copy()
+result_df.loc[:, "勝"] = result_df["確定着順"].apply(lambda x: 1 if x == 1 else 0)
+result_df.loc[:, "連"] = result_df["確定着順"].apply(lambda x: 1 if x in (1, 2) else 0)
+result_df.loc[:, "複"] = result_df["確定着順"].apply(lambda x: 1 if x in (1, 2, 3) else 0)
+
 print("----------- WIN_FLAG -----------------")
-score_win_df = sim_rate(lb_v1_win_df, lb_v2_win_df, result_df)
+score_win_df = sim_rate(lb_v1_list[0], lb_v2_list[0], result_df)
 print(score_win_df.sort_values('win_rank').head())
 
 print("----------- JIKU_FLAG -----------------")
-score_jiku_df = sim_rate(lb_v1_jiku_df, lb_v2_jiku_df, result_df)
+score_jiku_df = sim_rate(lb_v1_list[1], lb_v2_list[1], result_df)
 print(score_jiku_df.sort_values('jiku_rank').head())
 
 print("----------- ANA_FLAG -----------------")
 sim.sim_umaren()
 umaren_df = sim.result_umaren_df
-ninki_df =raceuma_df[raceuma_df["単勝人気"] == 1][["RACE_KEY", "UMABAN"]]
+ninki_df =raceuma_df[raceuma_df["単勝人気"] == 1][["競走コード", "馬番"]]
 
-score_ana_df = sim_rate_umaren(lb_v1_ana_df, lb_v2_ana_df, ninki_df, umaren_df)
-print(score_ana_df.sort_values('ana_rank').head())
-
-score_ana_df = sim_rate_umaren(lb_v1_win_df, lb_v2_win_df, ninki_df, umaren_df)
-print(score_ana_df.sort_values('ana_rank').head())
-score_ana_df = sim_rate_umaren(lb_v1_jiku_df, lb_v2_jiku_df, ninki_df, umaren_df)
+score_ana_df = sim_rate_umaren(lb_v1_list[2], lb_v2_list[2], result_df, ninki_df, umaren_df)
 print(score_ana_df.sort_values('ana_rank').head())

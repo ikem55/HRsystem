@@ -26,7 +26,7 @@ class TestBaseTaskPredict(TestBaseCommon):
         self.intermediate_folder = self.dict_path + 'intermediate/' + model_version + '_' + self.mode + '/' + self.model_name + '/'
         self.skmodel = BaseSkModel(self.model_name, model_version, self.start_date, self.end_date, self.mock_flag, self.test_flag, self.mode)
         table_name = table_name + "_test"
-        self.skmodel.set_table_name(table_name)
+        self.skmodel.set_test_table(table_name)
         self._proc_check_folder()
 
     def test_00_preprocess(self):

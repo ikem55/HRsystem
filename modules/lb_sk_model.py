@@ -24,7 +24,7 @@ class LBSkModel(BaseSkModel):
         r'DBQ=C:\BaoZ\DB\MasterDB\MyDB.MDB;'
     )
 
-    def set_table_name(self, table_name):
+    def set_test_table(self, table_name):
         """ test用のテーブルをセットする """
         self.table_name = table_name
         self.conn_str = (
@@ -47,6 +47,7 @@ class LBSkModel(BaseSkModel):
         re_df = df.replace([np.inf, -np.inf], np.nan).dropna()
         date_list = df['target_date'].drop_duplicates()
         for date in date_list:
+            print(date)
             target_df = re_df[re_df['target_date'] == date]
             crsr.execute("DELETE FROM " + self.table_name + " WHERE target_date ='" + date + "'")
             crsr.executemany(
@@ -54,6 +55,26 @@ class LBSkModel(BaseSkModel):
                 target_df.itertuples(index=False)
             )
             cnxn.commit()
+
+    def create_mydb_table(self, table_name):
+        """ mydbに予測データを作成する """
+        cnxn = pyodbc.connect(self.conn_str)
+        create_table_sql = 'CREATE TABLE ' + table_name + ' (' \
+            '競走コード DOUBLE, 馬番 BYTE, 予測フラグ SINGLE, 予測値 SINGLE, ' \
+            '予測値偏差 SINGLE, 予測値順位 BYTE, target VARCHAR(255), target_date VARCHAR(255),' \
+            ' PRIMARY KEY(競走コード, 馬番, target));'
+        crsr = cnxn.cursor()
+        table_list = []
+        for talble_info in crsr.tables(tableType='TABLE'):
+            table_list.append(talble_info.table_name)
+        print(table_list)
+        if not table_name in table_list:
+            print(create_table_sql)
+            crsr.execute(create_table_sql)
+            crsr.commit()
+        crsr.close()
+        cnxn.close()
+
 
     @classmethod
     def get_recent_day(cls, start_date):

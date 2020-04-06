@@ -4,5 +4,6 @@ for_test_model/
 testmodules/.pytest_cache/
 venv/
 .idea/
+__pycache__/
 my_config.py
 localBaoz-510313930ad5.json

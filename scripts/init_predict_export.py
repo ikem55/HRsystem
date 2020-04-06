@@ -1,5 +1,6 @@
 from scripts.lb_v1 import SkModel as LBv1SkModel
 from scripts.lb_v2 import SkModel as LBv2SkModel
+from scripts.lb_v3 import SkModel as LBv3SkModel
 import sys
 
 from datetime import datetime as dt
@@ -38,17 +39,29 @@ print("intermediate_folder:" + intermediate_folder)
 
 if model_version == "lb_v1":
     sk_model = LBv1SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
+    table_name = '地方競馬レース馬V1'
 elif model_version == "lb_v2":
     sk_model = LBv2SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
+    table_name = '地方競馬レース馬V2'
+elif model_version == "lb_v3":
+    sk_model = LBv3SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
+    table_name = '地方競馬レース馬V3'
 else:
     print("----------- error ---------------")
     sk_model = ''
+    table_name = ''
+
+if test_flag:
+    print("set test table")
+    table_name = table_name + "_test"
+    sk_model.set_test_table(table_name)
 
 if export_mode:
     luigi.build([End_baoz_predict(start_date=start_date, end_date=end_date, skmodel=sk_model,
                               intermediate_folder=intermediate_folder, export_mode=True)], local_scheduler=True)
 else:
     print("import mode")
+    sk_model.create_mydb_table(table_name)
     with open(intermediate_folder + 'export_data.pkl', 'rb') as f:
         import_df = pickle.load(f)
         sk_model.import_data(import_df)
