@@ -18,6 +18,9 @@ class TestBaseTaskLearning(TestBaseCommon):
     test_flag = True
     dict_path = mc.return_base_path(test_flag)
     clean_flag = False
+    cls_val = "競走種別コード"
+    val = "12"
+    target = "WIN_FLAG"
 
     def setUp(self):
         """ テスト実施前に必要な処理を記載する。呼び出しクラスやフォルダの指定等 """
@@ -111,13 +114,30 @@ class TestBaseTaskLearning(TestBaseCommon):
                 learning_df = pickle.load(f)
                 self.skmodel.create_featrue_select_data(learning_df)
 
+    def test_20_check_learning_df(self):
+        """ 学習に利用するデータフレームのテスト """
+        print("--  " + sys._getframe().f_code.co_name + " start --")
+        file_name = self.intermediate_folder + 'learning_' + self.cls_val + '_' + self.val + '.pkl'
+
+        with open(file_name, 'rb') as f:
+            df = pickle.load(f)
+            self.skmodel.proc.set_ensemble_params(self.skmodel.clfs, self.skmodel.index_list, self.skmodel.ens_folder_path)
+            self.skmodel.proc.set_target_flag(self.target)
+            df = df.fillna(df.median())
+            df = df.dropna() #SMOTEでNaNがあると処理できないため
+            self.skmodel.proc.set_learning_data(df, self.target)
+            self.skmodel.proc.divide_learning_data()
+            self.skmodel.proc.load_learning_target_encoding()
+            X_train = self.skmodel.proc.X_train
+            mu.check_df(X_train)
+
+
     def test_21_proc_learning_sk_model(self):
         """ 学習モデルの作成が問題なくできることを確認。test_02の結果を使いたい"""
         print("--  " + sys._getframe().f_code.co_name + " start --")
         ### 途中から実行できるようにしたいがファイル処理を考えないといけない。
         self.create_folder()
         te_p = self.intermediate_folder
-        model_third_folder = self.skmodel.ens_folder_path + self.model_name +'/third/'
         class_list = self.skmodel.class_list
         for cls_val in class_list:
             print(cls_val)

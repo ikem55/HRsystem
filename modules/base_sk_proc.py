@@ -146,10 +146,10 @@ class BaseSkProc(object):
         self.learning_df = learning_df
         for target_flag in self.obj_column_list:
             print(target_flag)
-            self._set_target_flag(target_flag)
+            self.set_target_flag(target_flag)
             self._create_feature_select_data(target_flag)
 
-    def _set_target_flag(self, target_flag):
+    def set_target_flag(self, target_flag):
         """ 目的変数となるターゲットフラグの値をセットする
 
         :param str target_flag: ターゲットフラグ名(WIN_FLAG etc.)
@@ -162,11 +162,11 @@ class BaseSkProc(object):
         :param str target_flag:
         """
         print("create_feature_select_data")
-        self._set_learning_data(self.learning_df, target_flag)
-        self._divide_learning_data()
+        self.set_learning_data(self.learning_df, target_flag)
+        self.divide_learning_data()
         self._create_learning_target_encoding()
 
-    def _set_learning_data(self, df, target_column):
+    def set_learning_data(self, df, target_column):
         """ 与えられたdfからexp_data,obj_dataを作成する。目的変数が複数ある場合は除外する
 
         :param dataframe df: dataframe
@@ -185,7 +185,7 @@ class BaseSkProc(object):
         """
         self.label_list = df.select_dtypes(include=object).columns.tolist()
 
-    def _divide_learning_data(self):
+    def divide_learning_data(self):
         """ 学習データをtrainとtestに分ける。オブジェクトのx_df,y_dfからX_train,X_test,y_train,y_testに分けてセットする """
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.x_df, self.y_df, test_size=0.25, random_state=None)
@@ -248,28 +248,28 @@ class BaseSkProc(object):
         if os.path.exists(self.model_folder + 'third/' + this_model_name + '.pickle'):
             print("\r\n -- skip create learning model -- \r\n")
         else:
-            self._set_target_flag(target)
+            self.set_target_flag(target)
             df = df.fillna(df.median())
             df = df.dropna() #SMOTEでNaNがあると処理できないため
             print(df.shape)
             if df.empty:
                 print("--------- alert !!! no data")
             else:
-                self._set_learning_data(df, target)
-                self._divide_learning_data()
+                self.set_learning_data(df, target)
+                self.divide_learning_data()
                 if self.y_train.sum() == 0:
                     print("---- wrong data --- skip learning")
                 else:
-                    self._load_learning_target_encoding()
-                    self._set_smote_data()
+                    self.load_learning_target_encoding()
+                    self.set_smote_data()
                     self._learning_raceuma_ens(this_model_name)
 
-    def _load_learning_target_encoding(self):
+    def load_learning_target_encoding(self):
         """ TargetEncodeを行う。すでに作成済みのエンコーダーから値をセットする  """
         self.X_train = self._set_target_encoding(self.X_train, False, self.y_train).copy()
         self.X_test = self._set_target_encoding(self.X_test, False, self.y_test).copy()
 
-    def _set_smote_data(self):
+    def set_smote_data(self):
         """ 学習データのSMOTE処理を行い学習データを更新する  """
         # 対象数が少ない場合はサンプリングレートを下げる
         positive_count_train = self.y_train.sum()
@@ -505,7 +505,7 @@ class BaseSkProc(object):
         :param str target: str
         :return: dataframe
         """
-        self._set_target_flag(target)
+        self.set_target_flag(target)
         temp_df = self._set_predict_target_encoding(df)
         pred_df = self._sub_distribute_predict_model(cls_val, val, target, temp_df)
         return pred_df

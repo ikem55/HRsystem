@@ -96,7 +96,7 @@ def hash_eoncoding(df, oh_columns, num, dict_name, dict_folder):
     df_ce = ce_fit.transform(oh_df)
     df_ce.columns = [dict_name + '_' + str(x) for x in list(range(num))]
     other_df = df.drop(oh_columns, axis=1)
-    return_df = pd.concat([other_df, df_ce], axis=1)
+    return_df = pd.concat([other_df, df_ce.astype(str)], axis=1)
     return return_df
 
 
@@ -307,8 +307,8 @@ def check_df(df):
 
     :param dataframe df:
     """
-    pd.set_option('display.max_columns', 200)
-    pd.set_option('display.max_rows', 200)
+    pd.set_option('display.max_columns', 300)
+    pd.set_option('display.max_rows', 300)
 
     print("------------ データサンプル ----------------------------")
     print(df.iloc[0])

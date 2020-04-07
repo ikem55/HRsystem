@@ -9,8 +9,10 @@ import my_config as mc
 import luigi
 from distutils.util import strtobool
 import pickle
+import pandas as pd
 
 from modules.base_task_predict import End_baoz_predict
+from modules.lb_extract import LBExtract
 
 # 呼び出し方
 # python init_predict_export.py lb_v1 True
@@ -59,6 +61,29 @@ if test_flag:
 if export_mode:
     luigi.build([End_baoz_predict(start_date=start_date, end_date=end_date, skmodel=sk_model,
                               intermediate_folder=intermediate_folder, export_mode=True)], local_scheduler=True)
+    print(" --- check result --- ")
+    with open(intermediate_folder + 'export_data.pkl', 'rb') as f:
+        import_df = pickle.load(f)
+        ext = LBExtract(start_date, end_date, False)
+        result_raceuma_df = ext.get_raceuma_table_base()
+        raceuma_df = result_raceuma_df[["競走コード", "馬番", "確定着順", "単勝配当", "複勝配当"]].rename(columns={"競走コード": "RACE_KEY" , "馬番": "UMABAN"})
+        raceuma_df.loc[:, "ck1"] = raceuma_df["確定着順"].apply(lambda x: 1 if x == 1 else 0)
+        raceuma_df.loc[:, "ck2"] = raceuma_df["確定着順"].apply(lambda x: 1 if x == 2 else 0)
+        raceuma_df.loc[:, "ck3"] = raceuma_df["確定着順"].apply(lambda x: 1 if x == 3 else 0)
+        raceuma_df.loc[:, "ckg"] = raceuma_df["確定着順"].apply(lambda x: 1 if x > 3 else 0)
+        win_df = import_df.query('target == "WIN_FLAG and predict_rank == 1')
+        win_df = pd.merge(win_df, raceuma_df, on=["RACE_KEY", "UMABAN"])
+        print("----- win_df -----")
+        print(win_df.groupby.describe())
+        jiku_df = import_df.query('target == "JIKU_FLAG and predict_rank == 1')
+        jiku_df = pd.merge(win_df, raceuma_df, on=["RACE_KEY", "UMABAN"])
+        print("----- jiku_df -----")
+        print(jiku_df.groupby.describe())
+        ana_df = import_df.query('target == "ANA_FLAG and predict_rank == 1')
+        ana_df = pd.merge(ana_df, raceuma_df, on=["RACE_KEY", "UMABAN"])
+        print("----- ana_df -----")
+        print(ana_df.groupby.describe())
+
 else:
     print("import mode")
     sk_model.create_mydb_table(table_name)

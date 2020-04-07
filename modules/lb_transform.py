@@ -340,7 +340,18 @@ class LBTransform(BaseTransform):
         print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
         temp_raceuma_df = raceuma_df.copy()
         temp_raceuma_df.loc[:, "馬番グループ"] = raceuma_df["馬番"] // 4
+        temp_raceuma_df.loc[:, "予想人気グループ"] = raceuma_df["予想人気"].apply(lambda x : self._convert_ninki_group(x))
         return temp_raceuma_df
+
+    def _convert_ninki_group(self, ninki):
+        if ninki == 1:
+            return 1
+        elif ninki in (2,3):
+            return 2
+        elif ninki in (4,5,6):
+            return 3
+        else:
+            return 4
 
     
     def standardize_raceuma_result_df(self, raceuma_df):
@@ -376,6 +387,6 @@ class LBTransform(BaseTransform):
         temp_merged_df.loc[:, '単勝人気'] = merged_df.apply(lambda x: 0 if x['頭数'] == 0 else x['単勝人気'] / x['頭数'], axis=1)
         temp_merged_df.loc[:, '確定着順'] = merged_df.apply(lambda x: 0 if x['頭数'] == 0 else x['確定着順'] / x['頭数'], axis=1)
         temp_merged_df.loc[:, 'コーナー順位4'] = merged_df.apply(lambda x: 0 if x['頭数'] == 0 else x['コーナー順位4'] / x['頭数'], axis=1)
-        temp_merged_df.loc[:, '騎手ランキング'] = merged_df.apply(lambda x: np.nan if x['騎手ランキング'] == 0 else 1 / x['騎手ランキング'], axis=1)
-        temp_merged_df.loc[:, '調教師ランキング'] = merged_df.apply(lambda x: np.nan if x['調教師ランキング'] == 0 else 1 / x['調教師ランキング'], axis=1)
+        #temp_merged_df.loc[:, '騎手ランキング'] = merged_df.apply(lambda x: np.nan if x['騎手ランキング'] == 0 else 1 / x['騎手ランキング'], axis=1)
+        #temp_merged_df.loc[:, '調教師ランキング'] = merged_df.apply(lambda x: np.nan if x['調教師ランキング'] == 0 else 1 / x['調教師ランキング'], axis=1)
         return temp_merged_df

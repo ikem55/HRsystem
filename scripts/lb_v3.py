@@ -301,18 +301,19 @@ class SkProc(LBSkProc):
         """ 過去走と今回を比較した特徴量等、最終的な特徴量を生成する """
         #        self.base_df.loc[:, "継続騎乗"] = self.base_df.apply(lambda x: 1 if x["騎手名"] == x["騎手名_1"] else 0 )
         self.base_df.loc[:, "継続騎乗"] = (self.base_df["騎手名"] == self.base_df["騎手名_1"]).astype(int)
-        self.base_df.loc[:, "同場騎手"] = (self.base_df["騎手所属場コード"] == self.base_df["場コード"]).astype(int)
-        self.base_df.loc[:, "同所属場"] = (self.base_df["調教師所属場コード"] == self.base_df["場コード"]).astype(int)
-        self.base_df.loc[:, "同所属騎手"] = (self.base_df["騎手所属場コード"] == self.base_df["調教師所属場コード"]).astype(int)
-        self.base_df.loc[:, "同主催者"] = (self.base_df["主催者コード"] == self.base_df["主催者コード_1"]).astype(int)
-        self.base_df.loc[:, "同場コード"] = (self.base_df["場コード"] == self.base_df["場コード_1"]).astype(int)
-        self.base_df.loc[:, "同場_1"] = (self.base_df["場コード"] == self.base_df["場コード_1"]).astype(int)
-        self.base_df.loc[:, "同距離グループ_1"] = (self.base_df["距離グループ"] == self.base_df["距離グループ_1"]).astype(int)
-        self.base_df.loc[:, "同季節_1"] = (self.base_df["季節"] == self.base_df["季節_1"]).astype(int)
+        self.base_df.loc[:, "同場騎手"] = (self.base_df["騎手所属場コード"] == self.base_df["場コード"]).astype('str')
+        self.base_df.loc[:, "同所属場"] = (self.base_df["調教師所属場コード"] == self.base_df["場コード"]).astype('str')
+        self.base_df.loc[:, "同所属騎手"] = (self.base_df["騎手所属場コード"] == self.base_df["調教師所属場コード"]).astype('str')
+        self.base_df.loc[:, "同主催者"] = (self.base_df["主催者コード"] == self.base_df["主催者コード_1"]).astype('str')
+        self.base_df.loc[:, "同場コード"] = (self.base_df["場コード"] == self.base_df["場コード_1"]).astype('str')
+        self.base_df.loc[:, "同場_1"] = (self.base_df["場コード"] == self.base_df["場コード_1"]).astype('str')
+        self.base_df.loc[:, "同距離グループ_1"] = (self.base_df["距離グループ"] == self.base_df["距離グループ_1"]).astype('str')
+        self.base_df.loc[:, "同季節_1"] = (self.base_df["季節"] == self.base_df["季節_1"]).astype('str')
         self.base_df.loc[:, "負担重量_1"] = self.base_df["負担重量_1"] - self.base_df["負担重量"]
         self.base_df.loc[:, "頭数差"] = self.base_df["頭数グループ"] - self.base_df["頭数グループ_1"]
-        self.base_df.loc[:, "休み明け"] = self.base_df["休養週数"].apply(lambda x: True if x >= 20 else False)
-        self.base_df.loc[:, "継続騎乗好走"] = self.base_df.apply(lambda x: 1 if x["継続騎乗"] * x["激走_1"] == 1 else 0, axis=1)
+        self.base_df.loc[:, "休み明け"] = self.base_df["休養週数"].apply(lambda x: "1" if x >= 20 else "0")
+        self.base_df.loc[:, "継続騎乗好走"] = self.base_df.apply(lambda x: "1" if x["継続騎乗"] * x["激走_1"] == 1 else "0", axis=1)
+        self.base_df = self.base_df.astype({"継続騎乗": 'str'})
 
     def _drop_columns_base_df(self):
         self.base_df.drop(
@@ -337,6 +338,11 @@ class SkProc(LBSkProc):
         hash_track_columns = ["主催者コード", "競走種別コード_h", "場コード_h", "トラックコード"]
         hash_track_dict_name = "sc_base_hash_track"
         self.base_df = mu.hash_eoncoding(self.base_df, hash_track_columns, 10, hash_track_dict_name, self.dict_folder)
+        hash_newtype1_columns = ["場コード", "非根幹", "頭数グループ", "性別コード", "騎手所属場コード", "見習区分", "テン乗り", "キャリア", "調教師所属場コード", "東西所属コード",
+                                 "主催者コード_1", "距離_1", "場コード_1", "頭数_1", "ペース_1", "トラックコード_1", "ナイター_1", "季節_1", "非根幹_1", "距離グループ_1",
+                                 "頭数グループ_1", "コース_1", "逃げ勝ち_1", "内勝ち_1", "外勝ち_1", "短縮勝ち_1", "延長勝ち_1", "人気勝ち_1", "枠番_1", "展開コード_1", "馬体重順位_1"]
+        hash_newtype1_dict_name = "sc_base_hash_newtype1"
+        self.base_df = mu.hash_eoncoding(self.base_df, hash_newtype1_columns, 30, hash_newtype1_dict_name, self.dict_folder)
 
 class SkModel(LBSkModel):
     class_list = ['競走種別コード', 'コース', '距離グループ', 'ナイター', '季節']

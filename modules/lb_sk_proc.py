@@ -77,7 +77,7 @@ class LBSkProc(BaseSkProc):
         hash_track_columns = ["トラック種別コード", "主催者コード", "競走種別コード_h", "場コード_h", "競走条件コード", "トラックコード", "混合"]
         hash_track_dict_name = "sc_base_hash_track"
         self.base_df = mu.hash_eoncoding(self.base_df, hash_track_columns, 10, hash_track_dict_name, self.dict_folder)
-        hash_kishu_columns = ["騎手コード", "予想展開", "馬番グループ", "騎手所属場コード", "見習区分", "テン乗り"]
+        hash_kishu_columns = ["騎手コード", "騎手所属場コード", "見習区分", "テン乗り"]
         hash_kishu_dict_name = "sc_base_hash_kishu"
         self.base_df = mu.hash_eoncoding(self.base_df, hash_kishu_columns, 30, hash_kishu_dict_name, self.dict_folder)
         hash_chokyoshi_columns = ["調教師コード", "調教師所属場コード", "所属", "転厩", "東西所属コード"]
@@ -92,6 +92,16 @@ class LBSkProc(BaseSkProc):
         hash_prev2_columns = ["騎手名_2", "ペース_2", "馬場状態コード_2", "競走種別コード_2", "展開コード_2", "騎手所属場コード_2", "テン乗り_2"]
         hash_prev2_dict_name = "sc_base_hash_prev2"
         self.base_df = mu.hash_eoncoding(self.base_df, hash_prev2_columns, 10, hash_prev2_dict_name, self.dict_folder)
+        hash_newtype1_columns = ["同場騎手_1", "同所属場_1", "同所属騎手_1", "同場騎手_2", "同所属場_2", "同所属騎手_2", "継続騎乗", "同場騎手", "同所属場", "同所属騎手"]
+        hash_newtype1_dict_name = "sc_base_hash_newtype1"
+        self.base_df = mu.hash_eoncoding(self.base_df, hash_newtype1_columns, 20, hash_newtype1_dict_name, self.dict_folder)
+        hash_newtype2_columns = ["馬番グループ", "予想人気グループ", "予想展開", "非根幹", "距離グループ", "逃げ勝ち_1", "内勝ち_1", "外勝ち_1", "短縮勝ち_1", "延長勝ち_1", "人気勝ち_1",
+                                 "逃げ勝ち_2", "内勝ち_2", "外勝ち_2", "短縮勝ち_2", "延長勝ち_2", "人気勝ち_2", "同主催者", "同場コード", "同根幹", "同距離グループ", "頭数差",
+                                 "休み明け", "前走凡走", "前走激走", "前走逃げそびれ"]
+        hash_newtype2_dict_name = "sc_base_hash_newtype2"
+        self.base_df = mu.hash_eoncoding(self.base_df, hash_newtype2_columns, 5, hash_newtype2_dict_name, self.dict_folder)
+
+
 
     def _rename_key(self, df):
         """ キー名を競走コード→RACE_KEY、馬番→UMABANに変更 """
