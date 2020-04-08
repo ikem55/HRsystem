@@ -222,6 +222,7 @@ class BaseSkProc(object):
         :param series y: 目的変数のSeries
         :return:
         """
+        print("---- target encoding: " + label)
         tr = ce.TargetEncoder(cols=label)
         dict_file = self.dict_folder + '/' + dict_name + '.pkl'
         if fit and not os.path.exists(dict_file):
