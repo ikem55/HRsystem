@@ -16,6 +16,7 @@ from modules.lb_extract import LBExtract
 
 # 呼び出し方
 # python init_predict_export.py lb_v1 True
+# exportがFalseの場合import処理を実施
 # ====================================== パラメータ　要変更 =====================================================
 
 model_name = 'raceuma_ens'
@@ -76,7 +77,7 @@ if export_mode:
         print("----- win_df -----")
         print(win_df.describe())
         jiku_df = import_df.query('target == "JIKU_FLAG" and predict_rank == 1')
-        jiku_df = pd.merge(win_df, raceuma_df, on=["RACE_KEY", "UMABAN"])
+        jiku_df = pd.merge(jiku_df, raceuma_df, on=["RACE_KEY", "UMABAN"])
         print("----- jiku_df -----")
         print(jiku_df.describe())
         ana_df = import_df.query('target == "ANA_FLAG" and predict_rank == 1')
