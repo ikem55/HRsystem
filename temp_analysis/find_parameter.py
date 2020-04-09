@@ -18,8 +18,8 @@ tr = LBTransform(start_date, end_date)
 pd.set_option('display.max_columns', 200)
 pd.set_option('display.max_rows', 200)
 
-raceuma_base_df = ext.get_raceuma_table_base()
-temp_df = tr.normalize_raceuma_df(raceuma_base_df)
+temp_df = ext.get_raceuma_table_base()
+#temp_df = tr.normalize_raceuma_df(raceuma_base_df)
 
 df = temp_df[["競走コード", "馬番", "デフォルト得点", "確定着順", "単勝配当", "複勝配当",  "得点V3"]]
 
@@ -82,10 +82,11 @@ for s1 in score_rate:
             for jiku in jiku_rate:
                 for ana in ana_rate:
                     if s1 + v3 + win + jiku + ana == 100:
-                        #print("s1:" + str(s1) + " win:" + str(win) + " jiku:" + str(jiku) + " ana:" + str(ana))
+                        print("s1:" + str(s1) + " win:" + str(win) + " jiku:" + str(jiku) + " ana:" + str(ana))
                         temp_df = df
                         temp_df.loc[:, "最適得点"] = df["デフォルト得点"] * s1/100 + df["得点V3"] * v3/100 + df["勝ち偏差"] * win/100 + df["軸偏差"] * jiku/100 + df["穴偏差"] * ana/100
                         target_df = temp_df[temp_df["最適得点"] >= 55]
+                        print(len(target_df))
                         if len(target_df) > total_count / 5:
                             cnt_list.append(len(target_df))
                             s1_list.append(s1)
