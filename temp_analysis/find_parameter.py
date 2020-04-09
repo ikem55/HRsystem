@@ -55,9 +55,9 @@ print(df.shape)
 iter_range = 5
 score_rate = range(0, 1, iter_range)
 v3_rate = range(0, 1, iter_range)
-win_rate = range(0, 101, iter_range)
-jiku_rate = range(0, 101, iter_range)
-ana_rate = range(0, 101, iter_range)
+win_rate = range(20, 101, iter_range)
+jiku_rate = range(20, 101, iter_range)
+ana_rate = range(20, 101, iter_range)
 
 s1_list = []
 v3_list = []
