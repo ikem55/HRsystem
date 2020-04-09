@@ -86,19 +86,17 @@ for s1 in score_rate:
                         temp_df = df
                         temp_df.loc[:, "最適得点"] = df["デフォルト得点"] * s1/100 + df["得点V3"] * v3/100 + df["勝ち偏差"] * win/100 + df["軸偏差"] * jiku/100 + df["穴偏差"] * ana/100
                         target_df = temp_df[temp_df["最適得点"] >= 55]
-                        print(len(target_df))
-                        if len(target_df) > total_count / 5:
-                            cnt_list.append(len(target_df))
-                            s1_list.append(s1)
-                            v3_list.append(v3)
-                            win_list.append(win)
-                            jiku_list.append(jiku)
-                            ana_list.append(ana)
-                            av_win_list.append(round(target_df["勝"].mean() * 100, 2))
-                            av_ren_list.append(round(target_df["連"].mean() * 100, 2))
-                            av_fuku_list.append(round(target_df["複"].mean() * 100, 2))
-                            tan_ret_list.append(round(target_df["単勝配当"].mean(), 2))
-                            fuku_ret_list.append(round(target_df["複勝配当"].mean(), 2))
+                        cnt_list.append(len(target_df))
+                        s1_list.append(s1)
+                        v3_list.append(v3)
+                        win_list.append(win)
+                        jiku_list.append(jiku)
+                        ana_list.append(ana)
+                        av_win_list.append(round(target_df["勝"].mean() * 100, 2))
+                        av_ren_list.append(round(target_df["連"].mean() * 100, 2))
+                        av_fuku_list.append(round(target_df["複"].mean() * 100, 2))
+                        tan_ret_list.append(round(target_df["単勝配当"].mean(), 2))
+                        fuku_ret_list.append(round(target_df["複勝配当"].mean(), 2))
 
 
 score_df = pd.DataFrame(
