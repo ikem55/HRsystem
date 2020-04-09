@@ -37,9 +37,9 @@ my_df = pd.merge(my_df, lb_v3_df , on=["RACE_KEY", "UMABAN", "target"]).rename(c
 win_df = my_df[my_df["target"] == "WIN_FLAG"]
 jiku_df = my_df[my_df["target"] == "JIKU_FLAG"]
 ana_df = my_df[my_df["target"] == "ANA_FLAG"]
-win_df.loc[:, "勝ち偏差"] = win_df["偏差v1"] * 0.30 + win_df["偏差v2"] * 0.05 + win_df["偏差v3"] * 0.65
-jiku_df.loc[:, "軸偏差"] = jiku_df["偏差v1"] * 0.15 + jiku_df["偏差v2"] * 0.75 + jiku_df["偏差v3"] * 0.10
-ana_df.loc[:, "穴偏差"] = ana_df["偏差v1"] * 0.35 + ana_df["偏差v2"] * 0.60 + ana_df["偏差v3"] * 0.05
+win_df.loc[:, "勝ち偏差"] = win_df["偏差v1"] * 0.50 + win_df["偏差v2"] * 0.30 + win_df["偏差v3"] * 0.20
+jiku_df.loc[:, "軸偏差"] = jiku_df["偏差v1"] * 0.50 + jiku_df["偏差v2"] * 0.25 + jiku_df["偏差v3"] * 0.25
+ana_df.loc[:, "穴偏差"] = ana_df["偏差v1"] * 0.45 + ana_df["偏差v2"] * 0.10 + ana_df["偏差v3"] * 0.45
 
 my_score_df = pd.merge(win_df[["競走コード", "馬番", "勝ち偏差"]], jiku_df[["競走コード", "馬番", "軸偏差"]], on=["競走コード", "馬番"])
 my_score_df = pd.merge(my_score_df, ana_df[["競走コード", "馬番", "穴偏差"]], on=["競走コード", "馬番"])
