@@ -54,7 +54,7 @@ if rep.check_flag:
     post_text += bet_text + "\r\n"
     print(now_time + timedelta(days=1))
     print(rep.final_race_time)
-    if now_time + timedelta(hours=5) > rep.final_race_time:
+    if now_time > rep.final_race_time:
         print("ok")
         post_summary()
         slack.stop_hrsystem_vm()
