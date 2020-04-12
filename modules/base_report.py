@@ -194,10 +194,10 @@ class BaseReport(object):
         target_text = '== 軸候補結果 ==\r\n'
         race_df, raceuma_df = self._get_todays_df()
         query_umaren1 = "得点 >= 48 and SCORE_RANK <= 5 and 馬券評価順位 <= 2 and デフォルト得点順位 <= 4 and 予想人気 <= 8 and SCORE >= 49 and JIKU_RATE >= 44 and WIN_RATE >= 50"
-        query_umatan_1 = "馬券評価順位 <= 2 and SCORE >= 51 and デフォルト得点 >= 47 and JIKU_RATE >= 43 and WIN_RATE >= 49 and ANA_RATE between 43 and 60"
-        query_umatan_2 = "馬券評価順位 <= 3 and SCORE_RANK <= 6 and デフォルト得点順位 <= 4 and 得点 >= 47 and SCORE >= 43 and デフォルト得点 >= 45 and 得点V3 between 43 and 55 and WIN_RATE >= 40 and ANA_RATE between 40 and 60"
-        query_wide_1 = "馬券評価順位 <= 3 and 予想人気 <= 4 and 得点 >= 47 and SCORE_RANK between 2 and 9 and SCORE >= 47 and デフォルト得点 >= 41 and WIN_RATE between 41 and 60 and JIKU_RATE >= 40"
-        query_sanrenpuku_1 ="馬券評価順位 <= 4 and 得点 >= 50 and デフォルト得点 >= 50 and SCORE >= 44 and 予想人気 between 2 and 9 and WIN_RATE >= 47 and JIKU_RATE >= 42 and ANA_RATE <= 58"
+        query_umatan_1 = "馬券評価順位 <= 2 and SCORE >= 51 and デフォルト得点 >= 47 and JIKU_RATE >= 43 and WIN_RATE >= 49 and ANA_RATE >= 43 and ANA_RATE < 60"
+        query_umatan_2 = "馬券評価順位 <= 3 and SCORE_RANK <= 6 and デフォルト得点順位 <= 4 and 得点 >= 47 and SCORE >= 43 and デフォルト得点 >= 45 and 得点V3 >= 43 and 得点V3 < 55 and WIN_RATE >= 40 and ANA_RATE >= 40 and ANA_RATE < 60"
+        query_wide_1 = "馬券評価順位 <= 3 and 予想人気 <= 4 and 得点 >= 47 and SCORE_RANK >= 2 and SCORE_RANK < 9 and SCORE >= 47 and デフォルト得点 >= 41 and WIN_RATE >= 41 and WIN_RATE < 60 and JIKU_RATE >= 40"
+        query_sanrenpuku_1 ="馬券評価順位 <= 4 and 得点 >= 50 and デフォルト得点 >= 50 and SCORE >= 44 and 予想人気 >= 2 and 予想人気 < 9 and WIN_RATE >= 47 and JIKU_RATE >= 42 and ANA_RATE <= 58"
         umaren1_df = raceuma_df.query(query_umaren1)
         target_text += "馬連軸：" + self._calc_raceuma_target_result(umaren1_df)
         umatan1_df = raceuma_df.query(query_umatan_1)
