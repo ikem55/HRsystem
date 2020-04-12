@@ -49,16 +49,15 @@ def post_summary():
 if rep.check_flag:
     current_text = rep.get_current_text()
     bet_text = rep.get_todays_bet_text()
+    target_text = rep.get_kaime_target_text()
 
     post_text += current_text + "\r\n"
     post_text += bet_text + "\r\n"
+    post_text +=target_text
     print(now_time + timedelta(days=1))
     print(rep.final_race_time)
     if now_time > rep.final_race_time:
         print("ok")
-        post_summary()
-        slack.stop_hrsystem_vm()
-    if now_time > rep.final_race_time:
         post_summary()
         slack.stop_hrsystem_vm()
 

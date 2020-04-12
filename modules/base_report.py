@@ -41,7 +41,7 @@ class BaseReport(object):
         base_race_df = self.ext.get_race_table_base()
         base_raceuma_df = self.ext.get_raceuma_table_base()
         self.race_df = base_race_df[["競走コード", "データ区分", "月日", "距離", "競走番号", "場名", "発走時刻", "投票フラグ"]]
-        raceuma_df = base_raceuma_df[["競走コード", "馬番", "年月日", "馬券評価順位", "得点", "単勝オッズ", "単勝人気", "確定着順", "単勝配当", "複勝配当", "デフォルト得点順位"]].copy()
+        raceuma_df = base_raceuma_df.drop("データ区分", axis=1)#[["競走コード", "馬番", "年月日", "馬券評価順位", "得点", "単勝オッズ", "単勝人気", "確定着順", "単勝配当", "複勝配当", "デフォルト得点順位"]].copy()
         raceuma_df.loc[:, "ck1"] = raceuma_df["確定着順"].apply(lambda x: 1 if x == 1 else 0)
         raceuma_df.loc[:, "ck2"] = raceuma_df["確定着順"].apply(lambda x: 1 if x == 2 else 0)
         raceuma_df.loc[:, "ck3"] = raceuma_df["確定着順"].apply(lambda x: 1 if x == 3 else 0)
@@ -78,18 +78,35 @@ class BaseReport(object):
         bet_text += self._get_bet_text(recent_bet_df)
         return bet_text
 
+    def _get_avg_trend_text(self, type, td_avg, td_kpi, td_kpi_cnt, avg, kpi, kpi_cnt):
+        td_avg = td_avg.astype(int)
+        avg = avg.astype(int)
+        rate_text = self._get_rate_text(td_kpi, kpi)
+        trend_text = f' {type}平均：{td_avg:,}円({td_kpi}%, {td_kpi_cnt}件)\r\n {"―"*int(len(type))}平均：{avg:,}円({kpi}%) {rate_text}\r\n'
+        return trend_text
+
+    def _get_rate_text(self, kpi, base_kpi):
+        if base_kpi != 0:
+            rate = (kpi/base_kpi - 1) * 100 // 20
+        else:
+            rate = 0
+        rate_text = "↑" if rate >= 0 else "↓"
+        return rate_text * int(abs(rate))
+
     def _get_bet_text(self, bet_df):
         bet_text =''
         for index, row in bet_df.iterrows():
-            bet_text += mu.trans_baken_type(row['式別']) + ' ' + round(row['回収率']).astype('str') + '% (' + round(
-                row['結果']).astype('str') + ' / ' + round(row['金額']).astype('str') + ')\r\n'
+            baken_type = mu.trans_baken_type(row['式別'])
+            return_rate = round(row['回収率']).astype(int)
+            result_val = round(row['結果']).astype(int)
+            bet_money = round(row['金額']).astype(int)
+            bet_text += f'{baken_type} {return_rate}% ({result_val:,}円 / {bet_money:,}円)\r\n'
         return bet_text
 
     def _get_todays_df(self):
         race_df = self.race_df[self.race_df["月日"] == self.end_date][["データ区分", "場名", "発走時刻", "投票フラグ"]]
         end_date = self.end_date
-        raceuma_df = self.raceuma_df.query("年月日 == @end_date & データ区分 == '7'")[["馬券評価順位", "単勝オッズ", "単勝人気", "確定着順", "単勝配当"
-            , "複勝配当", "デフォルト得点順位", "ck1", "ck2", "ck3", "ckg"]]
+        raceuma_df = self.raceuma_df.query("年月日 == @end_date & データ区分 == '7'")
         return race_df, raceuma_df
 
     def get_current_text(self):
@@ -121,8 +138,7 @@ class BaseReport(object):
         td_kpi_tansho = round(len(td_kpi_tansho_df)/ len(td_tansho_df) * 100 , 1)
         td_kpi_tansho_cnt = len(td_kpi_tansho_df)
         td_avg_tansho = round(td_tansho_df["払戻"].mean())
-        trend_text += ' 単勝平均: ' + str(td_avg_tansho) + '(' + str(td_kpi_tansho) + '%, ' + str(td_kpi_tansho_cnt) + '件)\r\n ーー平均: '\
-                      + str(avg_tansho) + '(' + str(kpi_tansho) + '%, ' + str(kpi_tansho_cnt) +'件)\r\n'
+        trend_text += self._get_avg_trend_text("単勝", td_avg_tansho, td_kpi_tansho, td_kpi_tansho_cnt, avg_tansho, kpi_tansho, kpi_tansho_cnt)
 
         umaren_df = self.haraimodoshi_dict["umaren_df"]
         kpi_umaren_df = umaren_df.query("払戻 >= 5000")
@@ -134,8 +150,7 @@ class BaseReport(object):
         td_kpi_umaren = round(len(td_kpi_umaren_df)/ len(td_umaren_df) * 100 , 1)
         td_kpi_umaren_cnt = len(td_kpi_umaren_df)
         td_avg_umaren = round(td_umaren_df["払戻"].mean())
-        trend_text += ' 馬連平均: ' + str(td_avg_umaren) + '(' + str(td_kpi_umaren) + '%, ' + str(td_kpi_umaren_cnt) + '件)\r\n ーー平均: '\
-                      + str(avg_umaren) + '(' + str(kpi_umaren) + '%, ' + str(kpi_umaren_cnt) +'件)\r\n'
+        trend_text += self._get_avg_trend_text("馬連", td_avg_umaren, td_kpi_umaren, td_kpi_umaren_cnt, avg_umaren, kpi_umaren, kpi_umaren_cnt)
 
         umatan_df = self.haraimodoshi_dict["umatan_df"]
         kpi_umatan_df = umatan_df.query("払戻 >= 5000")
@@ -147,12 +162,10 @@ class BaseReport(object):
         td_kpi_umatan = round(len(td_kpi_umatan_df) / len(td_umatan_df) * 100, 1)
         td_kpi_umatan_cnt = len(td_kpi_umatan_df)
         td_avg_umatan = round(td_umatan_df["払戻"].mean())
-        trend_text += ' 馬単平均: ' + str(td_avg_umatan) + '(' + str(td_kpi_umatan) + '%, ' + str(td_kpi_umatan_cnt) + '件)\r\n ーー平均: '\
-                      + str(avg_umatan) + '(' + str(kpi_umatan) + '%, ' + str(kpi_umatan_cnt) +'件)\r\n'
-
+        trend_text += self._get_avg_trend_text("馬単", td_avg_umatan, td_kpi_umatan, td_kpi_umatan_cnt, avg_umatan, kpi_umatan, kpi_umatan_cnt)
 
         wide_df = self.haraimodoshi_dict["wide_df"]
-        kpi_wide_df = wide_df.query("払戻 >= 3500")
+        kpi_wide_df = wide_df.query("払戻 >= 3000")
         kpi_wide = round(len(kpi_wide_df) / len(wide_df) * 100, 1)
         kpi_wide_cnt = len(kpi_wide_df)
         avg_wide = round(wide_df["払戻"].mean())
@@ -161,8 +174,7 @@ class BaseReport(object):
         td_kpi_wide = round(len(td_kpi_wide_df) / len(td_wide_df) * 100, 1)
         td_kpi_wide_cnt = len(td_kpi_wide_df)
         td_avg_wide = round(td_wide_df["払戻"].mean())
-        trend_text += ' ワイド平均: ' + str(td_avg_wide) + '(' + str(td_kpi_wide) + '%, ' + str(td_kpi_wide_cnt) + '件)\r\n ーーー平均: '\
-                      + str(avg_wide) + '(' + str(kpi_wide) + '%, ' + str(kpi_wide_cnt) +'件)\r\n'
+        trend_text += self._get_avg_trend_text("ワイド", td_avg_wide, td_kpi_wide, td_kpi_wide_cnt, avg_wide, kpi_wide, kpi_wide_cnt)
 
         sanrenpuku_df = self.haraimodoshi_dict["sanrenpuku_df"]
         kpi_sanrenpuku_df = sanrenpuku_df.query("払戻 >= 7500")
@@ -174,10 +186,29 @@ class BaseReport(object):
         td_kpi_sanrenpuku = round(len(td_kpi_sanrenpuku_df) / len(td_sanrenpuku_df) * 100, 1)
         td_kpi_sanrenpuku_cnt = len(td_kpi_sanrenpuku_df)
         td_avg_sanrenpuku = round(td_sanrenpuku_df["払戻"].mean())
-        trend_text += ' 三連複平均: ' + str(td_avg_sanrenpuku) + '(' + str(td_kpi_sanrenpuku) + '%, ' + str(td_kpi_sanrenpuku_cnt) + '件)\r\n ーーー平均: '\
-                      + str(avg_sanrenpuku) + '(' + str(kpi_sanrenpuku) + '%, ' + str(kpi_sanrenpuku_cnt) +'件)\r\n'
+        trend_text += self._get_avg_trend_text("三連複", td_avg_sanrenpuku, td_kpi_sanrenpuku, td_kpi_sanrenpuku_cnt, avg_sanrenpuku, kpi_sanrenpuku, kpi_sanrenpuku_cnt)
 
         return trend_text
+
+    def get_kaime_target_text(self):
+        target_text = '== 軸候補結果 ==\r\n'
+        race_df, raceuma_df = self._get_todays_df()
+        query_umaren1 = "得点 >= 48 and SCORE_RANK <= 5 and 馬券評価順位 <= 2 and デフォルト得点順位 <= 4 and 予想人気 <= 8 and SCORE >= 49 and JIKU_RATE >= 44 and WIN_RATE >= 50"
+        query_umatan_1 = "馬券評価順位 <= 2 and SCORE >= 51 and デフォルト得点 >= 47 and JIKU_RATE >= 43 and WIN_RATE >= 49 and ANA_RATE between 43 and 60"
+        query_umatan_2 = "馬券評価順位 <= 3 and SCORE_RANK <= 6 and デフォルト得点順位 <= 4 and 得点 >= 47 and SCORE >= 43 and デフォルト得点 >= 45 and 得点V3 between 43 and 55 and WIN_RATE >= 40 and ANA_RATE between 40 and 60"
+        query_wide_1 = "馬券評価順位 <= 3 and 予想人気 <= 4 and 得点 >= 47 and SCORE_RANK between 2 and 9 and SCORE >= 47 and デフォルト得点 >= 41 and WIN_RATE between 41 and 60 and JIKU_RATE >= 40"
+        query_sanrenpuku_1 ="馬券評価順位 <= 4 and 得点 >= 50 and デフォルト得点 >= 50 and SCORE >= 44 and 予想人気 between 2 and 9 and WIN_RATE >= 47 and JIKU_RATE >= 42 and ANA_RATE <= 58"
+        umaren1_df = raceuma_df.query(query_umaren1)
+        target_text += "馬連軸：" + self._calc_raceuma_target_result(umaren1_df)
+        umatan1_df = raceuma_df.query(query_umatan_1)
+        target_text += "馬単軸1：" + self._calc_raceuma_target_result(umatan1_df)
+        umatan2_df = raceuma_df.query(query_umatan_2)
+        target_text += "馬単軸2：" + self._calc_raceuma_target_result(umatan2_df)
+        wide1_df = raceuma_df.query(query_wide_1)
+        target_text += "ワイ軸：" + self._calc_raceuma_target_result(wide1_df)
+        sanrenpuku1_df = raceuma_df.query(query_sanrenpuku_1)
+        target_text += "三複軸：" + self._calc_raceuma_target_result(sanrenpuku1_df)
+        return target_text
 
     def get_summary_text(self):
         summary_text = '== KPI集計結果 == \r\n'
@@ -185,23 +216,41 @@ class BaseReport(object):
         score_raceuma_df = raceuma_df.query("馬券評価順位 == 1")
         default_raceuma_df = raceuma_df.query("デフォルト得点順位 == 1")
         ninki_raceuma_df = raceuma_df.query("単勝人気 == 1")
-        score_result_txt = self._calc_raceuma_result(score_raceuma_df)
-        default_result_txt = self._calc_raceuma_result(default_raceuma_df)
-        ninki_result_txt = self._calc_raceuma_result(ninki_raceuma_df)
 
         total_score_raceuma_df = self.raceuma_df.query("馬券評価順位 == 1")
         total_default_raceuma_df = self.raceuma_df.query("デフォルト得点順位 == 1")
         total_ninki_raceuma_df = self.raceuma_df.query("単勝人気 == 1")
-        total_score_result_txt = self._calc_raceuma_result(total_score_raceuma_df)
-        total_default_result_txt = self._calc_raceuma_result(total_default_raceuma_df)
-        total_ninki_result_txt = self._calc_raceuma_result(total_ninki_raceuma_df)
+        score_result_txt = self._calc_raceuma_result(score_raceuma_df, total_score_raceuma_df)
+        default_result_txt = self._calc_raceuma_result(default_raceuma_df, total_default_raceuma_df)
+        ninki_result_txt = self._calc_raceuma_result(ninki_raceuma_df, total_ninki_raceuma_df)
 
-        summary_text += '馬券評価順位１位' + "\r\n" + score_result_txt + "\r\n" + total_score_result_txt + "\r\n"
-        summary_text += 'デフォルト得点１位' + "\r\n" + default_result_txt + "\r\n" + total_default_result_txt + "\r\n"
-        summary_text += '一番人気' + "\r\n" + ninki_result_txt + "\r\n" + total_ninki_result_txt + "\r\n"
+        summary_text += '馬券評価順位１位' + score_result_txt
+        summary_text += 'デフォルト得点１位' + default_result_txt
+        summary_text += '一番人気' + ninki_result_txt + "\r\n"
         return summary_text
 
-    def _calc_raceuma_result(self, df):
+    def _calc_raceuma_target_result(self, df):
+        summary_df = df.describe()
+        sum_df = df[["ck1", "ck2", "ck3", "ckg"]].sum()
+        tansho_return = round(summary_df["単勝配当"]["mean"], 1)
+        fukusho_return = round(summary_df["複勝配当"]["mean"], 1)
+        chaku_text = str(sum_df["ck1"])
+        total_count = sum_df["ck1"]
+        for key, val in sum_df.iteritems():
+            if key != 'ck1':
+                chaku_text += '-' + str(val)
+                total_count += val
+        if total_count != 0:
+            ck1_rate = (sum_df["ck1"] / total_count) * 100
+            ck2_rate = (sum_df["ck2"] / total_count) * 100
+            ren_rate = ((sum_df["ck1"]  + sum_df["ck2"]) / total_count) * 100
+            fuku_rate = ((sum_df["ck1"] + sum_df["ck2"] + sum_df["ck3"]) / total_count) * 100
+        else:
+            ck1_rate = 0; ck2_rate =0; ren_rate =0; fuku_rate =0;
+        res_text = f' ({chaku_text}) １着：{int(ck1_rate)}%, ２着：{int(ck2_rate)}%, 連：{int(ren_rate)}%, 複：{int(fuku_rate)}% 単：{tansho_return}% 複：{fukusho_return}%\r\n'
+        return res_text
+
+    def _calc_raceuma_result(self, df, total_df):
         summary_df = df.describe()
         sum_df = df[["ck1", "ck2", "ck3", "ckg"]].sum()
         av_ninki = round(summary_df["単勝人気"]["mean"], 1)
@@ -212,7 +261,18 @@ class BaseReport(object):
         for key, val in sum_df.iteritems():
             if key != 'ck1':
                 chaku_text += '-' + str(val)
-        res_text = ' Av着:' + str(av_chakujn) + '(' + chaku_text + ') 単:' + str(tansho_return) + ' 複:' + str(fukusho_return) + ' Av人:' + str(av_ninki)
+
+        t_summary_df = total_df.describe()
+        t_av_ninki = round(t_summary_df["単勝人気"]["mean"], 1)
+        t_av_chakujn = round(t_summary_df["確定着順"]["mean"], 1)
+        t_tansho_return = round(t_summary_df["単勝配当"]["mean"], 1)
+        t_fukusho_return = round(t_summary_df["複勝配当"]["mean"], 1)
+
+        tansho_rate_text = self._get_rate_text(tansho_return, t_tansho_return)
+        fukusho_rate_text = self._get_rate_text(fukusho_return, t_fukusho_return)
+
+        res_text = f' ({chaku_text})\r\n Av：{av_chakujn}着 単：{tansho_return}%({tansho_rate_text}) 複：{fukusho_return}%({fukusho_rate_text})\r\n'
+        res_text += f' Av：{t_av_chakujn}着 単：{t_tansho_return}% 複：{t_fukusho_return}%\r\n'
         return res_text
 
 
