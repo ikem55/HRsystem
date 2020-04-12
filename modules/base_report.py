@@ -199,15 +199,15 @@ class BaseReport(object):
         query_wide_1 = "馬券評価順位 <= 3 and 予想人気 <= 4 and 得点 >= 47 and SCORE_RANK >= 2 and SCORE_RANK < 9 and SCORE >= 47 and デフォルト得点 >= 41 and WIN_RATE >= 41 and WIN_RATE < 60 and JIKU_RATE >= 40"
         query_sanrenpuku_1 ="馬券評価順位 <= 4 and 得点 >= 50 and デフォルト得点 >= 50 and SCORE >= 44 and 予想人気 >= 2 and 予想人気 < 9 and WIN_RATE >= 47 and JIKU_RATE >= 42 and ANA_RATE <= 58"
         umaren1_df = raceuma_df.query(query_umaren1)
-        target_text += "馬連軸：" + self._calc_raceuma_target_result(umaren1_df)
+        target_text += "馬連軸：" + self._calc_raceuma_target_result(umaren1_df, "ren")
         umatan1_df = raceuma_df.query(query_umatan_1)
-        target_text += "馬単軸1：" + self._calc_raceuma_target_result(umatan1_df)
+        target_text += "馬単軸1：" + self._calc_raceuma_target_result(umatan1_df, "ck1")
         umatan2_df = raceuma_df.query(query_umatan_2)
-        target_text += "馬単軸2：" + self._calc_raceuma_target_result(umatan2_df)
+        target_text += "馬単軸2：" + self._calc_raceuma_target_result(umatan2_df, "ck2")
         wide1_df = raceuma_df.query(query_wide_1)
-        target_text += "ワイ軸：" + self._calc_raceuma_target_result(wide1_df)
+        target_text += "ワイ軸：" + self._calc_raceuma_target_result(wide1_df, "fuku")
         sanrenpuku1_df = raceuma_df.query(query_sanrenpuku_1)
-        target_text += "三複軸：" + self._calc_raceuma_target_result(sanrenpuku1_df)
+        target_text += "三複軸：" + self._calc_raceuma_target_result(sanrenpuku1_df, "fuku")
         return target_text
 
     def get_summary_text(self):
@@ -229,7 +229,7 @@ class BaseReport(object):
         summary_text += '一番人気' + ninki_result_txt + "\r\n"
         return summary_text
 
-    def _calc_raceuma_target_result(self, df):
+    def _calc_raceuma_target_result(self, df, type):
         summary_df = df.describe()
         sum_df = df[["ck1", "ck2", "ck3", "ckg"]].sum()
         tansho_return = round(summary_df["単勝配当"]["mean"], 1)
@@ -247,7 +247,18 @@ class BaseReport(object):
             fuku_rate = ((sum_df["ck1"] + sum_df["ck2"] + sum_df["ck3"]) / total_count) * 100
         else:
             ck1_rate = 0; ck2_rate =0; ren_rate =0; fuku_rate =0;
-        res_text = f' ({chaku_text}) １着：{int(ck1_rate)}%, ２着：{int(ck2_rate)}%, 連：{int(ren_rate)}%, 複：{int(fuku_rate)}% 単：{tansho_return}% 複：{fukusho_return}%\r\n'
+        if type == "ren":
+            target_text = "連：" + str(int(ren_rate)) + "%"
+        elif type == "ck1":
+            target_text = "１着：" + str(int(ck1_rate)) + "%"
+        elif type == "ck2":
+            target_text = "２着：" + str(int(ck2_rate)) + "%"
+        elif type == "fuku":
+            target_text = "複：" + str(int(fuku_rate)) + "%"
+        else:
+            target_text = ""
+
+        res_text = f' ({chaku_text}) {target_text} 単：{tansho_return}% 複：{fukusho_return}%\r\n'
         return res_text
 
     def _calc_raceuma_result(self, df, total_df):
