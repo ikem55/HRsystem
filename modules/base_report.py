@@ -67,13 +67,13 @@ class BaseReport(object):
         return today_bet_df
 
     def get_todays_bet_text(self):
-        bet_text = '== 本日結果 == \r\n'
+        bet_text = '[ 本日結果 ] \r\n'
         today_bet_df = self._get_bet_summary_df(self.bet_df[self.bet_df["日付"] == self.end_date])
         bet_text += self._get_bet_text(today_bet_df)
         return bet_text
 
     def get_recent_bet_text(self):
-        bet_text = '== 直近結果 == \r\n'
+        bet_text = '[ 直近結果 ] \r\n'
         recent_bet_df = self._get_bet_summary_df(self.bet_df)
         bet_text += self._get_bet_text(recent_bet_df)
         return bet_text
@@ -82,7 +82,7 @@ class BaseReport(object):
         td_avg = td_avg.astype(int)
         avg = avg.astype(int)
         rate_text = self._get_rate_text(td_kpi, kpi)
-        trend_text = f' {type}平均：{td_avg:,}円({td_kpi}%, {td_kpi_cnt}件)\r\n {"―"*int(len(type))}平均：{avg:,}円({kpi}%) {rate_text}\r\n'
+        trend_text = f' {type}平均：{td_avg:,}円({td_kpi}%, {td_kpi_cnt}件) {rate_text}\r\n {"―"*int(len(type))}平均：{avg:,}円({kpi}%)\r\n'
         return trend_text
 
     def _get_rate_text(self, kpi, base_kpi):
@@ -119,14 +119,14 @@ class BaseReport(object):
             all_race_count += 'St' + str(key) + ':' + str(val) + 'R | '
         self.final_race_time = race_df["発走時刻"].max()
         final_race = ' 最終レース:' + self.final_race_time.strftime('%H:%M')
-        current_text += '== 開催情報(' + dt.now().strftime('%Y/%m/%d %H') + '時点情報) ==\r\n'
+        current_text += '[ 開催情報(' + dt.now().strftime('%Y/%m/%d %H') + '時点情報) ]\r\n'
         current_text += ' 開催場所: ' + kaisai_text + '\r\n'
         current_text += ' レース進捗：' + all_race_count + '\r\n'
         current_text += final_race + '\r\n'
         return current_text
 
     def get_trend_text(self):
-        trend_text = '== レース配当トレンド == \r\n'
+        trend_text = ' レース配当トレンド ] \r\n'
         tansho_df = self.haraimodoshi_dict["tansho_df"]
         kpi_tansho_df = tansho_df.query("払戻 >= 1000")
         kpi_tansho = round(len(kpi_tansho_df)/ len(tansho_df) * 100 , 1)
@@ -191,7 +191,7 @@ class BaseReport(object):
         return trend_text
 
     def get_kaime_target_text(self):
-        target_text = '== 軸候補結果 ==\r\n'
+        target_text = '[ 軸候補結果 ]\r\n'
         race_df, raceuma_df = self._get_todays_df()
         query_umaren1 = "得点 >= 48 and SCORE_RANK <= 5 and 馬券評価順位 <= 2 and デフォルト得点順位 <= 4 and 予想人気 <= 8 and SCORE >= 49 and JIKU_RATE >= 44 and WIN_RATE >= 50"
         query_umatan_1 = "馬券評価順位 <= 2 and SCORE >= 51 and デフォルト得点 >= 47 and JIKU_RATE >= 43 and WIN_RATE >= 49 and ANA_RATE >= 43 and ANA_RATE < 60"
@@ -211,7 +211,7 @@ class BaseReport(object):
         return target_text
 
     def get_summary_text(self):
-        summary_text = '== KPI集計結果 == \r\n'
+        summary_text = '[ KPI集計結果 ] \r\n'
         race_df, raceuma_df = self._get_todays_df()
         score_raceuma_df = raceuma_df.query("馬券評価順位 == 1")
         default_raceuma_df = raceuma_df.query("デフォルト得点順位 == 1")
@@ -258,7 +258,7 @@ class BaseReport(object):
         else:
             target_text = ""
 
-        res_text = f' ({chaku_text}) {target_text} 単：{tansho_return}% 複：{fukusho_return}%\r\n'
+        res_text = f' ({chaku_text}) {target_text} \r\n  単：{tansho_return}% 複：{fukusho_return}%\r\n'
         return res_text
 
     def _calc_raceuma_result(self, df, total_df):

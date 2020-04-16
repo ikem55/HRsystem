@@ -29,10 +29,12 @@ def post_summary():
         recent_bet_text = rep.get_recent_bet_text()
         trend_text = rep.get_trend_text()
         summary_text = rep.get_summary_text()
+        target_text = rep.get_kaime_target_text()
 
         post_text += todays_bet_text + "\r\n"
         post_text += recent_bet_text + "\r\n"
         post_text += trend_text + "\r\n"
+        post_text +=target_text + "\r\n"
         post_text += summary_text + "\r\n"
 
     else:
