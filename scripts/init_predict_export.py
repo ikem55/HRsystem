@@ -20,7 +20,8 @@ from modules.lb_extract import LBExtract
 # exportがFalseの場合import処理を実施
 # ====================================== パラメータ　要変更 =====================================================
 
-model_name = 'raceuma_ens'
+# モデル名を変更できるように修正が必要・・
+model_name = 'race_lgm'
 
 start_date = '2019/01/01'
 end_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
