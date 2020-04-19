@@ -312,7 +312,7 @@ class SkModel(LBSkModel):
         date_list = df['target_date'].drop_duplicates()
         for date in date_list:
             print(date)
-            target_df = re_df[re_df['target_date'] == date]
+            target_df = re_df[re_df['target_date'] == date][["RACE_KEY", "pred", "prob", "target", "target_date"]]
             print(target_df.head())
             crsr.execute("DELETE FROM " + self.table_name + " WHERE target_date ='" + date + "'")
             crsr.executemany(
