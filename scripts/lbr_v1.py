@@ -308,6 +308,7 @@ class SkModel(LBSkModel):
         cnxn = pyodbc.connect(self.conn_str)
         crsr = cnxn.cursor()
         re_df = df.replace([np.inf, -np.inf], np.nan).dropna()
+        re_df.drop("index", axis=1, inplace=True)
         date_list = df['target_date'].drop_duplicates()
         for date in date_list:
             print(date)

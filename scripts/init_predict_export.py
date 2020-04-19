@@ -55,6 +55,7 @@ elif model_version == "lbr_v1":
     sk_model = LBRv1SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
     table_name = '地方競馬レースV1'
     check_flag = False
+    ######################### exportにindexが入っているので要修正
 
 else:
     print("----------- error ---------------")
