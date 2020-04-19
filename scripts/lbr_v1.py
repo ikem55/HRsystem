@@ -254,6 +254,7 @@ class SkProc(LBSkProc):
         """
         this_model_name = self.model_name + "_" + cls_val + '_' + val + '_' + target
         pred_df = self.predict_race_lgm(this_model_name, temp_df)
+        print(pred_df.head())
         return pred_df
 
     def predict_race_lgm(self, this_model_name, temp_df):
