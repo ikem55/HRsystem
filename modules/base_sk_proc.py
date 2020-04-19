@@ -189,10 +189,6 @@ class BaseSkProc(object):
         """ 学習データをtrainとtestに分ける。オブジェクトのx_df,y_dfからX_train,X_test,y_train,y_testに分けてセットする """
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.x_df, self.y_df, test_size=0.25, random_state=None)
-        #print("obj data check: y_train")
-        #print(self.y_train.value_counts())
-        #print("obj data check: y_test")
-        #print(self.y_test.value_counts())
 
     def _create_learning_target_encoding(self):
         """ TargetEncodeの計算を行い、計算結果のエンコード値をセットする """

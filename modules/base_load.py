@@ -144,7 +144,7 @@ class BaseLoad(object):
 
     def set_result_df(self):
         """ result_dfを作成するための処理。result_dfに処理がされたデータをセットする """
-        print("set_raceuma_df")
+        print("set_result_df")
         result_race_df = self.ext.get_race_table_base()
         result_raceuma_df = self.ext.get_raceuma_table_base()
         self.result_df = self._proc_result_df(result_race_df, result_raceuma_df)

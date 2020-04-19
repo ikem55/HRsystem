@@ -21,6 +21,8 @@ class TestBaseTaskLearning(TestBaseCommon):
     cls_val = "競走種別コード"
     val = "12"
     target = "WIN_FLAG"
+    obj_column_list = ["WIN_FLAG", "JIKU_FLAG", "ANA_FLAG"]
+    obj_column_list_tr = ["WIN_FLAG_tr", "JIKU_FLAG_tr", "ANA_FLAG_tr"]
 
     def setUp(self):
         """ テスト実施前に必要な処理を記載する。呼び出しクラスやフォルダの指定等 """
@@ -72,7 +74,7 @@ class TestBaseTaskLearning(TestBaseCommon):
         """ 分類軸毎にデータを分割できることを確認。test_01の結果を使いたい """
         print("--  " + sys._getframe().f_code.co_name + " start --")
         file_name = self.intermediate_folder + "_learning.pkl"
-        contain_columns_set = set(["WIN_FLAG", "JIKU_FLAG", "ANA_FLAG"])
+        contain_columns_set = set(self.obj_column_list)
         contain_not_columns_set = set(["データ区分_x"])
         df_list = os.listdir(self.intermediate_folder)
         with open(file_name, 'rb') as f:
@@ -90,6 +92,8 @@ class TestBaseTaskLearning(TestBaseCommon):
                         # filter_dfが空でないことを確認
                         self.assertFalse(len(filter_df.index) == 0)
                         # 必要な項目がちゃんとあるか確認
+                        print(contain_columns_set)
+                        mu.check_df(filter_df)
                         contain_check = self.proc_test_contain_columns_check(filter_df, contain_columns_set)
                         self.assertTrue(contain_check)
                         # 不要な項目がないか確認
@@ -102,7 +106,7 @@ class TestBaseTaskLearning(TestBaseCommon):
         """ 特徴量作成処理を問題なくできることを確認。test_01の結果を使いたい。すでに作成に成功している場合はスキップ """
         print("--  " + sys._getframe().f_code.co_name + " start --")
         dict_list = os.listdir(self.skmodel.dict_folder)
-        check_dict = ["WIN_FLAG_tr", "JIKU_FLAG_tr", "ANA_FLAG_tr"]
+        check_dict = self.obj_column_list_tr
         check_flag = False
         for check in check_dict:
             check_list = [s for s in dict_list if check in s]

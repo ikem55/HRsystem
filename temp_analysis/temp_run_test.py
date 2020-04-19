@@ -1,13 +1,13 @@
-from testmodules.test_lb_task_learning import TestLBv1TaskLearning, TestLBv2TaskLearning, TestLBv3TaskLearning
-from testmodules.test_lb_task_predict import TestLBv1TaskPredict, TestLBv2TaskPredict, TestLBv3TaskPredict
+from testmodules.test_lb_task_learning import TestLBv1TaskLearning, TestLBv2TaskLearning, TestLBv3TaskLearning, TestLBRv1SkModelLearning
+from testmodules.test_lb_task_predict import TestLBv1TaskPredict, TestLBv2TaskPredict, TestLBv3TaskPredict, TestLBRv1TaskPredict
 import unittest
 
 
-class TempTest1(TestLBv3TaskLearning):
-  clean_flag = True
+class TempTest1(TestLBRv1TaskPredict):
+  clean_flag = False
   cls_val = "競走種別コード"
   val = "12"
-  target = "WIN_FLAG"
+  target = "UMAREN_ARE"
 
 def suite():
   suite = unittest.TestSuite()

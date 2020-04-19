@@ -18,6 +18,8 @@ class TestBaseTaskPredict(TestBaseCommon):
     test_flag = True
     dict_path = mc.return_base_path(test_flag)
     clean_flag = False
+    index_list = ["RACE_KEY", "UMABAN", "NENGAPPI"]
+    import_list = ["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]
 
     def setUp(self):
         """ テスト実施前に必要な処理を記載する。呼び出しクラスやフォルダの指定等 """
@@ -46,7 +48,7 @@ class TestBaseTaskPredict(TestBaseCommon):
             self.assertFalse(len(df.index) == 0)
             # columns check
             # 分類軸用の列があるか確認
-            contain_columns_set = set(self.skmodel.class_list + ["RACE_KEY", "UMABAN", "NENGAPPI"])
+            contain_columns_set = set(self.skmodel.class_list + self.index_list)
             contain_check = self.proc_test_contain_columns_check(df, contain_columns_set)
             self.assertTrue(contain_check)
             # データ区分等不要な項目がないか確認
@@ -81,6 +83,6 @@ class TestBaseTaskPredict(TestBaseCommon):
         # not empty check
         self.assertFalse(len(import_df.index) == 0)
         # 必要な列があるかチェック
-        contain_columns_set = set(["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"])
+        contain_columns_set = set(self.import_list)
         contain_check = self.proc_test_contain_columns_check(import_df, contain_columns_set)
         self.assertTrue(contain_check)
