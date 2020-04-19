@@ -78,7 +78,9 @@ class End_baoz_predict(luigi.Task):
                     if not check_df.empty:
                         pred_df = self.skmodel.proc_predict_sk_model(filter_df, cls_val, val)
                         all_pred_df = pd.concat([all_pred_df, pred_df])
+            print(all_pred_df.head())
             all_pred_df.dropna(inplace=True)
+            print(all_pred_df.head())
             import_df = self.skmodel.create_import_data(all_pred_df)
             if self.export_mode:
                 print("export data")
