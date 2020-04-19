@@ -312,6 +312,7 @@ class SkModel(LBSkModel):
         for date in date_list:
             print(date)
             target_df = re_df[re_df['target_date'] == date]
+            print(target_df.head())
             crsr.execute("DELETE FROM " + self.table_name + " WHERE target_date ='" + date + "'")
             crsr.executemany(
                 f"INSERT INTO " + self.table_name + " (競走コード, 予測フラグ, 予測値, target, target_date) VALUES (?,?,?,?,?)",
