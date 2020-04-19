@@ -263,7 +263,7 @@ class SkProc(LBSkProc):
         temp_df = temp_df.replace(np.inf,np.nan).fillna(temp_df.replace(np.inf,np.nan).mean())
         exp_df = temp_df.drop(self.index_list, axis=1).to_numpy()
         print(self.model_folder)
-        if os.path.exists("self.model_folder + this_model_name + '.pickle'"):
+        if os.path.exists(self.model_folder + this_model_name + '.pickle'):
             with open(self.model_folder + this_model_name + '.pickle', 'rb') as f:
                 model = pickle.load(f)
             y_pred = model.predict(exp_df)
