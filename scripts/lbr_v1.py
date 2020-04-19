@@ -262,13 +262,15 @@ class SkProc(LBSkProc):
         temp_df = temp_df.replace(np.inf,np.nan).fillna(temp_df.replace(np.inf,np.nan).mean())
         exp_df = temp_df.drop(self.index_list, axis=1).to_numpy()
         print(self.model_folder)
-        with open(self.model_folder + this_model_name + '.pickle', 'rb') as f:
-            model = pickle.load(f)
-        y_pred = model.predict(exp_df)
-        pred_df = pd.DataFrame({"RACE_KEY": temp_df["RACE_KEY"],"NENGAPPI": temp_df["NENGAPPI"], "prob": y_pred})
-        pred_df.loc[:, "pred"] = pred_df.apply(lambda x: 1 if x["prob"] >= 0.5 else 0, axis=1)
-        return pred_df
-
+        if os.path.exists("self.model_folder + this_model_name + '.pickle'"):
+            with open(self.model_folder + this_model_name + '.pickle', 'rb') as f:
+                model = pickle.load(f)
+            y_pred = model.predict(exp_df)
+            pred_df = pd.DataFrame({"RACE_KEY": temp_df["RACE_KEY"],"NENGAPPI": temp_df["NENGAPPI"], "prob": y_pred})
+            pred_df.loc[:, "pred"] = pred_df.apply(lambda x: 1 if x["prob"] >= 0.5 else 0, axis=1)
+            return pred_df
+        else:
+            return pd.DataFrame()
 
 class SkModel(LBSkModel):
     class_list = ['競走種別コード', '場コード']
