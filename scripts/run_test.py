@@ -1,5 +1,5 @@
-from testmodules.test_lb_task_learning import TestLBv1TaskLearning, TestLBv2TaskLearning, TestLBv3TaskLearning
-from testmodules.test_lb_task_predict import TestLBv1TaskPredict, TestLBv2TaskPredict, TestLBv3TaskPredict
+from testmodules.test_lb_task_learning import TestLBv1TaskLearning, TestLBv2TaskLearning, TestLBv3TaskLearning, TestLBRv1SkModelLearning
+from testmodules.test_lb_task_predict import TestLBv1TaskPredict, TestLBv2TaskPredict, TestLBv3TaskPredict, TestLBRv1TaskPredict
 import unittest
 
 def suite():
@@ -10,6 +10,8 @@ def suite():
   suite.addTest(unittest.makeSuite(TestLBv2TaskPredict))
   suite.addTest(unittest.makeSuite(TestLBv3TaskLearning))
   suite.addTest(unittest.makeSuite(TestLBv3TaskPredict))
+  suite.addTest(unittest.makeSuite(TestLBRv1SkModelLearning))
+  suite.addTest(unittest.makeSuite(TestLBRv1TaskPredict))
   return suite
 
 
