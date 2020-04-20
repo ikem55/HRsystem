@@ -1,6 +1,7 @@
 from scripts.lb_v1 import SkModel as LBv1SkModel
 from scripts.lb_v2 import SkModel as LBv2SkModel
 from scripts.lb_v3 import SkModel as LBv3SkModel
+from scripts.lb_v4 import SkModel as LBv4SkModel
 from scripts.lbr_v1 import SkModel as LBRv1SkModel
 import sys
 
@@ -51,6 +52,10 @@ elif model_version == "lb_v2":
 elif model_version == "lb_v3":
     sk_model = LBv3SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
     table_name = '地方競馬レース馬V3'
+elif model_version == "lb_v4":
+    sk_model = LBv4SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
+    table_name = '地方競馬レース馬V4'
+    check_flag = False
 elif model_version == "lbr_v1":
     sk_model = LBRv1SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
     table_name = '地方競馬レースV1'

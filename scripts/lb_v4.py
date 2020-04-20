@@ -19,6 +19,13 @@ import numpy as np
 import os
 from distutils.util import strtobool
 
+from sklearn.model_selection import train_test_split
+import lightgbm as lgb
+from sklearn.metrics import accuracy_score
+import featuretools as ft
+import pyodbc
+import pickle
+
 basedir = os.path.dirname(__file__)[:-8]
 print(basedir)
 sys.path.append(basedir)
@@ -26,10 +33,10 @@ sys.path.append(basedir)
 # 呼び出し方
 # python lb_v1.py learning True True
 # ====================================== パラメータ　要変更 =====================================================
-
-MODEL_VERSION = 'lb_v2'
-MODEL_NAME = 'raceuma_ens'
-TABLE_NAME = '地方競馬レース馬V2'
+# Modelv4 LightGBMを使ってレースの１着、２着、３着、着外の確率を計算する。木モデルなのでNull許容できるはず
+MODEL_VERSION = 'lb_v4'
+MODEL_NAME = 'raceuma_lgm'
+TABLE_NAME = '地方競馬レース馬V4'
 
 # ============================================================================================================
 
@@ -214,26 +221,6 @@ class Tf(LBTransform):
         temp_horse_df = horse_df[['馬記号コード', '品種コード', '毛色コード', '血統登録番号', '繁殖登録番号1', '繁殖登録番号3', '繁殖登録番号5', '東西所属コード', '生産者コード', '馬主コード']]
         return temp_horse_df
 
-    def encode_horse_df(self, horse_df, dict_folder):
-        """  列をエンコードする処理。騎手名、所属、転厩をラベルエンコーディングして値を置き換える。learning_modeがTrueの場合は辞書生成がされる。
-
-        :param dataframe horse_df:
-        :return: dataframe
-        """
-        temp_horse_df = horse_df.copy()
-        temp_horse_df = self.choose_upper_n_count(temp_horse_df, "繁殖登録番号1", 50, dict_folder)
-        temp_horse_df.loc[:, '繁殖登録番号1'] = mu.label_encoding(horse_df['繁殖登録番号1'], '騎手名', dict_folder).astype(str)
-        temp_horse_df = self.choose_upper_n_count(temp_horse_df, "繁殖登録番号3", 50, dict_folder)
-        temp_horse_df.loc[:, '繁殖登録番号3'] = mu.label_encoding(horse_df['繁殖登録番号3'], '調教師名', dict_folder).astype(str)
-        temp_horse_df = self.choose_upper_n_count(temp_horse_df, "繁殖登録番号5", 50, dict_folder)
-        temp_horse_df.loc[:, '繁殖登録番号5'] = mu.label_encoding(horse_df['繁殖登録番号5'], '調教師名', dict_folder).astype(str)
-        temp_horse_df = self.choose_upper_n_count(temp_horse_df, "生産者コード", 20, dict_folder)
-        temp_horse_df.loc[:, '生産者コード'] = mu.label_encoding(horse_df['生産者コード'], '調教師名', dict_folder).astype(str)
-        temp_horse_df = self.choose_upper_n_count(temp_horse_df, "馬主コード", 100, dict_folder)
-        temp_horse_df.loc[:, '馬主コード'] = mu.label_encoding(horse_df['馬主コード'], '調教師名', dict_folder).astype(str)
-        return temp_horse_df.copy()
-
-
     def factory_analyze_raceuma_result_df(self, race_df, input_raceuma_df, dict_folder):
         """ RaceUmaの因子分析を行うためのデータを取得 """
         print("factory_analyze_raceuma_result_df")
@@ -290,12 +277,11 @@ class Ld(LBLoad):
 
     def _proc_horse_df(self, horse_base_df):
         horse_df = self.tf.choose_horse_column(horse_base_df)
-        horse_df = self.tf.encode_horse_df(horse_df, self.dict_folder)
         return horse_df.copy()
 
 
     def set_prev_df(self):
-        """  prev_dfを作成するための処理。prev1_raceuma_df,prev2_raceuma_dfに処理がされたデータをセットする。過去２走のデータをセットする  """
+        """  prev_dfを作成するための処理。prev1_raceuma_df,preV4_raceuma_dfに処理がされたデータをセットする。過去２走のデータをセットする  """
         print("set_prev_df")
         race_result_df, raceuma_result_df = self._get_prev_base_df(5)
         self.prev5_raceuma_df = self._get_prev_df(5, race_result_df, raceuma_result_df)
@@ -307,9 +293,9 @@ class Ld(LBLoad):
         self.prev3_raceuma_df = self._get_prev_df(3, race_result_df, raceuma_result_df)
         self.prev3_raceuma_df.rename(columns=lambda x: x + "_3", inplace=True)
         self.prev3_raceuma_df.rename(columns={"競走コード_3": "競走コード", "馬番_3": "馬番"}, inplace=True)
-        self.prev2_raceuma_df = self._get_prev_df(2, race_result_df, raceuma_result_df)
-        self.prev2_raceuma_df.rename(columns=lambda x: x + "_2", inplace=True)
-        self.prev2_raceuma_df.rename(columns={"競走コード_2": "競走コード", "馬番_2": "馬番"}, inplace=True)
+        self.preV4_raceuma_df = self._get_prev_df(2, race_result_df, raceuma_result_df)
+        self.preV4_raceuma_df.rename(columns=lambda x: x + "_2", inplace=True)
+        self.preV4_raceuma_df.rename(columns={"競走コード_2": "競走コード", "馬番_2": "馬番"}, inplace=True)
         self.prev1_raceuma_df = self._get_prev_df(1, race_result_df, raceuma_result_df)
         self.prev1_raceuma_df.rename(columns=lambda x: x + "_1", inplace=True)
         self.prev1_raceuma_df.rename(columns={"競走コード_1": "競走コード", "馬番_1": "馬番"}, inplace=True)
@@ -360,27 +346,154 @@ class SkProc(LBSkProc):
     """
     地方競馬の機械学習処理プロセスを取りまとめたクラス。
     """
+    lgbm_params = {
+        # 多値分類問題
+        'objective': 'multiclass',
+        # クラス数は 17(0も含める）
+        'num_class': 17,
+    }
+    index_list = ["RACE_KEY", "NENGAPPI"]
+
     def _get_load_object(self, version_str, start_date, end_date, mock_flag, test_flag):
         ld = Ld(version_str, start_date, end_date, mock_flag, test_flag)
         return ld
 
+    def learning_sk_model(self, df, cls_val, val, target):
+        """ 指定された場所・ターゲットに対しての学習処理を行う
+
+        :param dataframe df: dataframe
+        :param str val: str
+        :param str target: str
+        """
+        this_model_name = self.model_name + "_" + cls_val + '_' + val + '_' + target
+        if os.path.exists(self.model_folder + this_model_name + '.pickle'):
+            print("\r\n -- skip create learning model -- \r\n")
+        else:
+            self.set_target_flag(target)
+            print(df.shape)
+            if df.empty:
+                print("--------- alert !!! no data")
+            else:
+                self.set_learning_data(df, target)
+                self.divide_learning_data()
+                if self.y_train.sum() == 0:
+                    print("---- wrong data --- skip learning")
+                else:
+                    self.load_learning_target_encoding()
+                    self.learning_race_lgb(this_model_name)
+
+
+    def learning_race_lgb(self, this_model_name):
+        # テスト用のデータを評価用と検証用に分ける
+        X_eval, X_valid, y_eval, y_valid = train_test_split(self.X_test, self.y_test, random_state=42)
+
+        # データセットを生成する
+        lgb_train = lgb.Dataset(self.X_train, self.y_train)
+        lgb_eval = lgb.Dataset(X_eval, y_eval, reference=lgb_train)
+
+        # 上記のパラメータでモデルを学習する
+        model = lgb.train(self.lgbm_params, lgb_train,
+                          # モデルの評価用データを渡す
+                          valid_sets=lgb_eval,
+                          # 最大で 1000 ラウンドまで学習する
+                          num_boost_round=1000,
+                          # 10 ラウンド経過しても性能が向上しないときは学習を打ち切る
+                          early_stopping_rounds=10)
+
+        self._save_learning_model(model, this_model_name)
+
+    def proc_create_learning_data(self):
+        self._proc_create_base_df()
+        self._drop_unnecessary_columns()
+        self._set_target_variables()
+        learning_df = pd.merge(self.base_df, self.result_df, on="RACE_KEY")
+        return learning_df
+
+    def _drop_unnecessary_columns(self):
+        """ predictに不要な列を削除してpredict_dfを作成する。削除する列は血統登録番号、確定着順、タイム指数、単勝オッズ、単勝人気  """
+        pass
+    #        self.base_df.drop(['血統登録番号'], axis=1, inplace=True)
+
+    def _set_target_variables(self):
+        self.ld.set_result_df()
+        ck1_df = self._create_target_ck1()
+        ck2_df = self._create_target_ck2()
+        ck3_df = self._create_target_ck3()
+        self.result_df = pd.merge(ck1_df, ck2_df, on="競走コード")
+        self.result_df = pd.merge(self.result_df, ck3_df, on="競走コード").rename(columns={"競走コード": "RACE_KEY"})
+
+    def _create_target_ck1(self):
+        """  １着馬を目的変数にセット """
+        ck1_df = self.ld.result_df.query("確定着順 == 1")[["競走コード", "馬番"]].rename(columns={"馬番": "１着"})
+        return ck1_df
+
+    def _create_target_ck2(self):
+        """  １着馬を目的変数にセット """
+        ck2_df = self.ld.result_df.query("確定着順 == 2")[["競走コード", "馬番"]].rename(columns={"馬番": "２着"})
+        return ck2_df
+
+    def _create_target_ck3(self):
+        """  １着馬を目的変数にセット """
+        ck3_df = self.ld.result_df.query("確定着順 == 3")[["競走コード", "馬番"]].rename(columns={"馬番": "３着"})
+        return ck3_df
+
+    def _proc_create_base_df(self):
+        self._set_ld_data()
+        self._merge_df()
+        self._create_feature()
+        self._drop_columns_base_df()
+        self._scale_df()
+        self._flat_base_df()
+        self.base_df = self._rename_key(self.base_df)
+
+    def _flat_base_df(self):
+        """ レース馬情報を１行に並べてレース情報をつなげたものをbase_dfとして再作成する """
+        print("_flat_base_df")
+        temp_df = self.base_df
+        temp_df = temp_df.astype({"馬番": str})
+        temp_df = temp_df.set_index(["競走コード", "馬番"])
+        temp_unstack_df = temp_df.unstack()
+        unstack_columns = ["_".join(pair) for pair in temp_unstack_df.columns]
+        temp_unstack_df.columns = unstack_columns
+        columns_base = temp_df.columns.values.tolist()
+        columns_list = []
+        for i in range(1, 17):
+            columns_list += [s + "_" + str(i) for s in columns_base]
+        dif_list = columns_list.copy()
+        for col in unstack_columns:
+            try:
+                dif_list.remove(col)
+            except ValueError:
+                continue
+        for col in dif_list:
+            temp_unstack_df[col] = np.NaN
+        self.base_df = pd.merge(self.ld.race_df, temp_unstack_df, on ="競走コード")
+        self.base_df.drop("発走時刻", axis=1, inplace= True)
+
+    def f(self, a):
+        a.index = [0 for i in range(len(a))]
+        del a['ID']
+        out = a[0:1]
+        for i in range(1, len(a)):
+            out = out.join(a[i:i + 1], rsuffix='{0}'.format(i))
+        return out
+
+    def _rename_key(self, df):
+        """ キー名を競走コード→RACE_KEY、馬番→UMABANに変更 """
+        return_df = df.rename(columns={"競走コード": "RACE_KEY", "月日": "NENGAPPI"})
+        return return_df
 
     def _merge_df(self):
-        """  レース、レース馬、前走、過去走のデータを結合したdataframeをbase_dfにセットする。競走コードと馬番はRACE_KEY,UMABANに名前変更する  """
+        """  レース、レース馬、前走、過去走のデータを結合したdataframeをbase_dfにセットする。最後にRaceumaをフラットにするのでRace系は最小限のみの結合で残す  """
         print("merge_to_basedf")
-        self.base_df = pd.merge(self.ld.race_df, self.ld.raceuma_df, on="競走コード")
+        temp_race_df = self.ld.race_df[["競走コード", "主催者コード", "場コード", "距離グループ", "季節", "頭数グループ"]]
+        self.base_df = pd.merge(temp_race_df, self.ld.raceuma_df, on="競走コード")
         self.base_df = pd.merge(self.base_df, self.ld.horse_df, on="血統登録番号")
         self.base_df = pd.merge(self.base_df, self.ld.prev1_raceuma_df, on=["競走コード", "馬番"], how='left')
-        self.base_df = pd.merge(self.base_df, self.ld.prev2_raceuma_df, on=["競走コード", "馬番"], how='left')
+        self.base_df = pd.merge(self.base_df, self.ld.preV4_raceuma_df, on=["競走コード", "馬番"], how='left')
         self.base_df = pd.merge(self.base_df, self.ld.prev3_raceuma_df, on=["競走コード", "馬番"], how='left')
         self.base_df = pd.merge(self.base_df, self.ld.prev4_raceuma_df, on=["競走コード", "馬番"], how='left')
         self.base_df = pd.merge(self.base_df, self.ld.prev5_raceuma_df, on=["競走コード", "馬番"], how='left')
-
-    def create_feature(self):
-        """ 最終的にマージされたDatabaseから特徴量を生成する """
-        print(self.base_df.iloc[0])
-        self.base_df = self.create_base_df_feature(self.base_df)
-        self.base_df = self.drop_base_df(self.base_df)
 
 
     def _create_feature(self,):
@@ -479,46 +592,87 @@ class SkProc(LBSkProc):
              "同所属騎手_1", "同所属騎手_2", "同所属騎手_3", "同所属騎手_4", "同所属騎手_5",
              "同距離グループ_1", "同距離グループ_2", "同距離グループ_3", "同距離グループ_4", "同距離グループ_5",
              "同場_1", "同場_2", "同場_3", "同場_4", "同場_5",
-             "発走時刻", "年月日", "近走競走コード1", "近走馬番1", "近走競走コード2", "近走馬番2", "近走競走コード3", "近走馬番3", "近走競走コード4", "近走馬番4",
+             "年月日", "近走競走コード1", "近走馬番1", "近走競走コード2", "近走馬番2", "近走競走コード3", "近走馬番3", "近走競走コード4", "近走馬番4",
              "近走競走コード5", "近走馬番5",
              "負担重量_1", "負担重量_2", "負担重量_3", "負担重量_4", "負担重量_5",
              "上がりタイム順位_1", "上がりタイム順位_2", "上がりタイム順位_3", "上がりタイム順位_4", "上がりタイム順位_5",
              ],
         axis=1, inplace=True)
 
-
     def _scale_df(self):
         print("scale_df")
-        mmsc_columns = ["距離", "頭数", "枠番", "休養後出走回数", "予想人気", "先行指数順位", "馬齢", "距離増減", "前走頭数"]
+        mmsc_columns = ["枠番", "休養後出走回数", "予想人気", "先行指数順位", "馬齢", "距離増減", "前走頭数"]
         mmsc_dict_name = "sc_base_mmsc"
-        stdsc_columns = ["予想勝ち指数", "休養週数", "キャリア", "斤量比", "負担重量", "デフォルト得点", "得点V1", "得点V2", "得点V3"
+        stdsc_columns = ["休養週数", "キャリア", "斤量比", "負担重量", "デフォルト得点", "得点V1", "得点V2", "得点V3"
             , "fa_1_1", "fa_2_1", "fa_3_1", "fa_4_1", "fa_5_1", "fa_1_2", "fa_2_2", "fa_3_2", "fa_4_2", "fa_5_2"
             , "fa_1_3", "fa_2_3", "fa_3_3", "fa_4_3", "fa_5_3", "fa_1_4", "fa_2_4", "fa_3_4", "fa_4_4", "fa_5_4"
             , "fa_1_5", "fa_2_5", "fa_3_5", "fa_4_5", "fa_5_5"]
         stdsc_dict_name = "sc_base_stdsc"
-
         self.base_df = mu.scale_df_for_fa(self.base_df, mmsc_columns, mmsc_dict_name, stdsc_columns, stdsc_dict_name, self.dict_folder)
-        self.base_df.loc[:, "競走種別コード_h"] = self.base_df["競走種別コード"]
-        self.base_df.loc[:, "場コード_h"] = self.base_df["場コード"]
-        hash_track_columns = ["主催者コード", "競走種別コード_h", "場コード_h", "競走条件コード", "トラックコード"]
-        hash_track_dict_name = "sc_base_hash_track"
-        self.base_df = mu.hash_eoncoding(self.base_df, hash_track_columns, 10, hash_track_dict_name, self.dict_folder)
-        hash_newtype1_columns = ["季節", "ナイター", "非根幹", "距離グループ", "頭数グループ", "性別コード", "予想展開"]
-        hash_newtype1_dict_name = "sc_base_hash_newtype1"
-        self.base_df = mu.hash_eoncoding(self.base_df, hash_newtype1_columns, 10, hash_newtype1_dict_name, self.dict_folder)
-        hash_newtype2_columns = ["クラス変動", "騎手所属場コード", "見習区分", "テン乗り", "調教師所属場コード", "馬番グループ"
-            , "馬記号コード", "品種コード", "毛色コード", "東西所属コード"]
-        hash_newtype2_dict_name = "sc_base_hash_newtype2"
-        self.base_df = mu.hash_eoncoding(self.base_df, hash_newtype2_columns, 20, hash_newtype2_dict_name, self.dict_folder)
+
+    def _sub_distribute_predict_model(self, cls_val, val, target, temp_df):
+        """ model_nameに応じたモデルを呼び出し予測を行う
+
+        :param str val: 場所名
+        :param str target: 目的変数名
+        :param dataframe temp_df: 予測するデータフレーム
+        :return dataframe: pred_df
+        """
+        this_model_name = self.model_name + "_" + cls_val + '_' + val + '_' + target
+        pred_df = self.predict_race_lgm(this_model_name, temp_df)
+        print(pred_df.head())
+        return pred_df
+
+    def predict_race_lgm(self, this_model_name, temp_df):
+        print("======= this_model_name: " + this_model_name + " ==========")
+        temp_df = temp_df.replace(np.inf,np.nan).fillna(temp_df.replace(np.inf,np.nan).mean()).reset_index()
+        exp_df = temp_df.drop(self.index_list, axis=1).to_numpy()
+        print(self.model_folder)
+        if os.path.exists(self.model_folder + this_model_name + '.pickle'):
+            with open(self.model_folder + this_model_name + '.pickle', 'rb') as f:
+                model = pickle.load(f)
+            y_pred = model.predict(exp_df)
+            pred_df = pd.DataFrame(y_pred, columns=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+            base_df = pd.DataFrame({"RACE_KEY": temp_df["RACE_KEY"], "NENGAPPI": temp_df["NENGAPPI"]})
+            pred_df = pd.concat([base_df, pred_df], axis=1)
+            pred_df = pred_df.set_index(["RACE_KEY", "NENGAPPI"])
+            pred_df = pred_df.stack().reset_index().rename(columns={"level_2":"UMABAN", 0: "prob"})
+            pred_df = pred_df[pred_df["UMABAN"] != 0]
+            pred_df.loc[:, "pred"] = 0
+            return pred_df
+        else:
+            return pd.DataFrame()
+
 
 class SkModel(LBSkModel):
     class_list = ['競走種別コード', '場コード', 'コース']
     table_name = TABLE_NAME
+    obj_column_list = ['１着', '２着', '３着']
 
     def _get_skproc_object(self, version_str, start_date, end_date, model_name, mock_flag, test_flag):
         proc = SkProc(version_str, start_date, end_date, model_name, mock_flag, test_flag, self.obj_column_list)
         return proc
 
+    def proc_learning_sk_model(self, df, cls_val, val):
+        """  説明変数ごとに、指定された場所の学習を行う
+
+        :param dataframe df: dataframe
+        :param str basho: str
+        """
+        for target in self.obj_column_list:
+            print(target)
+            self.proc.learning_sk_model(df, cls_val, val, target)
+
+    def create_import_data(self, all_df):
+        """ データフレームをアンサンブル化（Vote）して格納 """
+        print(all_df)
+        grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
+        date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
+        temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
+        grouped_df = self.calc_grouped_data(temp_grouped_df)
+        import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
+        print(import_df)
+        return import_df
 
 # ============================================================================================================
 
@@ -535,6 +689,8 @@ if __name__ == "__main__":
     dict_path = mc.return_base_path(test_flag)
     INTERMEDIATE_FOLDER = dict_path + 'intermediate/' + MODEL_VERSION + '_' + args[1] + '/' + MODEL_NAME + '/'
     print("intermediate_folder:" + INTERMEDIATE_FOLDER)
+
+    pd.set_option('display.max_rows', 300)
 
     if mode == "learning":
         if test_flag:

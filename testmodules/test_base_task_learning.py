@@ -162,7 +162,7 @@ class TestBaseTaskLearning(TestBaseCommon):
                         with open(self.intermediate_folder + data_file_name[0], 'rb') as f:
                             df = pickle.load(f)
                             # 学習を実施
-                            check_df = df.dropna()
-                            if not check_df.empty:
-                                self.skmodel.proc_learning_sk_model(df, cls_val, val)
+                            # check_df = df.dropna()
+                            # if not check_df.empty:
+                            self.skmodel.proc_learning_sk_model(df, cls_val, val)
                     break

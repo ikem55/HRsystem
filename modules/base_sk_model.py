@@ -112,15 +112,18 @@ class BaseSkModel(object):
         :param dataframe df: dataframe
         :param str basho: str
         """
-        if len(df.index) >= 30:
-            print("----- アンサンブル学習用のクラスをセット -----")
-            self.proc.set_ensemble_params(self.clfs, self.index_list, self.ens_folder_path)
-            print(df.shape)
-            for target in self.obj_column_list:
-                print(target)
-                self.proc.learning_sk_model(df, cls_val, val, target)
+        if not df.dropna().empty:
+            if len(df.index) >= 30:
+                print("----- アンサンブル学習用のクラスをセット -----")
+                self.proc.set_ensemble_params(self.clfs, self.index_list, self.ens_folder_path)
+                print(df.shape)
+                for target in self.obj_column_list:
+                    print(target)
+                    self.proc.learning_sk_model(df, cls_val, val, target)
+            else:
+                print("---- 少数レコードのため学習スキップ -- " + str(len(df.index)))
         else:
-            print("---- 少数レコードのため学習スキップ -- " + str(len(df.index)))
+            print("---- NaNデータが含まれているため学習をスキップ")
 
     def create_predict_data(self):
         """ 予測用データを作成。処理はprocを呼び出す """
@@ -130,6 +133,7 @@ class BaseSkModel(object):
 
     def create_import_data(self, all_df):
         """ データフレームをアンサンブル化（Vote）して格納 """
+        all_df.dropna(inplace=True)
         grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
         date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
         temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")

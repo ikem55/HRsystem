@@ -72,14 +72,13 @@ class End_baoz_predict(luigi.Task):
                     print("=============== cls_val:" + cls_val + " val:" + val + " ===========================")
                     filter_df = self.skmodel.get_filter_df(exp_data, cls_val, val)
                     # 予測を実施
-                    check_df = filter_df.dropna()
-                    print(filter_df.shape)
-                    print(check_df.shape)
-                    if not check_df.empty:
-                        pred_df = self.skmodel.proc_predict_sk_model(filter_df, cls_val, val)
-                        all_pred_df = pd.concat([all_pred_df, pred_df])
-                        print(all_pred_df.shape)
-            all_pred_df.dropna(inplace=True)
+                    # check_df = filter_df.dropna()
+                    # print(filter_df.shape)
+                    # print(check_df.shape)
+                    # if not check_df.empty:
+                    pred_df = self.skmodel.proc_predict_sk_model(filter_df, cls_val, val)
+                    all_pred_df = pd.concat([all_pred_df, pred_df])
+                    print(all_pred_df.shape)
             import_df = self.skmodel.create_import_data(all_pred_df)
             if self.export_mode:
                 print("export data")

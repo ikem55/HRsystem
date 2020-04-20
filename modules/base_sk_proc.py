@@ -80,7 +80,7 @@ class BaseSkProc(object):
 
     def proc_create_predict_data(self):
         self._proc_create_base_df()
-        print("nullレコード削除：" + str(self.base_df.isnull().any().sum()))
+        # print("nullレコード削除：" + str(self.base_df.isnull().any().sum()))
         # self.base_df.dropna(how='any', axis=0, inplace=True)
         self._drop_unnecessary_columns()
         return self.base_df

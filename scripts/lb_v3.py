@@ -320,11 +320,6 @@ class SkProc(LBSkProc):
             ["発走時刻_1", "発走時刻", "年月日", "近走競走コード1", "近走馬番1"],
         axis=1, inplace=True)
 
-    def drop_base_columns(self):
-        print("つかってない？")
-        self.base_df.drop(["発走時刻", "年月日", "近走競走コード1", "近走馬番1"], axis=1, inplace=True)
-
-
     def _scale_df(self):
         print("scale_df")
         mmsc_columns = ["距離", "頭数", "枠番", "休養後出走回数", "先行指数順位", "馬齢", "距離増減"]
