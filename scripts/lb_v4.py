@@ -627,11 +627,13 @@ class SkProc(LBSkProc):
         print("======= this_model_name: " + this_model_name + " ==========")
         temp_df = temp_df.replace(np.inf,np.nan).fillna(temp_df.replace(np.inf,np.nan).mean()).reset_index()
         exp_df = temp_df.drop(self.index_list, axis=1).to_numpy()
+        print(exp_df)
         print(self.model_folder)
         if os.path.exists(self.model_folder + this_model_name + '.pickle'):
             with open(self.model_folder + this_model_name + '.pickle', 'rb') as f:
                 model = pickle.load(f)
             y_pred = model.predict(exp_df)
+            print(y_pred)
             pred_df = pd.DataFrame(y_pred, columns=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
             base_df = pd.DataFrame({"RACE_KEY": temp_df["RACE_KEY"], "NENGAPPI": temp_df["NENGAPPI"]})
             pred_df = pd.concat([base_df, pred_df], axis=1)

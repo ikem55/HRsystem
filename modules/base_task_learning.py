@@ -39,7 +39,6 @@ class Sub_get_learning_data(luigi.Task):
                 for val in val_list:
                     filter_df = self.skmodel.get_filter_df(self.skmodel.learning_df, cls_val, val)
                     print(filter_df.shape)
-                    print(filter_df.dropna().shape)
                     filter_df.to_pickle(self.intermediate_folder + "learning_" + cls_val + "_" + val + ".pkl")
 
             slack.post_slack_text(
