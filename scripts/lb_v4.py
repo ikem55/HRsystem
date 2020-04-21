@@ -661,9 +661,12 @@ class SkModel(LBSkModel):
         :param dataframe df: dataframe
         :param str basho: str
         """
-        for target in self.obj_column_list:
-            print(target)
-            self.proc.learning_sk_model(df, cls_val, val, target)
+        if len(df.index) >= 30:
+            for target in self.obj_column_list:
+                print(target)
+                self.proc.learning_sk_model(df, cls_val, val, target)
+        else:
+            print("---- 少数レコードのため学習スキップ -- " + str(len(df.index)))
 
     def create_import_data(self, all_df):
         """ データフレームをアンサンブル化（Vote）して格納 """
