@@ -4,7 +4,7 @@ import unittest
 
 
 class TempTest1(TestLBv4TaskPredict):
-  clean_flag = False
+  clean_flag = True
   cls_val = "競走種別コード"
   val = "12"
   target = "１着"

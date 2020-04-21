@@ -307,8 +307,8 @@ def check_df(df):
 
     :param dataframe df:
     """
-    pd.set_option('display.max_columns', 300)
-    pd.set_option('display.max_rows', 300)
+    pd.set_option('display.max_columns', 3000)
+    pd.set_option('display.max_rows', 3000)
 
     print("------------ データサンプル ----------------------------")
     print(df.iloc[0])

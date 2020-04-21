@@ -90,7 +90,6 @@ class TestLBv4TaskLearning(TestBaseTaskLearning):
             self.skmodel.proc.set_target_flag(self.target)
             self.skmodel.proc.set_learning_data(df, self.target)
             self.skmodel.proc.divide_learning_data()
-            self.skmodel.proc.load_learning_target_encoding()
             X_train = self.skmodel.proc.X_train
             mu.check_df(X_train)
 
