@@ -83,6 +83,7 @@ class End_baoz_predict(luigi.Task):
             if self.export_mode:
                 print("export data")
                 import_df.to_pickle(self.intermediate_folder + 'export_data.pkl')
+                # self.skmodel.eval_pred_data(import_df)
             else:
                 self.skmodel.import_data(import_df)
             slack = OperationSlack()

@@ -4,7 +4,7 @@ import sys
 
 class BaseExtract(object):
     """
-    データ抽出に関する共通モデル
+    データ抽出に関する共通モデル。データ取得については下位モデルで定義する。
     """
     mock_flag = False
     """ mockデータを使うかの判断に使用するフラグ。Trueの場合はMockデータを使う """
@@ -66,48 +66,63 @@ class BaseExtract(object):
         wide_df.to_pickle(self.mock_path_wide)
         sanrenpuku_df.to_pickle(self.mock_path_sanrenpuku)
 
-    def get_bet_table_base(self):
-        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
-
-    def get_haraimodoshi_table_base(self):
-        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
-
-    def get_zandaka_table_base(self):
-        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
-
-    def get_mydb_table_base(self):
-        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
-
     def get_race_table_base(self):
+        """ レース単位のデータを作成する。結果データも含む。 """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_race_before_table_base(self):
+        """ レース単位のデータを作成する。結果データは含まない。 """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_raceuma_table_base(self):
+        """ レース馬単位のデータを作成する。結果データも含む """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_raceuma_before_table_base(self):
+        """ レース馬単位のデータを作成する。結果データは含まない """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_horse_table_base(self):
+        """ 競走馬単位のデータを作成する。 """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_tansho_table_base(self):
+        """ 単勝オッズに関するデータを作成する """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_fukusho_table_base(self):
+        """ 複勝オッズに関するデータを作成する """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_umaren_table_base(self):
+        """ 馬連オッズに関するデータを作成する """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_umatan_table_base(self):
+        """ 馬単オッズに関するデータを作成する """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_wide_table_base(self):
+        """ ワイドオッズに関するデータを作成する """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 
     def get_sanrenpuku_table_base(self):
+        """ 三連複オッズに関するデータを作成する """
+        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
+
+    def get_haraimodoshi_table_base(self):
+        """ 払戻結果に関するデータを作成する """
+        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
+
+    def get_bet_table_base(self):
+        """ 投票に関するデータを作成する """
+        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
+
+    def get_zandaka_table_base(self):
+        """ 残高に関するデータを作成する """
+        print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
+
+    def get_mydb_table_base(self):
+        """ 自分で作った指数データを作成する """
         print("-- check! this is BaseExtract class: " + sys._getframe().f_code.co_name)
 

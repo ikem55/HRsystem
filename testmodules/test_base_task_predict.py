@@ -80,6 +80,7 @@ class TestBaseTaskPredict(TestBaseCommon):
                 break
         all_pred_df.dropna(inplace=True)
         import_df = self.skmodel.create_import_data(all_pred_df)
+        # self.skmodel.eval_pred_data(import_df)
         # not empty check
         self.assertFalse(len(import_df.index) == 0)
         # 必要な列があるかチェック

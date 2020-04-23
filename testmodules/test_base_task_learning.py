@@ -56,6 +56,7 @@ class TestBaseTaskLearning(TestBaseCommon):
             self.assertFalse(len(df.index) == 0)
             # columns check
             # 分類軸用の列があるか確認
+            mu.check_df(df)
             contain_columns_set = set(self.skmodel.class_list)
             contain_check = self.proc_test_contain_columns_check(df, contain_columns_set)
             self.assertTrue(contain_check)

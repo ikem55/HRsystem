@@ -218,7 +218,7 @@ class BaseSkProc(object):
         :param series y: 目的変数のSeries
         :return:
         """
-        print("---- target encoding: " + label)
+        # print("---- target encoding: " + label)
         tr = ce.TargetEncoder(cols=label)
         dict_file = self.dict_folder + '/' + dict_name + '.pkl'
         if fit and not os.path.exists(dict_file):
@@ -313,6 +313,8 @@ class BaseSkProc(object):
 
         temp_df = temp_df.replace(np.inf,np.nan).fillna(temp_df.replace(np.inf,np.nan).mean())
         exp_df = temp_df.drop(self.index_list, axis=1).to_numpy()
+        # ValueError: Input contains NaN, infinity or a value too large for dtype('float32').対応
+        exp_df[(np.isnan(exp_df)) | (exp_df==float("inf")) | (exp_df==float("-inf"))] = 0.0
         print(exp_df.shape)
         first_np = self._calc_pred_layer('first', this_model_name, exp_df)
         if len(first_np) != 0:
@@ -529,3 +531,10 @@ class BaseSkProc(object):
         self._set_label_list(df)
         df_temp = self._set_target_encoding(df, False, "").copy()
         return df_temp
+
+    def create_eval_prd_data(self, df):
+        """ 予測されたデータの精度をチェック """
+        self._set_target_variables()
+        result_df = self.result_df.rename(columns={"競走コード": "RACE_KEY"})
+        check_df = pd.merge(df, result_df, on="RACE_KEY")
+        return check_df[check_df["predict_rank"] == 1].copy()

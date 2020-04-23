@@ -5,13 +5,13 @@ import pyodbc
 
 class LBExtract(BaseExtract):
     """
-    地方競馬に関するデータ抽出処理
+    地方競馬に関するデータ抽出処理。mock_flagがTrueの時はモックデータを返す
     """
     mock_path = '../mock_data/lb/'
     row_cnt = 1000
 
     def get_race_table_base(self):
-        """ レーステーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+        """ 馬王ZのMDGからレーステーブルからデータを取得する。。
 
         :return: dataframe
         """
@@ -29,27 +29,10 @@ class LBExtract(BaseExtract):
         return_df = df[df["主催者コード"] == 2].copy()
         return return_df
 
-    def _get_cur_data(self, cnxn, select_sql):
-        ### カーソル処理したときにデータ型をうまく読み込めない。。。
-        cur = cnxn.cursor()
-        cur.execute(select_sql)
-        db_columns = [column[0] for column in cur.description]
-        print(cur.description)
-        db_types = [column[1] for column in cur.description]
-        print(db_types)
-        rows = cur.fetchmany(self.row_cnt)
-        while len(rows) > 0:
-            df_org = pd.DataFrame(np.array(rows))
-            rows = cur.fetchmany(self.row_cnt)
-        cur.close()
-        df_org.columns = db_columns
-        return df_org.copy()
-
     def get_race_before_table_base(self):
         temp_df = self.get_race_table_base()
         df = temp_df.astype({'場コード': object, '競走種別コード': object, 'トラックコード': object})
         return df[["データ区分", "競走コード", "月日", "距離", "トラック種別コード", "主催者コード", "競走番号", "場コード", "場名", "グレードコード", "競走種別コード", "競走条件コード", "発走時刻", "頭数", "トラックコード", "予想勝ち指数", "初出走頭数", "混合", "予想決着指数", "登録頭数", "回次", "日次"]].copy()
-
 
     def get_raceuma_table_base(self):
         """  出走馬テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
@@ -77,7 +60,6 @@ class LBExtract(BaseExtract):
             , "キャリア", "馬齢", "調教師コード", "調教師所属場コード", "調教師名", "負担重量", "距離増減", "前走着順", "前走人気", "前走着差", "前走トラック種別コード", "前走馬体重", "前走頭数", "タイム指数上昇係数", "タイム指数回帰推定値", "タイム指数回帰標準偏差", "所属",  "転厩", "斤量比", "前走休養週数", "騎手ランキング", "調教師ランキング", "得点V1", "得点V2"
             , "得点V3", "得点V1順位", "得点V2順位", "デフォルト得点順位", "得点V3順位"]].copy()
 
-
     def get_horse_table_base(self):
         """ 競走馬マスタからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
 
@@ -92,57 +74,6 @@ class LBExtract(BaseExtract):
             cnxn.close()
             df = df_org.astype({'血統登録番号': object, '競走馬抹消区分': object, 'JRA施設在厩フラグ': object, '馬記号コード': object, '性別コード': object, '毛色コード': object, '繁殖登録番号1': object, '繁殖登録番号2': object, '繁殖登録番号3': object, '繁殖登録番号4': object, '繁殖登録番号5': object, '繁殖登録番号6': object,
                                 '繁殖登録番号7': object, '繁殖登録番号8': object, '繁殖登録番号9': object, '繁殖登録番号10': object, '繁殖登録番号11': object, '繁殖登録番号12': object, '繁殖登録番号13': object, '繁殖登録番号14': object, '東西所属コード': object, '調教師コード': object, '生産者コード': object, '馬主コード': object})
-        return df
-
-
-    def get_bet_table_base(self):
-        """ 投票記録テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
-
-        :return: dataframe
-        """
-        if self.mock_flag:
-            df = pd.read_pickle(self.mock_path_bet)
-        else:
-            cnxn = self._connect_baoz_bet_mdb()
-            select_sql = 'SELECT * FROM 投票記録T WHERE 日付 >= #' + \
-                self.start_date + '# AND 日付 <= #' + self.end_date + '#'
-            df_org = pd.read_sql(select_sql, cnxn)
-            cnxn.close()
-            df = df_org.astype(
-                {'式別': object, 'レース種別': object, 'PAT_ID': object, '投票方法': object})
-        return df
-
-
-    def get_haraimodoshi_table_base(self):
-        """ 払戻テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
-
-        :return:dataframe
-        """
-        if self.mock_flag:
-            df = pd.read_pickle(self.mock_path_haraimodoshi)
-        else:
-            cnxn = self._connect_baoz_ra_mdb()
-            select_sql = 'SELECT * FROM 払戻T WHERE データ作成年月日 >= #' + \
-                self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
-            df_org = pd.read_sql(select_sql, cnxn)
-            cnxn.close()
-            df = df_org.astype({'不成立フラグ': object, '特払フラグ': object, '返還フラグ': object, '返還馬番情報': object, '返還枠番情報': object, '返還同枠情報': object, '単勝馬番1': object, '単勝馬番2': object, '単勝馬番3': object, '複勝馬番1': object, '複勝馬番2': object, '複勝馬番3': object, '複勝馬番4': object, '複勝馬番5': object, '枠連連番1': object, '枠連連番2': object, '枠連連番3': object, '馬連連番1': object, '馬連連番2': object, '馬連連番3': object, 'ワイド連番1': object, 'ワイド連番2': object,
-                                'ワイド連番3': object, 'ワイド連番4': object, 'ワイド連番5': object, 'ワイド連番6': object, 'ワイド連番7': object, '枠単連番1': object, '枠単連番2': object, '枠単連番3': object, '馬単連番1': object, '馬単連番2': object, '馬単連番3': object, '馬単連番4': object, '馬単連番5': object, '馬単連番6': object, '三連複連番1': object, '三連複連番2': object, '三連複連番3': object, '三連単連番1': object, '三連単連番2': object, '三連単連番3': object, '三連単連番4': object, '三連単連番5': object, '三連単連番6': object})
-        return df
-
-    def get_zandaka_table_base(self):
-        """ 残高テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
-
-        :return: dataframe
-        """
-        if self.mock_flag:
-            df = pd.read_pickle(self.mock_path_zandaka)
-        else:
-            cnxn = self._connect_baoz_mdb()
-            select_sql = 'SELECT * FROM 残高T'
-            df_org = pd.read_sql(select_sql, cnxn)
-            cnxn.close()
-            df = df_org.astype({'主催者コード': object})
         return df
 
     def get_tansho_table_base(self):
@@ -239,6 +170,55 @@ class LBExtract(BaseExtract):
             df_org = pd.read_sql(select_sql, cnxn)
             cnxn.close()
             df = df_org.rename(columns={'三連複全オッズ':'全オッズ', '三連複票数合計': '票数合計'}).astype({'データ区分': object, '全オッズ': object})#(オッズ6桁99999.9倍で設定)*繰り返し816
+        return df
+
+    def get_haraimodoshi_table_base(self):
+        """ 払戻テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return:dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_haraimodoshi)
+        else:
+            cnxn = self._connect_baoz_ra_mdb()
+            select_sql = 'SELECT * FROM 払戻T WHERE データ作成年月日 >= #' + \
+                self.start_date + '# AND データ作成年月日 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
+            df = df_org.astype({'不成立フラグ': object, '特払フラグ': object, '返還フラグ': object, '返還馬番情報': object, '返還枠番情報': object, '返還同枠情報': object, '単勝馬番1': object, '単勝馬番2': object, '単勝馬番3': object, '複勝馬番1': object, '複勝馬番2': object, '複勝馬番3': object, '複勝馬番4': object, '複勝馬番5': object, '枠連連番1': object, '枠連連番2': object, '枠連連番3': object, '馬連連番1': object, '馬連連番2': object, '馬連連番3': object, 'ワイド連番1': object, 'ワイド連番2': object,
+                                'ワイド連番3': object, 'ワイド連番4': object, 'ワイド連番5': object, 'ワイド連番6': object, 'ワイド連番7': object, '枠単連番1': object, '枠単連番2': object, '枠単連番3': object, '馬単連番1': object, '馬単連番2': object, '馬単連番3': object, '馬単連番4': object, '馬単連番5': object, '馬単連番6': object, '三連複連番1': object, '三連複連番2': object, '三連複連番3': object, '三連単連番1': object, '三連単連番2': object, '三連単連番3': object, '三連単連番4': object, '三連単連番5': object, '三連単連番6': object})
+        return df
+
+    def get_bet_table_base(self):
+        """ 投票記録テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_bet)
+        else:
+            cnxn = self._connect_baoz_bet_mdb()
+            select_sql = 'SELECT * FROM 投票記録T WHERE 日付 >= #' + \
+                self.start_date + '# AND 日付 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
+            df = df_org.astype(
+                {'式別': object, 'レース種別': object, 'PAT_ID': object, '投票方法': object})
+        return df
+
+    def get_zandaka_table_base(self):
+        """ 残高テーブルからデータを取得する。mock_flagがTrueの時はmockデータを取得する。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_zandaka)
+        else:
+            cnxn = self._connect_baoz_mdb()
+            select_sql = 'SELECT * FROM 残高T'
+            df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
+            df = df_org.astype({'主催者コード': object})
         return df
 
     def get_mydb_table_base(self):

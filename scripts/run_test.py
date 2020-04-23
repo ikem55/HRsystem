@@ -10,10 +10,10 @@ def suite():
   suite.addTest(unittest.makeSuite(TestLBv2TaskPredict))
   suite.addTest(unittest.makeSuite(TestLBv3TaskLearning))
   suite.addTest(unittest.makeSuite(TestLBv3TaskPredict))
-  suite.addTest(unittest.makeSuite(TestLBv4TaskLearning))
-  suite.addTest(unittest.makeSuite(TestLBv4TaskPredict))
-  suite.addTest(unittest.makeSuite(TestLBRv1SkModelLearning))
-  suite.addTest(unittest.makeSuite(TestLBRv1TaskPredict))
+#  suite.addTest(unittest.makeSuite(TestLBv4TaskLearning))
+#  suite.addTest(unittest.makeSuite(TestLBv4TaskPredict))
+#  suite.addTest(unittest.makeSuite(TestLBRv1SkModelLearning))
+#  suite.addTest(unittest.makeSuite(TestLBRv1TaskPredict))
   return suite
 
 

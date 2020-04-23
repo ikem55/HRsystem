@@ -14,23 +14,19 @@ class BaseTransform(object):
         self.start_date = start_date
         self.end_date = end_date
 
-    
-    def factory_analyze_raceuma_result_df(self, race_df, input_raceuma_df, dict_folder):
-        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
-
-    
     def create_feature_race_base_df(self, race_df):
         print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
 
-    
     def create_feature_race_df(self, race_df):
         print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
 
-    
+
     def create_feature_raceuma_base_df(self, raceuma_df):
         print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
 
-    
+    def factory_analyze_raceuma_result_df(self, race_df, input_raceuma_df, dict_folder):
+        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
+
     def group_prev_raceuma_df(self, raceuma_prev_df, raceuma_base_df):
         print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
 

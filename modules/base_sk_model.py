@@ -162,6 +162,17 @@ class BaseSkModel(object):
     def import_data(self, df):
         print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
 
+    def eval_pred_data(self, df):
+        """ 予測されたデータの精度をチェック """
+        check_df = self.proc.create_eval_prd_data(df)
+        for target in self.obj_column_list:
+            print(target)
+            target_df = check_df[check_df["target"] == target]
+            target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x["UMABAN"] == x[target] else 0, axis=1)
+            print(target_df)
+            avg_rate = target_df["的中"].mean()
+            print(round(avg_rate*100, 1))
+
     @classmethod
     def get_recent_day(cls, start_date):
         print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
