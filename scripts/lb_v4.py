@@ -340,15 +340,6 @@ class SkProc(LBSkProc):
                           tuning_history=history)
         print("Bset Paramss:", best_params)
         print('Tuning history:', history)
-#        model = lgb.train(self.lgbm_params, lgb_train,
-#                          # モデルの評価用データを渡す
-#                          valid_sets=lgb_eval,
-#                          # 最大で 1000 ラウンドまで学習する
-#                          num_boost_round=1000,
-#                          # 10 ラウンド経過しても性能が向上しないときは学習を打ち切る
-#                          early_stopping_rounds=10)
-
-#        model = lgb_original.train(self.lgbm_params, lgb_train, num_boost_round=100)
 
         self._save_learning_model(model, this_model_name)
 
@@ -554,12 +545,12 @@ class SkModel(LBSkModel):
             print("---- 少数レコードのため学習スキップ -- " + str(len(df.index)))
 
     def create_import_data(self, all_df):
-        """ データフレームをアンサンブル化（Vote）して格納 """
+        """ 予測値の偏差と順位を追加して格納 """
         print(all_df)
-        grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
-        date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
-        temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
-        grouped_df = self.calc_grouped_data(temp_grouped_df)
+        #grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
+        #date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
+        #temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
+        grouped_df = self.calc_grouped_data(all_df)
         import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
         print(import_df)
         return import_df

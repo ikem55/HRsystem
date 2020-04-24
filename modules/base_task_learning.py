@@ -117,10 +117,6 @@ class End_baoz_learning(luigi.Task):
                             with open(file_name, 'rb') as f:
                                 df = pickle.load(f)
                                 # 学習を実施
-                                # check_df = df.dropna()
-                                # print(df.shape)
-                                # print(check_df.shape)
-                                # if not check_df.empty:
                                 self.skmodel.proc_learning_sk_model(df, cls_val, val)
             slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") +
                 " finish End_baoz_learning job:" + self.skmodel.version_str)

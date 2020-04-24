@@ -168,7 +168,8 @@ class BaseSkModel(object):
         for target in self.obj_column_list:
             print(target)
             target_df = check_df[check_df["target"] == target]
-            target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x["UMABAN"] == x[target] else 0, axis=1)
+            target_df = target_df.query("pred_rank == 1")
+            target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x[target] == 1 else 0, axis=1)
             print(target_df)
             avg_rate = target_df["的中"].mean()
             print(round(avg_rate*100, 1))

@@ -19,11 +19,12 @@ import os
 from distutils.util import strtobool
 
 from sklearn.model_selection import train_test_split
-import lightgbm as lgb
-from sklearn.metrics import accuracy_score
+import lightgbm as lgb_original
 import featuretools as ft
 import pyodbc
 import pickle
+
+import optuna.integration.lightgbm as lgb
 
 basedir = os.path.dirname(__file__)[:-8]
 print(basedir)
@@ -134,7 +135,76 @@ class SkProc(LBSkProc):
                     print("---- wrong data --- skip learning")
                 else:
                     self.load_learning_target_encoding()
+                    imp_features = self.learning_base_race_lgb(this_model_name)
+                    self.x_df = self.x_df[imp_features]
+                    self.divide_learning_data()
+                    self._set_label_list(self.x_df) # 項目削除されているから再度ターゲットエンコーディングの対象リストを更新する
+                    self.load_learning_target_encoding()
                     self.learning_race_lgb(this_model_name)
+
+    def learning_base_race_lgb(self, this_model_name):
+        # テスト用のデータを評価用と検証用に分ける
+        X_eval, X_valid, y_eval, y_valid = train_test_split(self.X_test, self.y_test, random_state=42)
+
+        # データセットを生成する
+        lgb_train = lgb.Dataset(self.X_train, self.y_train)
+        lgb_eval = lgb.Dataset(X_eval, y_eval, reference=lgb_train)
+
+        # 上記のパラメータでモデルを学習する
+        model = lgb_original.train(self.lgbm_params, lgb_train,
+                          # モデルの評価用データを渡す
+                          valid_sets=lgb_eval,
+                          # 最大で 1000 ラウンドまで学習する
+                          num_boost_round=50,
+                          # 10 ラウンド経過しても性能が向上しないときは学習を打ち切る
+                          early_stopping_rounds=10)
+
+        # 特徴量の重要度を含むデータフレームを作成
+        imp_df = pd.DataFrame()
+        imp_df["feature"] = X_eval.columns
+        imp_df["importance"] = model.feature_importance()
+        print(imp_df)
+        imp_df = imp_df.sort_values("importance")
+
+        # 比較用のランダム化したモデルを学習する
+        N_RUM = 10 #30くらいに数上げてよさそう
+        null_imp_df = pd.DataFrame()
+        for i in range(N_RUM):
+            print(i)
+            ram_lgb_train = lgb.Dataset(self.X_train, np.random.permutation(self.y_train))
+            ram_lgb_eval = lgb.Dataset(X_eval, np.random.permutation(y_eval), reference=lgb_train)
+            ram_model = lgb_original.train(self.lgbm_params, ram_lgb_train,
+                              # モデルの評価用データを渡す
+                              valid_sets=ram_lgb_eval,
+                              # 最大で 1000 ラウンドまで学習する
+                              num_boost_round=100,
+                              # 10 ラウンド経過しても性能が向上しないときは学習を打ち切る
+                              early_stopping_rounds=6)
+            ram_imp_df = pd.DataFrame()
+            ram_imp_df["feature"] = X_eval.columns
+            ram_imp_df["importance"] = ram_model.feature_importance()
+            ram_imp_df = ram_imp_df.sort_values("importance")
+            ram_imp_df["run"] = i + 1
+            null_imp_df = pd.concat([null_imp_df, ram_imp_df])
+
+        # 閾値を設定
+        THRESHOLD = 30
+
+        # 閾値を超える特徴量を取得
+        imp_features = []
+        for feature in imp_df["feature"]:
+            actual_value = imp_df.query(f"feature=='{feature}'")["importance"].values
+            null_value = null_imp_df.query(f"feature=='{feature}'")["importance"].values
+            percentage = (null_value < actual_value).sum() / null_value.size * 100
+            if percentage >= THRESHOLD:
+                imp_features.append(feature)
+
+        print(len(imp_features))
+        print(imp_features)
+
+        self._save_learning_model(imp_features, this_model_name + "_feat_columns")
+        return imp_features
+
 
     def learning_race_lgb(self, this_model_name):
         # テスト用のデータを評価用と検証用に分ける
@@ -154,9 +224,6 @@ class SkProc(LBSkProc):
                           early_stopping_rounds=10)
 
         self._save_learning_model(model, this_model_name)
-        # 学習したモデルでホールドアウト検証する
-        y_pred_proba = model.predict(X_valid, num_iteration=model.best_iteration)
-
 
     def _merge_df(self):
         self.base_df = pd.merge(self.ld.raceuma_df, self.ld.horse_df, on="血統登録番号")
@@ -171,10 +238,11 @@ class SkProc(LBSkProc):
         es.entity_from_dataframe(entity_id='race', dataframe=raceuma_df, index="競走馬コード")
         es.normalize_entity(base_entity_id='race', new_entity_id='raceuma', index="競走コード")
         # 集約関数
-        aggregation_list = ['count', 'min', 'max', 'mean']
-        transform_list = []
+        aggregation_list = ['count', 'min', 'max', 'mean', 'skew']
+        transform_list = ['subtract_numeric', 'multiply_numeric']
         # run dfs
-        feature_matrix, features_dfs = ft.dfs(entityset= es, target_entity= 'race', agg_primitives = aggregation_list , trans_primitives=transform_list, max_depth=2)
+        feature_matrix, features_dfs = ft.dfs(entityset=es, target_entity='race', agg_primitives=aggregation_list,
+                                              trans_primitives=transform_list, max_depth=2)
         print(feature_matrix.shape)
         feature_matrix.head(3)
 
@@ -187,15 +255,13 @@ class SkProc(LBSkProc):
         self.base_df = pd.merge(self.base_df, self.ld.race_df, on="競走コード")
 
     def _drop_columns_base_df(self):
-        print("-- check! this is LBSkProc class: " + sys._getframe().f_code.co_name)
-        self.base_df.drop("発走時刻", axis=1, inplace=True)
-
+        self.base_df.drop(["場名", "発走時刻", "予想タイム指数", "予想展開", "前走人気", "前走着順", "競走条件コード", "脚質評価", "競走条件コード", "脚質評価", "調教師ランキング", "調教師評価", "距離グループ", "騎手ランキング", "騎手評価", "クラス変動", "登録頭数", "馬齢"], axis=1, inplace=True)
 
     def _scale_df(self):
-        print("-- check! this is LBSkProc class: " + sys._getframe().f_code.co_name)
+        pass
 
     def _rename_key(self, df):
-        """ キー名を競走コード→RACE_KEY、馬番→UMABANに変更 """
+        """ キー名を競走コード→RACE_KEY、月日→NENGAPPIに変更 """
         return_df = df.rename(columns={"競走コード": "RACE_KEY", "月日": "NENGAPPI"})
         return return_df
 
@@ -207,9 +273,8 @@ class SkProc(LBSkProc):
         return learning_df
 
     def _drop_unnecessary_columns(self):
-        """ predictに不要な列を削除してpredict_dfを作成する。削除する列は血統登録番号、確定着順、タイム指数、単勝オッズ、単勝人気  """
+        """ 特に処理がないのでパス  """
         pass
-#        self.base_df.drop(['血統登録番号'], axis=1, inplace=True)
 
     def _set_target_variables(self):
         self.ld.set_result_df()
@@ -221,25 +286,25 @@ class SkProc(LBSkProc):
         self.result_df = pd.merge(self.result_df, sanrenpuku_df, on ="競走コード").rename(columns={"競走コード": "RACE_KEY"})
 
     def _create_target_variable_umaren(self):
-        """  UMAREN_AREの目的変数を作成してresult_dfにセットする。条件は< 5, 5 to 20, 20 to 50, 50 over。 """
+        """  UMAREN_AREの目的変数を作成してresult_dfにセットする。配当が２０００円をこえているものにフラグをセットする。 """
         umaren_df = self.ld.dict_haraimodoshi["umaren_df"]
         umaren_df.loc[:, "UMAREN_ARE"] = umaren_df["払戻"].apply(lambda x: 0 if x < 2000 else 1)
         return umaren_df[["競走コード", "UMAREN_ARE"]]
 
     def _create_target_variable_umatan(self):
-        """  UMATAN_AREの目的変数を作成してresult_dfにセットする。条件は< 10,10 to 30, 30 to 70, 70 over。 """
+        """  UMATAN_AREの目的変数を作成してresult_dfにセットする。配当が３０００円をこえているものにフラグをセットする。。 """
         umatan_df = self.ld.dict_haraimodoshi["umatan_df"]
         umatan_df.loc[:, "UMATAN_ARE"] = umatan_df["払戻"].apply(lambda x: 0 if x < 3000 else 1)
         return umatan_df[["競走コード", "UMATAN_ARE"]]
 
     def _create_target_variable_wide(self):
-        """  WIDE_AREの目的変数を作成してresult_dfにセットする。条件は< 3, 3 to 9, 9 to 20, 20 over。 """
+        """  WIDE_AREの目的変数を作成してresult_dfにセットする。配当が９００円をこえているものにフラグをセットする。 """
         wide_df = self.ld.dict_haraimodoshi["wide_df"]
         wide_df.loc[:, "WIDE_ARE"] = wide_df["払戻"].apply(lambda x: 0 if x < 900 else 1)
         return wide_df[["競走コード", "WIDE_ARE"]]
 
     def _create_target_variable_sanrenpuku(self):
-        """  SANRENPUKU_AREの目的変数を作成してresult_dfにセットする。条件は< 10, 10 to 30, 30 to 80, 80 over。 """
+        """  SANRENPUKU_AREの目的変数を作成してresult_dfにセットする。配当が３０００円をこえているものにフラグをセットする。 """
         sanrenpuku_df = self.ld.dict_haraimodoshi["sanrenpuku_df"]
         sanrenpuku_df.loc[:, "SANRENPUKU_ARE"] = sanrenpuku_df["払戻"].apply(lambda x: 0 if x < 3000 else 1)
         return sanrenpuku_df[["競走コード", "SANRENPUKU_ARE"]]
@@ -259,9 +324,11 @@ class SkProc(LBSkProc):
 
     def predict_race_lgm(self, this_model_name, temp_df):
         print("======= this_model_name: " + this_model_name + " ==========")
-
+        with open(self.model_folder + this_model_name + '_feat_columns.pickle', 'rb') as f:
+            imp_features = pickle.load(f)
         temp_df = temp_df.replace(np.inf,np.nan).fillna(temp_df.replace(np.inf,np.nan).mean())
-        exp_df = temp_df.drop(self.index_list, axis=1).to_numpy()
+        exp_df = temp_df.drop(self.index_list, axis=1)
+        exp_df = exp_df[imp_features].to_numpy()
         print(self.model_folder)
         if os.path.exists(self.model_folder + this_model_name + '.pickle'):
             with open(self.model_folder + this_model_name + '.pickle', 'rb') as f:
@@ -274,7 +341,7 @@ class SkProc(LBSkProc):
             return pd.DataFrame()
 
 class SkModel(LBSkModel):
-    class_list = ['競走種別コード', '場コード']
+    class_list = ['主催者コード']
     table_name = TABLE_NAME
     obj_column_list = ['UMAREN_ARE', 'UMATAN_ARE', 'SANRENPUKU_ARE']
 
@@ -293,10 +360,8 @@ class SkModel(LBSkModel):
             self.proc.learning_sk_model(df, cls_val, val, target)
 
     def create_import_data(self, all_df):
-        """ データフレームをアンサンブル化（Vote）して格納 """
-        grouped_all_df = all_df.groupby(["RACE_KEY", "target"], as_index=False).mean().reset_index()
-        date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
-        import_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY").round(3)
+        """ 特に処理はないので桁数だけそろえてリターン"""
+        import_df = all_df.round(3)
         return import_df
 
 
