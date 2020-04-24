@@ -10,7 +10,6 @@ import luigi
 from modules.base_task_learning import End_baoz_learning
 from modules.base_task_predict import End_baoz_predict
 
-from factor_analyzer import FactorAnalyzer
 from datetime import datetime as dt
 from datetime import timedelta
 import sys
@@ -20,10 +19,6 @@ import os
 from distutils.util import strtobool
 
 from sklearn.model_selection import train_test_split
-import lightgbm as lgb_original
-from sklearn.metrics import accuracy_score
-import featuretools as ft
-import pyodbc
 import pickle
 
 import optuna.integration.lightgbm as lgb
@@ -35,7 +30,7 @@ print(basedir)
 sys.path.append(basedir)
 
 # 呼び出し方
-# python lb_v1.py learning True True
+# python lb_v4.py learning True True
 # ====================================== パラメータ　要変更 =====================================================
 # Modelv4 LightGBMを使ってレースの１着、２着、３着、着外の確率を計算する。木モデルなのでNull許容できるはず
 MODEL_VERSION = 'lb_v4'
@@ -190,7 +185,7 @@ class Tf(LBTransform):
         """
         temp_raceuma_df = raceuma_df.copy()
         temp_merge_df = pd.merge(race_df, raceuma_df, on="競走コード")
-        print(temp_merge_df.shape)
+        print("create_feature_raceuma_result_df: temp_merge_df", temp_merge_df.shape)
         temp_raceuma_df.loc[:, "追込率"] = (temp_merge_df["コーナー順位4"] - temp_merge_df["確定着順"]) / temp_merge_df["頭数"]
         temp_raceuma_df.loc[:, "平均タイム"] = temp_merge_df["タイム"] / temp_merge_df["距離"] * 200
         temp_raceuma_df.loc[:, "勝ち"] = temp_raceuma_df["確定着順"].apply(lambda x: 1 if x == 1 else 0)
@@ -310,7 +305,7 @@ class SkProc(LBSkProc):
             print("\r\n -- skip create learning model -- \r\n")
         else:
             self.set_target_flag(target)
-            print(df.shape)
+            print("learning_sk_model: df", df.shape)
             if df.empty:
                 print("--------- alert !!! no data")
             else:
@@ -550,7 +545,7 @@ class SkModel(LBSkModel):
         #grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
         #date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
         #temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
-        grouped_df = self.calc_grouped_data(all_df)
+        grouped_df = self._calc_grouped_data(all_df)
         import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
         print(import_df)
         return import_df

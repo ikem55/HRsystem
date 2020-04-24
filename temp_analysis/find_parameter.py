@@ -50,7 +50,7 @@ df.loc[:, "連"] = df["確定着順"].apply(lambda x: 1 if x in (1, 2) else 0)
 df.loc[:, "複"] = df["確定着順"].apply(lambda x: 1 if x in (1, 2, 3) else 0)
 print(df.head())
 print("------ check ------")
-print(df.shape)
+print("df", df.shape)
 
 iter_range = 5
 score_rate = range(0, 1, iter_range)

@@ -4,6 +4,7 @@ from scripts.lb_v1 import SkModel as LBv1SkModel
 from scripts.lb_v2 import SkModel as LBv2SkModel
 from scripts.lb_v3 import SkModel as LBv3SkModel
 from scripts.lb_v4 import SkModel as LBv4SkModel
+from scripts.lb_v5 import SkModel as LBv5SkModel
 from scripts.lbr_v1 import SkModel as LBRv1SkModel
 
 class TestLBTaskLearning(TestBaseTaskLearning):
@@ -62,6 +63,8 @@ class TestLBv3TaskLearning(TestBaseTaskLearning):
 class TestLBv4TaskLearning(TestBaseTaskLearning):
     clean_flag = True
     model_name = 'raceuma_lgm'
+    cls_val = "主催者コード"
+    val = "2"
     target = "１着"
     obj_column_list = ['１着', '２着', '３着']
     obj_column_list_tr = ['１着_tr', '２着_tr', '３着_tr']
@@ -93,9 +96,45 @@ class TestLBv4TaskLearning(TestBaseTaskLearning):
             X_train = self.skmodel.proc.X_train
             mu.check_df(X_train)
 
-class TestLBRv1SkModelLearning(TestBaseTaskLearning):
+class TestLBv5TaskLearning(TestBaseTaskLearning):
+    clean_flag = True
+    model_name = 'raceuma_lgm'
+    cls_val = "主催者コード"
+    val = "2"
+
+    def setUp(self):
+        """ テスト実施前に必要な処理を記載する。呼び出しクラスやフォルダの指定等 """
+        model_version = 'lb_v5'
+        table_name = '地方競馬レース馬V5'
+        self.intermediate_folder = self.dict_path + 'intermediate/' + model_version + '_' + self.mode + '/' +self. model_name + '/'
+        self.skmodel = LBv5SkModel(self.model_name, model_version, self.start_date, self.end_date, self.mock_flag, self.test_flag, self.mode)
+        table_name = table_name + "_test"
+        self.skmodel.set_test_table(table_name)
+        self._proc_check_folder()
+
+    def test_20_check_learning_df(self):
+        """ 学習に利用するデータフレームのテスト """
+        import sys
+        import pickle
+        import modules.util as mu
+
+        print("--  " + sys._getframe().f_code.co_name + " start --")
+        file_name = self.intermediate_folder + 'learning_' + self.cls_val + '_' + self.val + '.pkl'
+
+        with open(file_name, 'rb') as f:
+            df = pickle.load(f)
+            self.skmodel.proc.set_target_flag(self.target)
+            self.skmodel.proc.set_learning_data(df, self.target)
+            self.skmodel.proc.divide_learning_data()
+            X_train = self.skmodel.proc.X_train
+            mu.check_df(X_train)
+
+
+class TestLBRv1TaskLearning(TestBaseTaskLearning):
     clean_flag = True
     model_name = 'race_lgm'
+    cls_val = "主催者コード"
+    val = "2"
     target = "UMAREN_ARE"
     obj_column_list = ['UMAREN_ARE', 'UMATAN_ARE', 'SANRENPUKU_ARE']
     obj_column_list_tr = ['UMAREN_ARE_tr', 'UMATAN_ARE_tr', 'SANRENPUKU_ARE_tr']

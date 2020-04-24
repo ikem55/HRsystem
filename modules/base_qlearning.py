@@ -101,8 +101,8 @@ class RaceGame(gym.Env):
         rd = RaceData(self.start_date, self.end_date)
         self.learning_df = rd.get_learning_df()
         self.result_df = rd.get_result_df()
-        print(self.learning_df.shape)
-        print(self.result_df.shape)
+        print("_get_base_df: learning_df", self.learning_df.shape)
+        print("_get_base_df: result_df", self.result_df.shape)
 
     def reset(self):
         """ 環境を初期化 """

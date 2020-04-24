@@ -28,7 +28,7 @@ class Sub_get_exp_data(luigi.Task):
         with self.output().open("w") as target:
             print("------ モデル毎に予測データが違うので指定してデータ作成を実行")
             predict_df = self.skmodel.create_predict_data()
-            print(predict_df.shape)
+            print("Sub_get_exp_data run: predict_df", predict_df.shape)
             predict_df.to_pickle(self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl')
             print(__class__.__name__ + " says: task finished".format(task=self.__class__.__name__))
 
@@ -74,7 +74,7 @@ class End_baoz_predict(luigi.Task):
                     # 予測を実施
                     pred_df = self.skmodel.proc_predict_sk_model(filter_df, cls_val, val)
                     all_pred_df = pd.concat([all_pred_df, pred_df])
-                    print(all_pred_df.shape)
+                    print("End_baoz_predict run: all_pred_df", all_pred_df.shape)
             import_df = self.skmodel.create_import_data(all_pred_df)
             if self.export_mode:
                 print("export data")

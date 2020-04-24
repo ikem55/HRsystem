@@ -11,7 +11,7 @@ import shutil
 class TestBaseTaskLearning(TestBaseCommon):
     """ Learning処理を実施できることを確認するためのテスト """
     start_date = '2018/01/01'
-    end_date = '2018/01/31'
+    end_date = '2018/01/11'
     mode = 'learning'
     model_name = 'raceuma_ens'
     mock_flag = False
@@ -56,7 +56,7 @@ class TestBaseTaskLearning(TestBaseCommon):
             self.assertFalse(len(df.index) == 0)
             # columns check
             # 分類軸用の列があるか確認
-            mu.check_df(df)
+            # mu.check_df(df)
             contain_columns_set = set(self.skmodel.class_list)
             contain_check = self.proc_test_contain_columns_check(df, contain_columns_set)
             self.assertTrue(contain_check)
@@ -94,7 +94,7 @@ class TestBaseTaskLearning(TestBaseCommon):
                         self.assertFalse(len(filter_df.index) == 0)
                         # 必要な項目がちゃんとあるか確認
                         print(contain_columns_set)
-                        mu.check_df(filter_df)
+                        # mu.check_df(filter_df)
                         contain_check = self.proc_test_contain_columns_check(filter_df, contain_columns_set)
                         self.assertTrue(contain_check)
                         # 不要な項目がないか確認

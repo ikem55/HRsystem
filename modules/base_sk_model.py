@@ -63,19 +63,6 @@ class BaseSkModel(object):
         proc = BaseSkProc(version_str, start_date, end_date, model_name, mock_flag, test_flag, self.obj_column_list)
         return proc
 
-    def set_target_date(self, start_date, end_date):
-        """ 学習等データ作成の対象期間をセットする
-
-        :param str start_date: 開始日（文字列）
-        :param str end_date: 終了日（文字列）
-        """
-        self.start_date = start_date
-        self.end_date = end_date
-
-    def set_test_table(self, table_name):
-        """ test用のテーブルをセットする """
-        self.table_name = table_name
-
     def create_learning_data(self):
         """ 学習用データを作成。処理はprocを呼び出す """
         self.learning_df = self.proc.proc_create_learning_data()
@@ -116,7 +103,7 @@ class BaseSkModel(object):
             if len(df.index) >= 30:
                 print("----- アンサンブル学習用のクラスをセット -----")
                 self.proc.set_ensemble_params(self.clfs, self.index_list, self.ens_folder_path)
-                print(df.shape)
+                print("proc_learning_sk_model: df", df.shape)
                 for target in self.obj_column_list:
                     print(target)
                     self.proc.learning_sk_model(df, cls_val, val, target)
@@ -130,53 +117,6 @@ class BaseSkModel(object):
         predict_df = self.proc.proc_create_predict_data()
         return predict_df
 
-
-    def create_import_data(self, all_df):
-        """ データフレームをアンサンブル化（Vote）して格納 """
-        all_df.dropna(inplace=True)
-        grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
-        date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
-        temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
-        grouped_df = self.calc_grouped_data(temp_grouped_df)
-        import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
-        print(import_df)
-        return import_df
-
-    def calc_grouped_data(self, df):
-        """ 与えられたdataframe(予測値）に対して偏差化とランク化を行ったdataframeを返す
-
-        :param dataframe df: dataframe
-        :return: dataframe
-        """
-        grouped = df.groupby(["RACE_KEY", "target"])
-        grouped_df = grouped.describe()['prob'].reset_index()
-        merge_df = pd.merge(df, grouped_df, on=["RACE_KEY", "target"])
-        merge_df['predict_std'] = (
-            merge_df['prob'] - merge_df['mean']) / merge_df['std'] * 10 + 50
-        df['predict_rank'] = grouped['prob'].rank("dense", ascending=False)
-        merge_df = pd.merge(merge_df, df[["RACE_KEY", "UMABAN", "predict_rank", "target"]], on=["RACE_KEY", "UMABAN", "target"])
-        return_df = merge_df[['RACE_KEY', 'UMABAN',
-                              'pred', 'prob', 'predict_std', 'predict_rank', "target", "target_date"]]
-        return return_df
-
-    def import_data(self, df):
-        print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
-
-    def eval_pred_data(self, df):
-        """ 予測されたデータの精度をチェック """
-        check_df = self.proc.create_eval_prd_data(df)
-        for target in self.obj_column_list:
-            print(target)
-            target_df = check_df[check_df["target"] == target]
-            target_df = target_df.query("pred_rank == 1")
-            target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x[target] == 1 else 0, axis=1)
-            print(target_df)
-            avg_rate = target_df["的中"].mean()
-            print(round(avg_rate*100, 1))
-
-    @classmethod
-    def get_recent_day(cls, start_date):
-        print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
 
     def proc_predict_sk_model(self, df, cls_val, val):
         """ predictする処理をまとめたもの。指定されたbashoのターゲットフラグ事の予測値を作成して連結したものをdataframeとして返す
@@ -196,3 +136,65 @@ class BaseSkModel(object):
                     grouped_df["model_name"] = self.model_name
                     all_df = pd.concat([all_df, grouped_df]).round(3)
         return all_df
+
+    def create_import_data(self, all_df):
+        """ データフレームをアンサンブル化（Vote）して格納 """
+        all_df.dropna(inplace=True)
+        grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
+        date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
+        temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
+        grouped_df = self._calc_grouped_data(temp_grouped_df)
+        import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
+        print(import_df)
+        return import_df
+
+
+    def eval_pred_data(self, df):
+        """ 予測されたデータの精度をチェック """
+        check_df = self.proc.create_eval_prd_data(df)
+        for target in self.obj_column_list:
+            print(target)
+            target_df = check_df[check_df["target"] == target]
+            target_df = target_df.query("predict_rank == 1")
+            target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x[target] == 1 else 0, axis=1)
+            print(target_df)
+            avg_rate = target_df["的中"].mean()
+            print(round(avg_rate*100, 1))
+
+    def import_data(self, df):
+        print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
+
+    @classmethod
+    def get_recent_day(cls, start_date):
+        print("-- check! this is BaseSkModel class: " + sys._getframe().f_code.co_name)
+
+    def set_target_date(self, start_date, end_date):
+        """ 学習等データ作成の対象期間をセットする
+
+        :param str start_date: 開始日（文字列）
+        :param str end_date: 終了日（文字列）
+        """
+        self.start_date = start_date
+        self.end_date = end_date
+
+    def set_test_table(self, table_name):
+        """ test用のテーブルをセットする """
+        self.table_name = table_name
+
+
+    def _calc_grouped_data(self, df):
+        """ 与えられたdataframe(予測値）に対して偏差化とランク化を行ったdataframeを返す
+
+        :param dataframe df: dataframe
+        :return: dataframe
+        """
+        grouped = df.groupby(["RACE_KEY", "target"])
+        grouped_df = grouped.describe()['prob'].reset_index()
+        merge_df = pd.merge(df, grouped_df, on=["RACE_KEY", "target"])
+        merge_df['predict_std'] = (
+            merge_df['prob'] - merge_df['mean']) / merge_df['std'] * 10 + 50
+        df['predict_rank'] = grouped['prob'].rank("dense", ascending=False)
+        merge_df = pd.merge(merge_df, df[["RACE_KEY", "UMABAN", "predict_rank", "target"]], on=["RACE_KEY", "UMABAN", "target"])
+        return_df = merge_df[['RACE_KEY', 'UMABAN',
+                              'pred', 'prob', 'predict_std', 'predict_rank', "target", "target_date"]]
+        return return_df

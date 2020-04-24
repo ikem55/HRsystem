@@ -19,12 +19,12 @@ import os
 from distutils.util import strtobool
 
 from sklearn.model_selection import train_test_split
+import optuna.integration.lightgbm as lgb
 import lightgbm as lgb_original
 import featuretools as ft
 import pyodbc
 import pickle
 
-import optuna.integration.lightgbm as lgb
 
 basedir = os.path.dirname(__file__)[:-8]
 print(basedir)
@@ -52,6 +52,22 @@ class Ext(LBExtract):
     pass
 
 class Tf(LBTransform):
+
+    def create_feature_race_df(self, race_df):
+        """ 特徴となる値を作成する。ナイター、季節、非根幹、距離グループ、頭数グループを作成して列として付与する。
+
+        :param dataframe race_df:
+        :return: dataframe
+        """
+        temp_race_df = race_df.copy()
+        temp_race_df.loc[:, 'ナイター'] = race_df['発走時刻'].apply(lambda x: True if x.hour >= 17 else False)
+        temp_race_df.loc[:, '季節'] = (race_df['月日'].apply(lambda x: x.month) - 1) // 3
+        temp_race_df['季節'].astype('str')
+        temp_race_df.loc[:, "非根幹"] = race_df["距離"].apply(lambda x: True if x % 400 == 0 else False)
+        temp_race_df.loc[:, "距離グループ"] = race_df["距離"] // 400
+        temp_race_df.loc[:, "頭数グループ"] = race_df["頭数"] // 5
+        temp_race_df.loc[:, "コース"] = race_df["場コード"].astype(str) + race_df["トラックコード"].astype(str)
+        return temp_race_df
 
     def drop_columns_raceuma_df(self, raceuma_df):
         return raceuma_df.drop(["データ作成年月日", "予想オッズ", "血統距離評価", "血統トラック評価", "血統成長力評価",
@@ -125,7 +141,7 @@ class SkProc(LBSkProc):
             print("\r\n -- skip create learning model -- \r\n")
         else:
             self.set_target_flag(target)
-            print(df.shape)
+            print("learning_sk_model: df", df.shape)
             if df.empty:
                 print("--------- alert !!! no data")
             else:
@@ -143,6 +159,7 @@ class SkProc(LBSkProc):
                     self.learning_race_lgb(this_model_name)
 
     def learning_base_race_lgb(self, this_model_name):
+        print("learning_base_race_lgb")
         # テスト用のデータを評価用と検証用に分ける
         X_eval, X_valid, y_eval, y_valid = train_test_split(self.X_test, self.y_test, random_state=42)
 
@@ -230,7 +247,8 @@ class SkProc(LBSkProc):
 
     def _create_feature(self):
         """ マージしたデータから特徴量を生成する """
-        raceuma_df = self.base_df.copy()[["競走コード", "馬番", "予想タイム指数", "予想展開", "クラス変動", "騎手評価", "調教師評価", "枠順評価", "脚質評価", "馬齢", "前走着順", "前走人気", "前走頭数", "騎手ランキング", "調教師ランキング"]]
+        print("_create_feature")
+        raceuma_df = self.base_df.copy()[["競走コード", "馬番", "予想タイム指数", "予想展開", "クラス変動", "馬齢", "前走着順", "前走人気", "前走頭数", "騎手ランキング", "調教師ランキング"]]
         raceuma_df.loc[:, "競走馬コード"] = raceuma_df["競走コード"].astype(str).str.cat(raceuma_df["馬番"].astype(str))
         raceuma_df.drop("馬番", axis=1, inplace=True)
         # https://qiita.com/daigomiyoshi/items/d6799cc70b2c1d901fb5
@@ -238,13 +256,13 @@ class SkProc(LBSkProc):
         es.entity_from_dataframe(entity_id='race', dataframe=raceuma_df, index="競走馬コード")
         es.normalize_entity(base_entity_id='race', new_entity_id='raceuma', index="競走コード")
         # 集約関数
-        aggregation_list = ['count', 'min', 'max', 'mean', 'skew']
-        transform_list = ['subtract_numeric', 'multiply_numeric']
+        aggregation_list = ['min', 'max', 'mean', 'skew', 'percent_true']
+        transform_list = []
         # run dfs
+        print("un dfs")
         feature_matrix, features_dfs = ft.dfs(entityset=es, target_entity='race', agg_primitives=aggregation_list,
                                               trans_primitives=transform_list, max_depth=2)
-        print(feature_matrix.shape)
-        feature_matrix.head(3)
+        print("_create_feature: feature_matrix", feature_matrix.shape)
 
         # 予想１番人気のデータを取得
         ninki_df = self.base_df.query("予想人気==1")[["競走コード", "枠番", "性別コード", "予想タイム指数順位", "見習区分", "キャリア", "馬齢", "予想展開", "距離増減", "前走頭数", "前走人気", "テン乗り"]].add_prefix("人気_").rename(columns={"人気_競走コード":"競走コード"})
@@ -255,7 +273,7 @@ class SkProc(LBSkProc):
         self.base_df = pd.merge(self.base_df, self.ld.race_df, on="競走コード")
 
     def _drop_columns_base_df(self):
-        self.base_df.drop(["場名", "発走時刻", "予想タイム指数", "予想展開", "前走人気", "前走着順", "競走条件コード", "脚質評価", "競走条件コード", "脚質評価", "調教師ランキング", "調教師評価", "距離グループ", "騎手ランキング", "騎手評価", "クラス変動", "登録頭数", "馬齢"], axis=1, inplace=True)
+        self.base_df.drop(["場名", "発走時刻", "予想タイム指数", "予想展開", "前走人気", "前走着順", "競走条件コード", "競走条件コード", "調教師ランキング", "距離グループ", "騎手ランキング", "クラス変動", "登録頭数", "馬齢"], axis=1, inplace=True)
 
     def _scale_df(self):
         pass

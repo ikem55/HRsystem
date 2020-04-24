@@ -170,7 +170,7 @@ class Tf(LBTransform):
         """
         temp_raceuma_df = raceuma_df.copy()
         temp_merge_df = pd.merge(race_df, raceuma_df, on="競走コード")
-        print(temp_merge_df.shape)
+        print("create_feature_raceuma_result_df: temp_merge_df", temp_merge_df.shape)
         temp_raceuma_df.loc[:, '展開脚質'] = raceuma_df['展開コード'].astype(str).str[:1]
         temp_raceuma_df.loc[:, '展開脚色'] = raceuma_df['展開コード'].astype(str).str[-1:]
         temp_raceuma_df.loc[:, "追込率"] = (temp_merge_df["コーナー順位4"] - temp_merge_df["確定着順"]) / temp_merge_df["頭数"]

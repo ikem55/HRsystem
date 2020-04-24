@@ -2,6 +2,7 @@ from scripts.lb_v1 import SkModel as LBv1SkModel
 from scripts.lb_v2 import SkModel as LBv2SkModel
 from scripts.lb_v3 import SkModel as LBv3SkModel
 from scripts.lb_v4 import SkModel as LBv4SkModel
+from scripts.lb_v5 import SkModel as LBv5SkModel
 from scripts.lbr_v1 import SkModel as LBRv1SkModel
 import sys
 
@@ -21,9 +22,6 @@ from modules.lb_extract import LBExtract
 # exportがFalseの場合import処理を実施
 # ====================================== パラメータ　要変更 =====================================================
 
-# モデル名を変更できるように修正が必要・・
-model_name = 'raceuma_lgm'
-
 start_date = '2019/01/01'
 end_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
 mode = "predict"
@@ -40,32 +38,42 @@ model_version = args[1]
 export_mode = strtobool(args[2])
 check_flag = True
 dict_path = mc.return_base_path(test_flag)
-intermediate_folder = dict_path + 'intermediate/' + model_version + '_' + args[1] + '/' + model_name + '/'
-print("intermediate_folder:" + intermediate_folder)
 
 if model_version == "lb_v1":
+    model_name = 'raceuma_ens'
     sk_model = LBv1SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
     table_name = '地方競馬レース馬V1'
 elif model_version == "lb_v2":
+    model_name = 'raceuma_ens'
     sk_model = LBv2SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
     table_name = '地方競馬レース馬V2'
 elif model_version == "lb_v3":
+    model_name = 'raceuma_ens'
     sk_model = LBv3SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
     table_name = '地方競馬レース馬V3'
 elif model_version == "lb_v4":
+    model_name = 'raceuma_lgm'
     sk_model = LBv4SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
     table_name = '地方競馬レース馬V4'
-    check_flag = False
+elif model_version == "lb_v5":
+    model_name = 'raceuma_lgm'
+    sk_model = LBv5SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
+    table_name = '地方競馬レース馬V5'
 elif model_version == "lbr_v1":
+    model_name = 'race_lgm'
     sk_model = LBRv1SkModel(model_name, model_version, start_date, end_date, mock_flag, test_flag, mode)
     table_name = '地方競馬レースV1'
     check_flag = False
     ######################### exportにindexが入っているので要修正
-
 else:
     print("----------- error ---------------")
+    model_name = ''
     sk_model = ''
     table_name = ''
+
+
+intermediate_folder = dict_path + 'intermediate/' + model_version + '_' + args[1] + '/' + model_name + '/'
+print("intermediate_folder:" + intermediate_folder)
 
 if test_flag:
     print("set test table")

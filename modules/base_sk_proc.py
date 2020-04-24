@@ -74,19 +74,13 @@ class BaseSkProc(object):
         self._proc_create_base_df()
         self._drop_unnecessary_columns()
         self._set_target_variables()
-        # self.base_df.drop("NENGAPPI", axis=1, inplace=True)
         learning_df = pd.merge(self.base_df, self.result_df, on =["RACE_KEY","UMABAN"])
         return learning_df
 
     def proc_create_predict_data(self):
         self._proc_create_base_df()
-        # print("nullレコード削除：" + str(self.base_df.isnull().any().sum()))
-        # self.base_df.dropna(how='any', axis=0, inplace=True)
         self._drop_unnecessary_columns()
         return self.base_df
-
-    def _drop_unnecessary_columns(self):
-        print("-- check! this is BaseSkProc class: " + sys._getframe().f_code.co_name)
 
     def _proc_create_base_df(self):
         self._set_ld_data()
@@ -121,6 +115,9 @@ class BaseSkProc(object):
     def _rename_key(self, df):
         print("-- check! this is BaseSkProc class: " + sys._getframe().f_code.co_name)
 
+    def _drop_unnecessary_columns(self):
+        print("-- check! this is BaseSkProc class: " + sys._getframe().f_code.co_name)
+
     def _set_target_variables(self):
         self.ld.set_result_df()
         self.result_df = self.ld.result_df
@@ -129,6 +126,7 @@ class BaseSkProc(object):
         self._create_target_variable_ana()
         self._drop_columns_result_df()
         self.result_df = self._rename_key(self.result_df)
+
 
     def _create_target_variable_win(self):
         print("-- check! this is BaseSkProc class: " + sys._getframe().f_code.co_name)
@@ -248,7 +246,7 @@ class BaseSkProc(object):
             self.set_target_flag(target)
             df = df.fillna(df.median())
             df = df.dropna() #SMOTEでNaNがあると処理できないため
-            print(df.shape)
+            print("learning_sk_model: df", df.shape)
             if df.empty:
                 print("--------- alert !!! no data")
             else:
@@ -263,6 +261,7 @@ class BaseSkProc(object):
 
     def load_learning_target_encoding(self):
         """ TargetEncodeを行う。すでに作成済みのエンコーダーから値をセットする  """
+        print("load_learning_target_encoding")
         self.X_train = self._set_target_encoding(self.X_train, False, self.y_train).copy()
         self.X_test = self._set_target_encoding(self.X_test, False, self.y_test).copy()
 
@@ -315,7 +314,7 @@ class BaseSkProc(object):
         exp_df = temp_df.drop(self.index_list, axis=1).to_numpy()
         # ValueError: Input contains NaN, infinity or a value too large for dtype('float32').対応
         exp_df[(np.isnan(exp_df)) | (exp_df==float("inf")) | (exp_df==float("-inf"))] = 0.0
-        print(exp_df.shape)
+        print("_predict_raceuma_ens: exp_df", exp_df.shape)
         first_np = self._calc_pred_layer('first', this_model_name, exp_df)
         if len(first_np) != 0:
             second_np = self._calc_pred_layer('second', this_model_name, first_np)
@@ -535,6 +534,5 @@ class BaseSkProc(object):
     def create_eval_prd_data(self, df):
         """ 予測されたデータの精度をチェック """
         self._set_target_variables()
-        result_df = self.result_df.rename(columns={"競走コード": "RACE_KEY"})
-        check_df = pd.merge(df, result_df, on="RACE_KEY")
+        check_df = pd.merge(df, self.result_df, on=["RACE_KEY", "UMABAN"])
         return check_df[check_df["predict_rank"] == 1].copy()

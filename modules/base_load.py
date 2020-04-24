@@ -50,11 +50,10 @@ class BaseLoad(object):
 
     def set_race_df(self):
         """  race_dfを作成するための処理。race_dfに処理がされたデータをセットする """
-        print("set_race_df")
         race_base_df = self.ext.get_race_before_table_base()
         race_base_df = race_base_df.drop("データ区分", axis=1)
         self.race_df = self._proc_race_df(race_base_df)
-        print(self.race_df.shape)
+        print("set_race_df: race_df", self.race_df.shape)
 
     def _proc_race_df(self, race_base_df):
         print("-- check! this is BaseLoad class: " + sys._getframe().f_code.co_name)
@@ -63,11 +62,10 @@ class BaseLoad(object):
 
     def set_raceuma_df(self):
         """ raceuma_dfを作成するための処理。raceuma_dfに処理がされたデータをセットする """
-        print("set_raceuma_df")
         raceuma_base_df = self.ext.get_raceuma_before_table_base()
         raceuma_base_df = raceuma_base_df.drop("データ区分", axis=1)
         self.raceuma_df = self._proc_raceuma_df(raceuma_base_df)
-        print(self.raceuma_df.shape)
+        print("set_raceuma_df: raceuma_df", self.raceuma_df.shape)
 
     def _proc_raceuma_df(self, raceuma_base_df):
         raceuma_df = self.tf.encode_raceuma_before_df(raceuma_base_df, self.dict_folder)
@@ -79,10 +77,9 @@ class BaseLoad(object):
 
     def set_horse_df(self):
         """  horse_dfを作成するための処理。horse_dfに処理がされたデータをセットする """
-        print("set_horse_df")
         horse_base_df = self.ext.get_horse_table_base()
         self.horse_df = self._proc_horse_df(horse_base_df)
-        print(self.horse_df.shape)
+        print("set_horse_df: horse_df", self.horse_df.shape)
 
     def _proc_horse_df(self, horse_base_df):
         print("-- check! this is BaseLoad class: " + sys._getframe().f_code.co_name)
@@ -118,7 +115,7 @@ class BaseLoad(object):
         race_df = self.tf.create_feature_race_df(race_df)
         race_df = self.tf.create_feature_race_result_df(race_df, race_winner_df)
         race_df = self.tf.encode_race_df(race_df)
-        print(race_df.shape)
+        print("_proc_race_result_df: race_df", race_df.shape)
         return race_df.copy()
 
     def _proc_raceuma_result_df(self, race_result_df, raceuma_base_df):
@@ -130,7 +127,7 @@ class BaseLoad(object):
         raceuma_df = self.tf.create_feature_raceuma_result_df(race_result_df, raceuma_df)
         raceuma_df = self._proc_scale_df_for_fa(raceuma_df)
         raceuma_df = self.tf.factory_analyze_raceuma_result_df(race_result_df, raceuma_df, self.dict_folder)
-        print(raceuma_df.shape)
+        print("_proc_raceuma_result_df: raceuma_df", raceuma_df.shape)
         return raceuma_df.copy()
 
     def _proc_scale_df_for_fa(self, raceuma_df):
@@ -144,11 +141,9 @@ class BaseLoad(object):
 
     def set_result_df(self):
         """ result_dfを作成するための処理。result_dfに処理がされたデータをセットする """
-        print("set_result_df")
         result_race_df = self.ext.get_race_table_base()
         result_raceuma_df = self.ext.get_raceuma_table_base()
         self.result_df = self._proc_result_df(result_race_df, result_raceuma_df)
-        #print(self.raceuma_df.shape)
 
     def _proc_result_df(self, result_race_df, result_raceuma_df):
         print("-- check! this is BaseLoad class: " + sys._getframe().f_code.co_name)

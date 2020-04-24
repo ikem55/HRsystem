@@ -184,7 +184,7 @@ class Tf(LBTransform):
         """
         temp_raceuma_df = raceuma_df.copy()
         temp_merge_df = pd.merge(race_df, raceuma_df, on="競走コード")
-        print(temp_merge_df.shape)
+        print("create_feature_raceuma_result_df, temp_merge_df", temp_merge_df.shape)
         temp_raceuma_df.loc[:, "同場騎手"] = (temp_merge_df["騎手所属場コード"] == temp_merge_df["場コード"]).astype(int)
         temp_raceuma_df.loc[:, "同所属場"] = (temp_merge_df["調教師所属場コード"] == temp_merge_df["場コード"]).astype(int)
         temp_raceuma_df.loc[:, "同所属騎手"] = (temp_merge_df["騎手所属場コード"] == temp_merge_df["調教師所属場コード"]).astype(int)
@@ -364,7 +364,6 @@ class SkProc(LBSkProc):
         ld = Ld(version_str, start_date, end_date, mock_flag, test_flag)
         return ld
 
-
     def _merge_df(self):
         """  レース、レース馬、前走、過去走のデータを結合したdataframeをbase_dfにセットする。競走コードと馬番はRACE_KEY,UMABANに名前変更する  """
         print("merge_to_basedf")
@@ -375,13 +374,6 @@ class SkProc(LBSkProc):
         self.base_df = pd.merge(self.base_df, self.ld.prev3_raceuma_df, on=["競走コード", "馬番"], how='left')
         self.base_df = pd.merge(self.base_df, self.ld.prev4_raceuma_df, on=["競走コード", "馬番"], how='left')
         self.base_df = pd.merge(self.base_df, self.ld.prev5_raceuma_df, on=["競走コード", "馬番"], how='left')
-
-    def create_feature(self):
-        """ 最終的にマージされたDatabaseから特徴量を生成する """
-        print(self.base_df.iloc[0])
-        self.base_df = self.create_base_df_feature(self.base_df)
-        self.base_df = self.drop_base_df(self.base_df)
-
 
     def _create_feature(self,):
         """ 過去走と今回を比較した特徴量等、最終的な特徴良を生成する """

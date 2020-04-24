@@ -124,7 +124,7 @@ class SkProc(LBSkProc):
             print("\r\n -- skip create learning model -- \r\n")
         else:
             self.set_target_flag(target)
-            print(df.shape)
+            print("learning_sk_model: df", df.shape)
             if df.empty:
                 print("--------- alert !!! no data")
             else:
@@ -175,7 +175,7 @@ class SkProc(LBSkProc):
         transform_list = []
         # run dfs
         feature_matrix, features_dfs = ft.dfs(entityset= es, target_entity= 'race', agg_primitives = aggregation_list , trans_primitives=transform_list, max_depth=2)
-        print(feature_matrix.shape)
+        print("_create_feature: feature_matrix", feature_matrix.shape)
         feature_matrix.head(3)
 
         # 予想１番人気のデータを取得
