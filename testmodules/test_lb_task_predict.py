@@ -182,7 +182,7 @@ class TestLBRv1TaskPredict(TestBaseTaskPredict):
         print("--  " + sys._getframe().f_code.co_name + " start --")
         predict_file_name = self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl'
         exp_data = pd.read_pickle(predict_file_name)
-        print(exp_data.head())
+        print("exp_data", exp_data.shape)
         all_pred_df = pd.DataFrame()
         class_list = self.skmodel.class_list
         for cls_val in class_list:
@@ -197,6 +197,7 @@ class TestLBRv1TaskPredict(TestBaseTaskPredict):
                     all_pred_df = pd.concat([all_pred_df, pred_df])
                 break
         import_df = self.skmodel.create_import_data(all_pred_df)
+        print("import_df", import_df.shape)
         print(import_df.head())
         self.skmodel.eval_pred_data(import_df)
         # not empty check

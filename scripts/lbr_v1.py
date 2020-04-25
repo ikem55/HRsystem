@@ -387,9 +387,9 @@ class SkModel(LBSkModel):
             self.proc.learning_sk_model(df, cls_val, val, target)
 
     def create_import_data(self, all_df):
-        """ 特に処理はないので桁数だけそろえてリターン"""
-        import_df = all_df.round(3)
-        return import_df
+        """ 重複値が発生するので平均をとる """
+        import_df = all_df.groupby(["RACE_KEY", "target", "target_date", "model_name"], as_index=False).mean()
+        return import_df.round(3)
 
 
     def import_data(self, df):
