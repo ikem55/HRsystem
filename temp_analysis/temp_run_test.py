@@ -5,8 +5,8 @@ import unittest
 
 ## 部分的なテストを実施するときに利用
 # このクラスでテンポラリクラスを作ってclean_flagを設定
-class TempTest1(TestLBv4TaskPredict):
-  clean_flag = False
+class TempTest1(TestLBv4TaskLearning):
+  clean_flag = True
   cls_val = "主催者コード"
   val = "2"
   target = "１着"
