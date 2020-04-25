@@ -358,6 +358,12 @@ class SkProc(LBSkProc):
         else:
             return pd.DataFrame()
 
+    def create_eval_prd_data(self, df):
+        """ 予測されたデータの精度をチェック """
+        self._set_target_variables()
+        check_df = pd.merge(df, self.result_df, on="RACE_KEY")
+        return check_df[check_df["pred"] == 1].copy()
+
 class SkModel(LBSkModel):
     class_list = ['主催者コード']
     table_name = TABLE_NAME
@@ -421,6 +427,18 @@ class SkModel(LBSkModel):
             crsr.commit()
         crsr.close()
         cnxn.close()
+
+    def eval_pred_data(self, df):
+        """ 予測されたデータの精度をチェック """
+        check_df = self.proc.create_eval_prd_data(df)
+        for target in self.obj_column_list:
+            print(target)
+            target_df = check_df[check_df["target"] == target]
+            target_df = target_df.query("pred == 1")
+            target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x[target] == 1 else 0, axis=1)
+            print(target_df)
+            avg_rate = target_df["的中"].mean()
+            print(round(avg_rate*100, 1))
 
 # ============================================================================================================
 
