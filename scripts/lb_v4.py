@@ -22,8 +22,8 @@ from sklearn.model_selection import train_test_split
 import pickle
 
 import optuna.integration.lightgbm as lgb
-import warnings
-warnings.simplefilter('ignore')
+import lightgbm as lgb_original
+import featuretools as ft
 
 basedir = os.path.dirname(__file__)[:-8]
 print(basedir)
@@ -66,13 +66,13 @@ class Tf(LBTransform):
         return temp_race_df
 
     def choose_race_result_column(self, race_df):
-        """ レースデータから必要な列に絞り込む。列は '発走時刻', '月日', '競走コード', '距離'', '頭数', 'ペース', 'トラックコード', '後３ハロン'
+        """ レースデータから必要な列に絞り込む。列は '発走時刻', '月日', '競走コード', '距離', '頭数', 'ペース', 'トラックコード', '後３ハロン'
 
         :param dataframe race_df:
         :return: dataframe
         """
         temp_race_df = race_df[
-            ['発走時刻', '月日', '競走コード', '距離', '頭数', 'ペース', 'トラックコード', '後３ハロン']]
+            ['発走時刻', '月日', '場コード', '競走コード', '距離', '頭数', 'ペース', 'トラックコード', '後３ハロン', '主催者コード']]
         return temp_race_df
 
     def create_feature_race_result_df(self, race_df, race_winner_df):
@@ -99,7 +99,7 @@ class Tf(LBTransform):
         return merge_df
 
     def drop_columns_raceuma_df(self, raceuma_df):
-        return raceuma_df.drop(["データ作成年月日", "血統距離評価", "血統トラック評価", "血統成長力評価", "騎手所属場コード", "調教師所属場コード", "見習区分", "馬齢",
+        return raceuma_df.drop(["データ作成年月日", "血統距離評価", "血統トラック評価", "血統成長力評価", "見習区分", "馬齢",
                                            "血統総合評価", "血統距離評価B", "血統トラック評価B", "血統成長力評価B", "血統総合評価B", "騎手コード", "騎手評価",
                                            "調教師評価", "枠順評価", "脚質評価", "調教師コード", "前走着順", "前走人気", "前走着差", "前走トラック種別コード",
                                            "タイム指数上昇係数", "タイム指数回帰推定値", "タイム指数回帰標準偏差", "前走休養週数", "騎手ランキング", "調教師ランキング",
@@ -144,9 +144,9 @@ class Tf(LBTransform):
         """
         temp_raceuma_df = raceuma_df[
             ['競走コード', '馬番', '枠番', '年月日', '血統登録番号', 'タイム指数', '単勝オッズ', '単勝人気', '確定着順', '着差', '休養週数', '先行率', 'タイム', '予想展開',
-             'ペース偏差値', '展開コード', '騎手名', 'テン乗り', '負担重量', '馬体重', 'コーナー順位3', 'コーナー順位4', '距離増減',
+             'ペース偏差値', '展開コード', '騎手名', 'テン乗り', '負担重量', '馬体重', 'コーナー順位3', 'コーナー順位4', '距離増減', '騎手所属場コード', '調教師所属場コード',
              '斤量比', '上がりタイム']].copy()
-        return temp_raceuma_df
+        return temp_raceuma_df.astype({"騎手所属場コード": int, "調教師所属場コード": int})
 
     def encode_raceuma_result_df(self, raceuma_df, dict_folder):
         """  列をエンコードする処理。騎手名、所属、転厩をラベルエンコーディングして値を置き換える。learning_modeがTrueの場合は辞書生成がされる。
@@ -186,18 +186,23 @@ class Tf(LBTransform):
         temp_raceuma_df = raceuma_df.copy()
         temp_merge_df = pd.merge(race_df, raceuma_df, on="競走コード")
         print("create_feature_raceuma_result_df: temp_merge_df", temp_merge_df.shape)
+        temp_raceuma_df.loc[:, "同場騎手"] = (temp_merge_df["騎手所属場コード"] == temp_merge_df["場コード"]).astype(int)
+        temp_raceuma_df.loc[:, "同所属場"] = (temp_merge_df["調教師所属場コード"] == temp_merge_df["場コード"]).astype(int)
+        temp_raceuma_df.loc[:, "同所属騎手"] = (temp_merge_df["騎手所属場コード"] == temp_merge_df["調教師所属場コード"]).astype(int)
         temp_raceuma_df.loc[:, "追込率"] = (temp_merge_df["コーナー順位4"] - temp_merge_df["確定着順"]) / temp_merge_df["頭数"]
         temp_raceuma_df.loc[:, "平均タイム"] = temp_merge_df["タイム"] / temp_merge_df["距離"] * 200
         temp_raceuma_df.loc[:, "勝ち"] = temp_raceuma_df["確定着順"].apply(lambda x: 1 if x == 1 else 0)
         temp_raceuma_df.loc[:, "１番人気"] = temp_raceuma_df["単勝人気"].apply(lambda x: 1 if x == 1 else 0)
         temp_raceuma_df.loc[:, "３角先頭"] = temp_raceuma_df["コーナー順位3"].apply(lambda x: 1 if x == 1 else 0)
         temp_raceuma_df.loc[:, "４角先頭"] = temp_raceuma_df["コーナー順位4"].apply(lambda x: 1 if x == 1 else 0)
+        temp_raceuma_df.loc[:, "上がり最速"] = temp_raceuma_df["上がりタイム順位"].apply(lambda x: 1 if x == 1 else 0)
         temp_raceuma_df.loc[:, "休み明け"] = temp_raceuma_df["休養週数"].apply(lambda x: 1 if x >= 10 else 0)
         temp_raceuma_df.loc[:, "連闘"] = temp_raceuma_df["休養週数"].apply(lambda x: 1 if x == 1 else 0)
         temp_raceuma_df.loc[:, "大差負け"] = temp_raceuma_df["着差"].apply(lambda x: 1 if x >= 20 else 0)
         temp_raceuma_df.loc[:, "凡走"] = temp_merge_df.apply(lambda x: 1 if x["確定着順"] - x["単勝人気"] > 5 else 0, axis=1)
         temp_raceuma_df.loc[:, "好走"] = temp_merge_df["確定着順"].apply(lambda x: 1 if x <= 3 else 0)
         temp_raceuma_df.loc[:, "激走"] = temp_merge_df.apply(lambda x: 1 if x["単勝人気"] - x["確定着順"] > 5 else 0, axis=1)
+        temp_raceuma_df.loc[:, "逃げそびれ"] = temp_merge_df.apply(lambda x: 1 if x["予想展開"] == 1 and - x["コーナー順位4"] > 3 else 0, axis=1)
 
         return temp_raceuma_df.drop(["確定着順", "単勝人気", "コーナー順位3", "コーナー順位4", "休養週数", "着差"], axis=1).copy()
 
@@ -259,7 +264,7 @@ class Ld(LBLoad):
         merged_df = pd.merge(this_race_df, this_raceuma_df, on=["競走コード", "馬番"])
         merged_df = merged_df.drop(['枠番',  'タイム指数', '単勝オッズ', '先行率', 'ペース偏差値', '距離増減', '斤量比', '追込率', '平均タイム',
              "距離", "頭数", "上り係数", "逃げ勝ち", "内勝ち", "外勝ち", "短縮勝ち", "延長勝ち", "人気勝ち", "１番人気",
-             "後３ハロン", "予想展開", 'タイム', "非根幹", "季節", "ナイター",
+             "後３ハロン", "予想展開", 'タイム', "非根幹", "ナイター",
              "上がりタイム", "休み明け", "年月日", "月日", "距離", "血統登録番号"], axis=1)
         return merged_df
 
@@ -314,7 +319,77 @@ class SkProc(LBSkProc):
                 if self.y_train.sum() == 0:
                     print("---- wrong data --- skip learning")
                 else:
+                    self.learning_base_race_lgb(this_model_name)
+                    imp_features = self.learning_base_race_lgb(this_model_name)
+                    self.x_df = self.x_df[imp_features]
+                    self.divide_learning_data()
+                    self._set_label_list(self.x_df) # 項目削除されているから再度ターゲットエンコーディングの対象リストを更新する
                     self.learning_race_lgb(this_model_name)
+
+
+    def learning_base_race_lgb(self, this_model_name):
+        print("learning_base_race_lgb")
+        # テスト用のデータを評価用と検証用に分ける
+        X_eval, X_valid, y_eval, y_valid = train_test_split(self.X_test, self.y_test, random_state=42)
+
+        # データセットを生成する
+        lgb_train = lgb.Dataset(self.X_train, self.y_train)
+        lgb_eval = lgb.Dataset(X_eval, y_eval, reference=lgb_train)
+
+        # 上記のパラメータでモデルを学習する
+        model = lgb_original.train(self.lgbm_params, lgb_train,
+                          # モデルの評価用データを渡す
+                          valid_sets=lgb_eval,
+                          # 最大で 1000 ラウンドまで学習する
+                          num_boost_round=50,
+                          # 10 ラウンド経過しても性能が向上しないときは学習を打ち切る
+                          early_stopping_rounds=10)
+
+        # 特徴量の重要度を含むデータフレームを作成
+        imp_df = pd.DataFrame()
+        imp_df["feature"] = X_eval.columns
+        imp_df["importance"] = model.feature_importance()
+        print(imp_df)
+        imp_df = imp_df.sort_values("importance")
+
+        # 比較用のランダム化したモデルを学習する
+        N_RUM = 10 #30くらいに数上げてよさそう
+        null_imp_df = pd.DataFrame()
+        for i in range(N_RUM):
+            print(i)
+            ram_lgb_train = lgb.Dataset(self.X_train, np.random.permutation(self.y_train))
+            ram_lgb_eval = lgb.Dataset(X_eval, np.random.permutation(y_eval), reference=lgb_train)
+            ram_model = lgb_original.train(self.lgbm_params, ram_lgb_train,
+                              # モデルの評価用データを渡す
+                              valid_sets=ram_lgb_eval,
+                              # 最大で 1000 ラウンドまで学習する
+                              num_boost_round=100,
+                              # 10 ラウンド経過しても性能が向上しないときは学習を打ち切る
+                              early_stopping_rounds=6)
+            ram_imp_df = pd.DataFrame()
+            ram_imp_df["feature"] = X_eval.columns
+            ram_imp_df["importance"] = ram_model.feature_importance()
+            ram_imp_df = ram_imp_df.sort_values("importance")
+            ram_imp_df["run"] = i + 1
+            null_imp_df = pd.concat([null_imp_df, ram_imp_df])
+
+        # 閾値を設定
+        THRESHOLD = 30
+
+        # 閾値を超える特徴量を取得
+        imp_features = []
+        for feature in imp_df["feature"]:
+            actual_value = imp_df.query(f"feature=='{feature}'")["importance"].values
+            null_value = null_imp_df.query(f"feature=='{feature}'")["importance"].values
+            percentage = (null_value < actual_value).sum() / null_value.size * 100
+            if percentage >= THRESHOLD:
+                imp_features.append(feature)
+
+        print(len(imp_features))
+        print(imp_features)
+
+        self._save_learning_model(imp_features, this_model_name + "_feat_columns")
+        return imp_features
 
 
     def learning_race_lgb(self, this_model_name):
@@ -376,23 +451,24 @@ class SkProc(LBSkProc):
         self._set_ld_data()
         self._merge_df()
         self._create_feature()
+        feature_summary_df = self._feature_summary_data()
         self._drop_columns_base_df()
-        self._flat_base_df()
+        self._flat_base_df(feature_summary_df)
         self.base_df = self._rename_key(self.base_df)
 
-    def _flat_base_df(self):
+    def _flat_base_df(self, feature_summary_df):
         """ レース馬情報を１行に並べてレース情報をつなげたものをbase_dfとして再作成する """
         print("_flat_base_df")
-        temp_df = self.base_df.drop(["季節", "枠番", "頭数グループ", "距離グループ", "休養後出走回数"], axis=1)
+        temp_df = self.base_df.drop(["距離", "場コード_1", "場コード_2", "場コード_3", "場コード_4", "場コード_5", "発走時刻", "頭数", "予想勝ち指数", "ナイター", "季節", "非根幹", "休養週数", "休養後出走回数", "騎手所属場コード", "調教師所属場コード"], axis=1).copy()
         temp_df = temp_df.astype({"馬番": str})
         temp_df = temp_df.set_index(["競走コード", "馬番"])
         temp_unstack_df = temp_df.unstack()
-        unstack_columns = ["_".join(pair) for pair in temp_unstack_df.columns]
+        unstack_columns = ["__".join(pair) for pair in temp_unstack_df.columns]
         temp_unstack_df.columns = unstack_columns
         columns_base = temp_df.columns.values.tolist()
         columns_list = []
         for i in range(1, 17):
-            columns_list += [s + "_" + str(i) for s in columns_base]
+            columns_list += [s + "__" + str(i) for s in columns_base]
         dif_list = columns_list.copy()
         for col in unstack_columns:
             try:
@@ -401,11 +477,12 @@ class SkProc(LBSkProc):
                 continue
         for col in dif_list:
             temp_unstack_df[col] = np.NaN
-        self.base_df = pd.merge(self.ld.race_df, temp_unstack_df, on ="競走コード")
+        self.base_df = pd.merge(self.ld.race_df.drop(["距離", "発走時刻", "頭数", "予想勝ち指数", "ナイター", "季節", "非根幹", "頭数グループ", "月日", "主催者コード", "場コード", "グレードコード", "競走種別コード", "競走条件コード", "トラックコード", "距離グループ"], axis=1), temp_unstack_df, on ="競走コード")
+        self.base_df = pd.merge(self.base_df, feature_summary_df, on="競走コード")
         self.base_df = self.base_df.astype({"場コード": int, "競走種別コード": int})
         self.base_df.drop(['発走時刻', 'グレードコード', '競走条件コード', 'トラックコード'], axis=1, inplace= True)
 
-    def f(self, a):
+    def _flat_function(self, a):
         a.index = [0 for i in range(len(a))]
         del a['ID']
         out = a[0:1]
@@ -421,7 +498,7 @@ class SkProc(LBSkProc):
     def _merge_df(self):
         """  レース、レース馬、前走、過去走のデータを結合したdataframeをbase_dfにセットする。最後にRaceumaをフラットにするのでRace系は最小限のみの結合で残す  """
         print("merge_to_basedf")
-        temp_race_df = self.ld.race_df[["競走コード", "距離グループ", "季節", "頭数グループ"]]
+        temp_race_df = self.ld.race_df#[["競走コード", "距離グループ", "季節", "頭数グループ", "場コード"]]
         self.base_df = pd.merge(temp_race_df, self.ld.raceuma_df, on="競走コード")
         self.base_df = pd.merge(self.base_df, self.ld.prev1_raceuma_df, on=["競走コード", "馬番"], how='left')
         self.base_df = pd.merge(self.base_df, self.ld.prev2_raceuma_df, on=["競走コード", "馬番"], how='left')
@@ -432,23 +509,104 @@ class SkProc(LBSkProc):
 
     def _create_feature(self,):
         """ 過去走と今回を比較した特徴量等、最終的な特徴良を生成する """
+        self.base_df.loc[:, "継続騎乗"] = (self.base_df["騎手名"] == self.base_df["騎手名_1"]).astype(int)
+        self.base_df.loc[:, "同騎手_1"] = (self.base_df["騎手名"] == self.base_df["騎手名_1"]).astype(int)
+        self.base_df.loc[:, "同騎手_2"] = (self.base_df["騎手名"] == self.base_df["騎手名_2"]).astype(int)
+        self.base_df.loc[:, "同騎手_3"] = (self.base_df["騎手名"] == self.base_df["騎手名_3"]).astype(int)
+        self.base_df.loc[:, "同騎手_4"] = (self.base_df["騎手名"] == self.base_df["騎手名_4"]).astype(int)
+        self.base_df.loc[:, "同騎手_5"] = (self.base_df["騎手名"] == self.base_df["騎手名_5"]).astype(int)
+        self.base_df.loc[:, "同場騎手"] = (self.base_df["騎手所属場コード"] == self.base_df["場コード"]).astype(int)
+        self.base_df.loc[:, "同所属場"] = (self.base_df["調教師所属場コード"] == self.base_df["場コード"]).astype(int)
+        self.base_df.loc[:, "同所属騎手"] = (self.base_df["騎手所属場コード"] == self.base_df["調教師所属場コード"]).astype(int)
+        self.base_df.loc[:, "同主催者"] = (self.base_df["主催者コード"] == self.base_df["主催者コード_1"]).astype(int)
+        self.base_df.loc[:, "同場コード"] = (self.base_df["場コード"] == self.base_df["場コード_1"]).astype(int)
+        self.base_df.loc[:, "同場_1"] = (self.base_df["場コード"] == self.base_df["場コード_1"]).astype(int)
+        self.base_df.loc[:, "同場_2"] = (self.base_df["場コード"] == self.base_df["場コード_2"]).astype(int)
+        self.base_df.loc[:, "同場_3"] = (self.base_df["場コード"] == self.base_df["場コード_3"]).astype(int)
+        self.base_df.loc[:, "同場_4"] = (self.base_df["場コード"] == self.base_df["場コード_4"]).astype(int)
+        self.base_df.loc[:, "同場_5"] = (self.base_df["場コード"] == self.base_df["場コード_5"]).astype(int)
         self.base_df.loc[:, "同距離グループ_1"] = (self.base_df["距離グループ"] == self.base_df["距離グループ_1"]).astype(int)
         self.base_df.loc[:, "同距離グループ_2"] = (self.base_df["距離グループ"] == self.base_df["距離グループ_2"]).astype(int)
         self.base_df.loc[:, "同距離グループ_3"] = (self.base_df["距離グループ"] == self.base_df["距離グループ_3"]).astype(int)
         self.base_df.loc[:, "同距離グループ_4"] = (self.base_df["距離グループ"] == self.base_df["距離グループ_4"]).astype(int)
         self.base_df.loc[:, "同距離グループ_5"] = (self.base_df["距離グループ"] == self.base_df["距離グループ_5"]).astype(int)
+        self.base_df.loc[:, "同季節_1"] = (self.base_df["季節"] == self.base_df["季節_1"]).astype(int)
+        self.base_df.loc[:, "同季節_2"] = (self.base_df["季節"] == self.base_df["季節_2"]).astype(int)
+        self.base_df.loc[:, "同季節_3"] = (self.base_df["季節"] == self.base_df["季節_3"]).astype(int)
+        self.base_df.loc[:, "同季節_4"] = (self.base_df["季節"] == self.base_df["季節_4"]).astype(int)
+        self.base_df.loc[:, "同季節_5"] = (self.base_df["季節"] == self.base_df["季節_5"]).astype(int)
         self.base_df.loc[:, "負担重量_1"] = self.base_df["負担重量_1"] - self.base_df["負担重量"]
         self.base_df.loc[:, "負担重量_2"] = self.base_df["負担重量_2"] - self.base_df["負担重量"]
         self.base_df.loc[:, "負担重量_3"] = self.base_df["負担重量_3"] - self.base_df["負担重量"]
         self.base_df.loc[:, "負担重量_4"] = self.base_df["負担重量_4"] - self.base_df["負担重量"]
         self.base_df.loc[:, "負担重量_5"] = self.base_df["負担重量_5"] - self.base_df["負担重量"]
-        self.base_df.loc[:, "頭数差"] = self.base_df["頭数グループ"] - self.base_df["頭数グループ_1"]
+        self.base_df.loc[:, "頭数差"] = (self.base_df["頭数グループ"] - self.base_df["頭数グループ_1"])
+        self.base_df.loc[:, "中央経験"] = self.base_df.apply(lambda x: 1 if (x["主催者コード_1"] == 1 or x["主催者コード_2"] == 1 or x["主催者コード_3"] == 1 or x["主催者コード_4"] == 1 or x["主催者コード_5"] == 1) else 0, axis=1)
+        self.base_df.loc[:, "休み明け"] = self.base_df["休養週数"].apply(lambda x: 1 if x >= 20 else 0)
+        self.base_df.loc[:, "覚醒"] = self.base_df.apply(lambda x: 1 if (x["激走_1"] + x["激走_2"] + x["激走_3"] + x["激走_4"] + x["激走_5"] >= 3) else 0, axis=1)
+        self.base_df.loc[:, "失速"] = self.base_df.apply(lambda x: 1 if (x["凡走_1"] + x["凡走_2"] + x["凡走_3"] + x["凡走_4"] + x["凡走_5"] >= 3) else 0, axis=1)
+        self.base_df.loc[:, "逃げそびれ凡走"] = self.base_df.apply(lambda x: 1 if (x["逃げそびれ_1"] * x["凡走_1"] + x["逃げそびれ_2"] * x["凡走_2"] + x["逃げそびれ_3"] * x["凡走_3"] + x["逃げそびれ_4"] * x["凡走_4"] + x["逃げそびれ_5"] * x["凡走_5"] >= 2) else 0, axis=1)
+        self.base_df.loc[:, "継続騎乗好走"] = self.base_df.apply(lambda x: 1 if x["継続騎乗"] * x["激走_1"] == 1 else 0, axis=1)
         self.base_df.loc[:, "末脚安定"] = self.base_df.apply(lambda x: 1 if (x["上がりタイム順位_1"] + x["上がりタイム順位_2"] + x["上がりタイム順位_3"] <= 8 ) else 0, axis=1)
+        self.base_df.loc[:, "同騎手○"] = self.base_df.apply(lambda x: 1 if (x["同騎手_1"] * x["好走_1"] + x["同騎手_2"] * x["好走_2"] + x["同騎手_3"] * x["好走_3"] + x["同騎手_4"] * x["好走_4"] + x["同騎手_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同騎手◎"] = self.base_df.apply(lambda x: 1 if (x["同騎手_1"] * x["激走_1"] + x["同騎手_2"] * x["激走_2"] + x["同騎手_3"] * x["激走_3"] + x["同騎手_4"] * x["激走_4"] + x["同騎手_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同騎手逃げ"] = self.base_df.apply(lambda x: 1 if (x["同騎手_1"] * x["３角先頭_1"] + x["同騎手_2"] * x["３角先頭_2"] + x["同騎手_3"] * x["３角先頭_3"] + x["同騎手_4"] * x["３角先頭_4"] + x["同騎手_5"] * x["３角先頭_5"]) >= 2 else 0, axis=1)
+        self.base_df.loc[:, "同場○"] = self.base_df.apply(lambda x: 1 if (x["同場_1"] * x["好走_1"] + x["同場_2"] * x["好走_2"] + x["同場_3"] * x["好走_3"] + x["同場_4"] * x["好走_4"] + x["同場_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同場◎"] = self.base_df.apply(lambda x: 1 if (x["同場_1"] * x["激走_1"] + x["同場_2"] * x["激走_2"] + x["同場_3"] * x["激走_3"] + x["同場_4"] * x["激走_4"] + x["同場_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "上がり最速数"] = self.base_df.apply(lambda x: 1 if (x["上がり最速_1"] + x["上がり最速_2"] + x["上がり最速_3"] + x["上がり最速_4"] + x["上がり最速_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "逃げ好走"] = self.base_df.apply(lambda x: 1 if (x["４角先頭_1"] * x["好走_1"] + x["４角先頭_2"] * x["好走_2"] + x["４角先頭_3"] * x["好走_3"] + x["４角先頭_4"] * x["好走_4"] + x["４角先頭_5"] * x["好走_5"] >= 2) else 0, axis=1)
+        self.base_df.loc[:, "ムラっけ"] = self.base_df.apply(lambda x: 1 if (x["激走_1"] + x["激走_2"] + x["激走_3"] + x["激走_4"] + x["激走_5"] >= 2) and (x["大差負け_1"] + x["大差負け_2"] + x["大差負け_3"] + x["大差負け_4"] + x["大差負け_5"] >= 2)  else 0, axis=1)
+        self.base_df.loc[:, "連闘○"] = self.base_df.apply(lambda x: 1 if (x["連闘_1"] * x["好走_1"] + x["連闘_2"] * x["好走_2"] + x["連闘_3"] * x["好走_3"] + x["連闘_4"] * x["好走_4"] + x["連闘_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "連闘◎"] = self.base_df.apply(lambda x: 1 if (x["連闘_1"] * x["激走_1"] + x["連闘_2"] * x["激走_2"] + x["連闘_3"] * x["激走_3"] + x["連闘_4"] * x["激走_4"] + x["連闘_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+        #self.base_df.loc[:, "ナイター○"] = self.base_df.apply(lambda x: 1 if (x["ナイター_1"] * x["好走_1"] + x["ナイター_2"] * x["好走_2"] + x["ナイター_3"] * x["好走_3"] + x["ナイター_4"] * x["好走_4"] + x["ナイター_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        #self.base_df.loc[:, "ナイター◎"] = self.base_df.apply(lambda x: 1 if (x["ナイター_1"] * x["激走_1"] + x["ナイター_2"] * x["激走_2"] + x["ナイター_3"] * x["激走_3"] + x["ナイター_4"] * x["激走_4"] + x["ナイター_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同距離○"] = self.base_df.apply(lambda x: 1 if (x["同距離グループ_1"] * x["好走_1"] + x["同距離グループ_2"] * x["好走_2"] + x["同距離グループ_3"] * x["好走_3"] + x["同距離グループ_4"] * x["好走_4"] + x["同距離グループ_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同距離◎"] = self.base_df.apply(lambda x: 1 if (x["同距離グループ_1"] * x["激走_1"] + x["同距離グループ_2"] * x["激走_2"] + x["同距離グループ_3"] * x["激走_3"] + x["同距離グループ_4"] * x["激走_4"] + x["同距離グループ_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同季節○"] = self.base_df.apply(lambda x: 1 if (x["同季節_1"] * x["好走_1"] + x["同季節_2"] * x["好走_2"] + x["同季節_3"] * x["好走_3"] + x["同季節_4"] * x["好走_4"] + x["同季節_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同季節◎"] = self.base_df.apply(lambda x: 1 if (x["同季節_1"] * x["激走_1"] + x["同季節_2"] * x["激走_2"] + x["同季節_3"] * x["激走_3"] + x["同季節_4"] * x["激走_4"] + x["同季節_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同場騎手○"] = self.base_df.apply(lambda x: 1 if (x["同場騎手_1"] * x["好走_1"] + x["同場騎手_2"] * x["好走_2"] + x["同場騎手_3"] * x["好走_3"] + x["同場騎手_4"] * x["好走_4"] + x["同場騎手_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同場騎手◎"] = self.base_df.apply(lambda x: 1 if (x["同場騎手_1"] * x["激走_1"] + x["同場騎手_2"] * x["激走_2"] + x["同場騎手_3"] * x["激走_3"] + x["同場騎手_4"] * x["激走_4"] + x["同場騎手_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同所属場○"] = self.base_df.apply(lambda x: 1 if (x["同所属場_1"] * x["好走_1"] + x["同所属場_2"] * x["好走_2"] + x["同所属場_3"] * x["好走_3"] + x["同所属場_4"] * x["好走_4"] + x["同所属場_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同所属場◎"] = self.base_df.apply(lambda x: 1 if (x["同所属場_1"] * x["激走_1"] + x["同所属場_2"] * x["激走_2"] + x["同所属場_3"] * x["激走_3"] + x["同所属場_4"] * x["激走_4"] + x["同所属場_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同所属騎手○"] = self.base_df.apply(lambda x: 1 if (x["同所属騎手_1"] * x["好走_1"] + x["同所属騎手_2"] * x["好走_2"] + x["同所属騎手_3"] * x["好走_3"] + x["同所属騎手_4"] * x["好走_4"] + x["同所属騎手_5"] * x["好走_5"]) >= 3 else 0, axis=1)
+        self.base_df.loc[:, "同所属騎手◎"] = self.base_df.apply(lambda x: 1 if (x["同所属騎手_1"] * x["激走_1"] + x["同所属騎手_2"] * x["激走_2"] + x["同所属騎手_3"] * x["激走_3"] + x["同所属騎手_4"] * x["激走_4"] + x["同所属騎手_5"] * x["激走_5"]) >= 3 else 0, axis=1)
+
+    def _feature_summary_data(self):
+        raceuma_df = self.base_df.drop(["近走競走コード1", "近走競走コード2", "近走競走コード3", "近走競走コード4", "近走競走コード5", "近走馬番1", "近走馬番2", "近走馬番3", "近走馬番4", "近走馬番5",
+                                        "休養後出走回数", "休養週数", "先行指数順位", "予想人気", "予想タイム指数順位", "所属",
+                                        "距離", "頭数グループ", "枠番", "頭数", "予想勝ち指数", "季節", "ナイター", "非根幹", "調教師名", "騎手名",
+                                        "距離グループ_1", "距離グループ_2", "距離グループ_3", "距離グループ_4", "距離グループ_5",
+                                        "同所属場_1", "同所属場_2", "同所属場_3", "同所属場_4", "同所属場_5",
+                                        "展開脚色_1", "展開脚色_2", "展開脚色_3", "展開脚色_4", "展開脚色_5",
+                                        "同所属騎手_1", "同所属騎手_2", "同所属騎手_3", "同所属騎手_4", "同所属騎手_5",
+                                        "同場騎手_1",  "同場騎手_2",  "同場騎手_3",  "同場騎手_4",  "同場騎手_5",
+                                        "季節_1", "季節_2", "季節_3", "季節_4", "季節_5",
+                                        "連闘_1", "連闘_2", "連闘_3", "連闘_4", "連闘_5"], axis=1)
+        raceuma_df.loc[:, "競走馬コード"] = raceuma_df["競走コード"].astype(str).str.cat(raceuma_df["馬番"].astype(str))
+        raceuma_df.drop("馬番", axis=1, inplace=True)
+        es = ft.EntitySet(id="race")
+        # es.entity_from_dataframe(entity_id='race', dataframe=raceuma_df, index="競走馬コード")
+        # es.normalize_entity(base_entity_id='race', new_entity_id='raceuma', index="競走コード")
+
+        es.entity_from_dataframe(entity_id='race', dataframe=self.ld.race_df[["競走コード", "月日"]], index="競走コード")
+        es.entity_from_dataframe(entity_id='raceuma', dataframe=raceuma_df, index="競走馬コード")
+        relationship = ft.Relationship(es['race']["競走コード"], es['raceuma']["競走コード"])
+        es = es.add_relationship(relationship)
+        print(es)
+        # 集約関数
+        aggregation_list = ['min', 'max', 'mean', 'skew', 'percent_true']
+        transform_list = []
+        # run dfs
+        print("un dfs")
+        feature_matrix, features_dfs = ft.dfs(entityset=es, target_entity='race', agg_primitives=aggregation_list,
+                                              trans_primitives=transform_list, max_depth=2)
+        feature_summary_df = pd.merge(feature_matrix, self.ld.race_df, on="競走コード")
+        print("_create_feature: feature_summary_df", feature_summary_df.shape)
+        return feature_summary_df
 
     def _drop_columns_base_df(self):
         self.base_df.drop(
-            ["発走時刻_1", "発走時刻_2", "発走時刻_3", "発走時刻_4", "発走時刻_5",
-             "トラックコード_1", "トラックコード_2", "トラックコード_3", "トラックコード_4", "トラックコード_5",
+            ["トラックコード_1", "トラックコード_2", "トラックコード_3", "トラックコード_4", "トラックコード_5",
              "距離グループ_1", "距離グループ_2", "距離グループ_3", "距離グループ_4", "距離グループ_5",
              "連闘_1", "連闘_2", "連闘_3", "連闘_4", "連闘_5",
              "頭数グループ_1", "頭数グループ_2", "頭数グループ_3", "頭数グループ_4", "頭数グループ_5",
@@ -468,13 +626,27 @@ class SkProc(LBSkProc):
              # "大差負け_1", "大差負け_2",
              "大差負け_3", "大差負け_4", "大差負け_5",
              "同距離グループ_1", "同距離グループ_2", "同距離グループ_3", "同距離グループ_4", "同距離グループ_5",
-             "年月日", "近走競走コード1", "近走馬番1", "近走競走コード2", "近走馬番2", "近走競走コード3", "近走馬番3", "近走競走コード4", "近走馬番4",
-             "近走競走コード5", "近走馬番5",
              "負担重量_1", "負担重量_2", "負担重量_3", "負担重量_4", "負担重量_5",
              # "上がりタイム順位_1", "上がりタイム順位_2",
             "上がりタイム順位_3", "上がりタイム順位_4", "上がりタイム順位_5",
              "血統登録番号", "テン乗り", "性別コード",
              "ペース_1", "ペース_2", "ペース_3", "ペース_4", "ペース_5",
+             "主催者コード_1", "主催者コード_2", "主催者コード_3", "主催者コード_4", "主催者コード_5",
+             "季節_1", "季節_2", "季節_3", "季節_4", "季節_5",
+             "騎手所属場コード_1", "騎手所属場コード_2", "騎手所属場コード_3", "騎手所属場コード_4", "騎手所属場コード_5",
+             "調教師所属場コード_1", "調教師所属場コード_2", "調教師所属場コード_3", "調教師所属場コード_4", "調教師所属場コード_5",
+             "同場騎手_1", "同場騎手_2", "同場騎手_3", "同場騎手_4", "同場騎手_5",
+             "同所属場_1", "同所属場_2", "同所属場_3", "同所属場_4", "同所属場_5",
+             "同所属騎手_1", "同所属騎手_2", "同所属騎手_3", "同所属騎手_4", "同所属騎手_5",
+             "同季節_1", "同季節_2", "同季節_3", "同季節_4", "同季節_5",
+             "距離グループ", "年月日", "枠番", "頭数グループ",
+             "近走競走コード1", "近走競走コード2", "近走競走コード3", "近走競走コード4", "近走競走コード5",
+             "近走馬番1", "近走馬番2", "近走馬番3", "近走馬番4", "近走馬番5",
+             "発走時刻_1", "発走時刻_2", "発走時刻_3", "発走時刻_4", "発走時刻_5",
+             "騎手名_1", "騎手名_2", "騎手名_3", "騎手名_4", "騎手名_5",
+             "負担重量_1", "負担重量_2","負担重量_3","負担重量_4","負担重量_5",
+             "同場_1", "同場_2", "同場_3", "同場_4", "同場_5",
+             "月日", "主催者コード", "場コード", "グレードコード", "競走種別コード", "競走条件コード", "トラックコード", "距離グループ"
              ],
         axis=1, inplace=True)
 
@@ -501,7 +673,6 @@ class SkProc(LBSkProc):
             with open(self.model_folder + this_model_name + '.pickle', 'rb') as f:
                 model = pickle.load(f)
             y_pred = model.predict(exp_df)
-            print(y_pred)
             pred_df = pd.DataFrame(y_pred, columns=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
             base_df = pd.DataFrame({"RACE_KEY": temp_df["RACE_KEY"], "NENGAPPI": temp_df["NENGAPPI"]})
             pred_df = pd.concat([base_df, pred_df], axis=1)
@@ -515,6 +686,13 @@ class SkProc(LBSkProc):
 
     def _set_predict_target_encoding(self, df):
         return df
+
+    def create_eval_prd_data(self, df):
+        """ 予測されたデータの精度をチェック """
+        self._set_target_variables()
+        check_df = pd.merge(df[df["predict_rank"] == 1], self.result_df, on="RACE_KEY")
+        return check_df
+
 
 class SkModel(LBSkModel):
     class_list = ['主催者コード']
@@ -541,13 +719,8 @@ class SkModel(LBSkModel):
 
     def create_import_data(self, all_df):
         """ 予測値の偏差と順位を追加して格納 """
-        print(all_df)
-        #grouped_all_df = all_df.groupby(["RACE_KEY", "UMABAN", "target"], as_index=False).mean()
-        #date_df = all_df[["RACE_KEY", "target_date"]].drop_duplicates()
-        #temp_grouped_df = pd.merge(grouped_all_df, date_df, on="RACE_KEY")
         grouped_df = self._calc_grouped_data(all_df)
         import_df = grouped_df[["RACE_KEY", "UMABAN", "pred", "prob", "predict_std", "predict_rank", "target", "target_date"]].round(3)
-        print(import_df)
         return import_df
 
     def create_featrue_select_data(self, learning_df):
@@ -559,6 +732,7 @@ class SkModel(LBSkModel):
         for target in self.obj_column_list:
             print(target)
             target_df = check_df[check_df["target"] == target]
+            print(target_df.head())
             target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x["UMABAN"] == x[target] else 0, axis=1)
             target_df.loc[:, "惜しい"] = target_df.apply(lambda x: 1 if (x["UMABAN"] == x["１着"] or x["UMABAN"] == x["２着"] or x["UMABAN"] == x["３着"]) else 0, axis=1)
             hit_rate = target_df["的中"].mean()
