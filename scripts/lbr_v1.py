@@ -96,13 +96,6 @@ class Ld(LBLoad):
         tf = Tf(start_date, end_date)
         return tf
 
-    def _proc_raceuma_df(self, raceuma_base_df):
-        raceuma_df = self.tf.normalize_raceuma_df(raceuma_base_df)
-        raceuma_df = self.tf.standardize_raceuma_df(raceuma_df)
-        raceuma_df = self.tf.create_feature_raceuma_df(raceuma_df)
-        raceuma_df = self.tf.drop_columns_raceuma_df(raceuma_df)
-        return raceuma_df.copy()
-
     def set_prev_df(self):
         """  prev_dfを作成するための処理。prev1_raceuma_dfに処理がされたデータをセットする。過去1走のデータと過去走を集計したデータをセットする  """
         print("skip prev_df")
@@ -243,18 +236,26 @@ class SkProc(LBSkProc):
         self._save_learning_model(model, this_model_name)
 
     def _merge_df(self):
-        self.base_df = pd.merge(self.ld.raceuma_df, self.ld.horse_df, on="血統登録番号")
+        self.base_df = pd.merge(self.ld.race_df, self.ld.raceuma_df, on="競走コード")
+        self.base_df = pd.merge(self.base_df, self.ld.horse_df, on="血統登録番号")
 
     def _create_feature(self):
         """ マージしたデータから特徴量を生成する """
         print("_create_feature")
-        raceuma_df = self.base_df.copy()[["競走コード", "馬番", "予想タイム指数", "予想展開", "クラス変動", "馬齢", "前走着順", "前走人気", "前走頭数", "騎手ランキング", "調教師ランキング"]]
+        raceuma_df = self.base_df.drop(["近走競走コード1", "近走競走コード2", "近走競走コード3", "近走競走コード4", "近走競走コード5", "近走馬番1", "近走馬番2", "近走馬番3", "近走馬番4", "近走馬番5",
+                                        "馬番グループ", "休養後出走回数", "休養週数", "枠順評価", "脚質評価", "調教師評価", "騎手評価", "先行指数順位", "予想人気グループ", "予想人気", "予想タイム指数順位",
+                                        "距離", "予想決着指数", "日次", "頭数グループ", "回次", "枠番", "頭数", "予想勝ち指数", "初出走頭数", "季節", "登録頭数", "ナイター", "混合", "非根幹"], axis=1)
         raceuma_df.loc[:, "競走馬コード"] = raceuma_df["競走コード"].astype(str).str.cat(raceuma_df["馬番"].astype(str))
         raceuma_df.drop("馬番", axis=1, inplace=True)
         # https://qiita.com/daigomiyoshi/items/d6799cc70b2c1d901fb5
         es = ft.EntitySet(id="race")
-        es.entity_from_dataframe(entity_id='race', dataframe=raceuma_df, index="競走馬コード")
-        es.normalize_entity(base_entity_id='race', new_entity_id='raceuma', index="競走コード")
+        #es.entity_from_dataframe(entity_id='race', dataframe=raceuma_df, index="競走馬コード")
+        #es.normalize_entity(base_entity_id='race', new_entity_id='raceuma', index="競走コード")
+        es.entity_from_dataframe(entity_id='race', dataframe=self.ld.race_df, index="競走コード")
+        es.entity_from_dataframe(entity_id='raceuma', dataframe=raceuma_df, index="競走馬コード")
+        relationship = ft.Relationship(es['race']["競走コード"], es['raceuma']["競走コード"])
+        es = es.add_relationship(relationship)
+        print(es)
         # 集約関数
         aggregation_list = ['min', 'max', 'mean', 'skew', 'percent_true']
         transform_list = []
@@ -265,15 +266,17 @@ class SkProc(LBSkProc):
         print("_create_feature: feature_matrix", feature_matrix.shape)
 
         # 予想１番人気のデータを取得
-        ninki_df = self.base_df.query("予想人気==1")[["競走コード", "枠番", "性別コード", "予想タイム指数順位", "見習区分", "キャリア", "馬齢", "予想展開", "距離増減", "前走頭数", "前走人気", "テン乗り"]].add_prefix("人気_").rename(columns={"人気_競走コード":"競走コード"})
+        ninki_df = self.base_df.query("予想人気==1")[["競走コード", "枠番", "性別コード", "予想タイム指数順位", "見習区分", "キャリア", "馬齢", "予想展開", "距離増減", "前走頭数", "前走人気", "テン乗り",
+                                                  "繁殖登録番号1", "繁殖登録番号5", "東西所属コード", "生産者コード", "馬主コード", "騎手名", "調教師名", "所属", "転厩"]].add_prefix("人気_").rename(columns={"人気_競走コード":"競走コード"})
         # 逃げ予想馬のデータを取得
-        nige_df = self.base_df.query("予想展開==1")[["競走コード", "先行指数", "距離増減", "前走人気", "前走頭数", "テン乗り"]].add_prefix("逃げ_").rename(columns={"逃げ_競走コード":"競走コード"})
-        self.base_df = pd.merge(feature_matrix, nige_df, on="競走コード")
+        nige_df = self.base_df.query("予想展開==1")[["競走コード", "先行指数", "距離増減", "前走人気", "前走頭数", "テン乗り", "繁殖登録番号1", "騎手名", "調教師名"]].add_prefix("逃げ_").rename(columns={"逃げ_競走コード":"競走コード"})
+        self.base_df = pd.merge(feature_matrix, nige_df, on="競走コード", how="left")
         self.base_df = pd.merge(self.base_df, ninki_df, on="競走コード")
-        self.base_df = pd.merge(self.base_df, self.ld.race_df, on="競走コード")
+        self.base_df = pd.merge(self.base_df, self.ld.race_df[["競走コード", "月日"]], on="競走コード")
+        mu.check_df(self.base_df)
 
     def _drop_columns_base_df(self):
-        self.base_df.drop(["場名", "発走時刻", "予想タイム指数", "予想展開", "前走人気", "前走着順", "競走条件コード", "競走条件コード", "調教師ランキング", "距離グループ", "騎手ランキング", "クラス変動", "登録頭数", "馬齢"], axis=1, inplace=True)
+        self.base_df.drop(["場名", "競走条件コード", "競走条件コード", "距離グループ", "登録頭数"], axis=1, inplace=True)
 
     def _scale_df(self):
         pass
@@ -361,8 +364,8 @@ class SkProc(LBSkProc):
     def create_eval_prd_data(self, df):
         """ 予測されたデータの精度をチェック """
         self._set_target_variables()
-        check_df = pd.merge(df, self.result_df, on="RACE_KEY")
-        return check_df[check_df["pred"] == 1].copy()
+        check_df = pd.merge(df[df["pred"] == 1], self.result_df, on="RACE_KEY")
+        return check_df.copy()
 
 class SkModel(LBSkModel):
     class_list = ['主催者コード']
@@ -435,10 +438,13 @@ class SkModel(LBSkModel):
             print(target)
             target_df = check_df[check_df["target"] == target]
             target_df = target_df.query("pred == 1")
-            target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x[target] == 1 else 0, axis=1)
-            print(target_df)
-            avg_rate = target_df["的中"].mean()
-            print(round(avg_rate*100, 1))
+            if len(target_df.index) != 0:
+                target_df.loc[:, "的中"] = target_df.apply(lambda x: 1 if x[target] == 1 else 0, axis=1)
+                print(target_df)
+                avg_rate = target_df["的中"].mean()
+                print(round(avg_rate*100, 1))
+            else:
+                print("skip eval")
 
 # ============================================================================================================
 

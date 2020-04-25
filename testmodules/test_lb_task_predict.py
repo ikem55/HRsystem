@@ -173,3 +173,35 @@ class TestLBRv1TaskPredict(TestBaseTaskPredict):
         table_name = table_name + "_test"
         self.skmodel.set_test_table(table_name)
         self._proc_check_folder()
+
+    def test_11_proc_predict_sk_model(self):
+        """ 予測データの作成ができることを確認 """
+        import sys
+        import pandas as pd
+        import modules.util as mu
+        print("--  " + sys._getframe().f_code.co_name + " start --")
+        predict_file_name = self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl'
+        exp_data = pd.read_pickle(predict_file_name)
+        print(exp_data.head())
+        all_pred_df = pd.DataFrame()
+        class_list = self.skmodel.class_list
+        for cls_val in class_list:
+            val_list = self.skmodel.get_val_list(exp_data, cls_val)
+            for val in val_list:
+                # 対象の競馬場のデータを取得する
+                filter_df = self.skmodel.get_filter_df(exp_data, cls_val, val)
+                # 予測を実施
+                check_df = filter_df.dropna()
+                if not check_df.empty:
+                    pred_df = self.skmodel.proc_predict_sk_model(filter_df, cls_val, val)
+                    all_pred_df = pd.concat([all_pred_df, pred_df])
+                break
+        import_df = self.skmodel.create_import_data(all_pred_df)
+        print(import_df.head())
+        self.skmodel.eval_pred_data(import_df)
+        # not empty check
+        self.assertFalse(len(import_df.index) == 0)
+        # 必要な列があるかチェック
+        contain_columns_set = set(self.import_list)
+        contain_check = self.proc_test_contain_columns_check(import_df, contain_columns_set)
+        self.assertTrue(contain_check)
