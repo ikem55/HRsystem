@@ -35,6 +35,7 @@ class BaseLoad(object):
 
     def _set_folder_path(self, version_str):
         self.dict_folder = self.dict_path + 'dict/' + version_str + '/'
+        print("self.dict_folder:", self.dict_folder)
 
     def _get_extract_object(self, start_date, end_date, mock_flag):
         """ 利用するExtクラスを指定する """
