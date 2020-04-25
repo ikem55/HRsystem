@@ -2,6 +2,9 @@ from testmodules.test_lb_task_learning import *
 from testmodules.test_lb_task_predict import *
 import unittest
 
+######################
+# 要テスト！辞書の呼び出しがtestになっているっぽい。。
+################
 
 ## 部分的なテストを実施するときに利用
 # このクラスでテンポラリクラスを作ってclean_flagを設定

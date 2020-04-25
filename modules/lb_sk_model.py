@@ -68,10 +68,12 @@ class LBSkModel(BaseSkModel):
         for talble_info in crsr.tables(tableType='TABLE'):
             table_list.append(talble_info.table_name)
         print(table_list)
-        if not table_name in table_list:
-            print(create_table_sql)
-            crsr.execute(create_table_sql)
-            crsr.commit()
+        if table_name in table_list:
+            print("drop table")
+            crsr.execute('DROP TABLE ' + table_name)
+        print(create_table_sql)
+        crsr.execute(create_table_sql)
+        crsr.commit()
         crsr.close()
         cnxn.close()
 
