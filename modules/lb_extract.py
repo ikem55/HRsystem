@@ -10,6 +10,24 @@ class LBExtract(BaseExtract):
     mock_path = '../mock_data/lb/'
     row_cnt = 1000
 
+    def get_race_table_for_view(self):
+        """ 馬王ZのMDGからレーステーブルからデータを取得する。。
+
+        :return: dataframe
+        """
+        if self.mock_flag:
+            df = pd.read_pickle(self.mock_path_race)
+        else:
+            cnxn = self._connect_baoz_mdb()
+            select_sql = 'SELECT * FROM レースT WHERE 月日 >= #' + \
+                self.start_date + '# AND 月日 <= #' + self.end_date + '#'
+            df_org = pd.read_sql(select_sql, cnxn)
+            cnxn.close()
+            df = df_org.astype({'トラック種別コード': object, '主催者コード': object, '場コード': object, '競走種別コード': object, '競走条件コード': object, 'トラックコード': object,
+                                '天候コード': object, '馬場状態コード': object, '投票フラグ': object, '波乱度': object, '馬券発売フラグ': object, '予想計算状況フラグ': object})
+        return_df = df[df["主催者コード"] == 2].copy()
+        return return_df
+
     def get_race_table_base(self):
         """ 馬王ZのMDGからレーステーブルからデータを取得する。。
 

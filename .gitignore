@@ -3,6 +3,7 @@ for_test_intermediate/
 for_test_model/
 testmodules/.pytest_cache/
 lab_notebook/
+scripts/data/
 venv/
 .idea/
 __pycache__/
