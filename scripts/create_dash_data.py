@@ -119,6 +119,7 @@ if not test_flag:
     ftp = connect()
     ftp.cwd('site/wwwroot/static/data/')
     if run_mode == "real":
+        ftp.cwd('./current/')
         with open(stored_folder_path + "/current/race_df.pickle", 'rb') as f:
             ftp.storbinary('STOR {}'.format("race_df.pickle"), f)
         with open(stored_folder_path + "/current/raceuma_df.pickle", 'rb') as f:
