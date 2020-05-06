@@ -33,7 +33,7 @@ if run_mode == "init":
     else:
         start_date = '2019/12/01'
 elif run_mode == "daily":
-    start_date = (dt.now() + timedelta(days=-1)).strftime('%Y/%m/%d')
+    start_date = (dt.now().replace(day=1)).strftime('%Y/%m/%d')
 else:
     start_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
 
