@@ -145,11 +145,11 @@ if not test_flag:
         with open(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
             ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
     if os.path.exists(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
-        ftp.cwd('../current/lb_v5/')
+        ftp.cwd('../lb_v5/')
         with open(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
             ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
     if os.path.exists(stored_folder_path + "/current/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl"):
-        ftp.cwd('../current/lbr_v1/')
+        ftp.cwd('../lbr_v1/')
         with open(stored_folder_path + "/current/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
             ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
 
