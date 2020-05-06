@@ -3,19 +3,18 @@ from datetime import datetime as dt
 from datetime import timedelta
 import os
 import sys
-from distutils.util import strtobool
 
 from ftplib import FTP_TLS
 import my_config as mc
 import shutil
 
-test_flag = False # Trueの場合はＦＴＰアップを行わない
+test_flag = True # Trueの場合はＦＴＰアップを行わない
 
 args = sys.argv
 print("------------- upload file to Azure ----------------")
 print(args)
-print("mode：" + args[1])  # init or daily Trueの場合はinit
-init_flag = strtobool(args[1])
+print("mode：" + args[1])  # init or daily or real
+run_mode = args[1]
 
 
 stored_folder_path = "./scripts/data"
@@ -28,26 +27,19 @@ if not os.path.exists(stored_folder_path + "/current/"): os.makedirs(stored_fold
 
 ## create data
 
-if init_flag:
-    start_date = '2019/12/01'
-else:
+if run_mode == "init":
+    if test_flag:
+        start_date = '2020/4/01'
+    else:
+        start_date = '2019/12/01'
+elif run_mode == "daily":
     start_date = (dt.now() + timedelta(days=-1)).strftime('%Y/%m/%d')
-
-if test_flag:
-    start_date = '2020/4/01'
+else:
+    start_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
 
 end_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
 mock_flag = False
 
-start_dt = dt.strptime(start_date, "%Y/%m/%d")
-end_dt = dt.strptime(end_date, "%Y/%m/%d")
-days_num = (end_dt - start_dt).days + 1
-
-yearmonth_list = []
-for i in range(days_num):
-    yearmonth_list.append((start_dt + timedelta(days=i)).strftime("%Y%m"))
-
-yearmonth_list = sorted(list(set(yearmonth_list)))
 
 ext = LBExtract(start_date, end_date, mock_flag)
 
@@ -68,36 +60,51 @@ base_haraimodoshi_df = ext.get_haraimodoshi_table_base()
 base_haraimodoshi_df.loc[:, "年月"] = base_haraimodoshi_df["データ作成年月日"].apply(lambda x: x.strftime("%Y%m"))
 
 if test_flag:
-    print(base_race_df.iloc[0])
-    print(base_raceuma_df.iloc[0])
-    print(base_bet_df.iloc[0])
-    print(base_haraimodoshi_df.iloc[0])
+    if not base_race_df.empty: print(base_race_df.iloc[0])
+    if not base_raceuma_df.empty: print(base_raceuma_df.iloc[0])
+    if not base_bet_df.empty: print(base_bet_df.iloc[0])
+    if not base_haraimodoshi_df.empty: print(base_haraimodoshi_df.iloc[0])
 
-for ym in yearmonth_list:
-    print("Yearmonth:", ym)
-    ym_race_df = base_race_df[base_race_df["年月"] == ym]
-    ym_race_df.to_pickle(stored_folder_path + "/race/" + ym + ".pickle")
-    ym_raceuma_df = base_raceuma_df[base_raceuma_df["年月"] == ym]
-    ym_raceuma_df.to_pickle(stored_folder_path + "/raceuma/" + ym + ".pickle")
-    ym_bet_df = base_bet_df[base_bet_df["年月"] == ym]
-    ym_bet_df.to_pickle(stored_folder_path + "/bet/" + ym + ".pickle")
-    ym_haraimodoshi_df = base_haraimodoshi_df[base_haraimodoshi_df["年月"] == ym]
-    ym_haraimodoshi_df.to_pickle(stored_folder_path + "/haraimodoshi/" + ym + ".pickle")
+if run_mode == "real":
+    base_race_df.to_pickle(stored_folder_path + "/current/race_df.pickle")
+    base_raceuma_df.to_pickle(stored_folder_path + "/current/raceuma_df.pickle")
+    base_bet_df.to_pickle(stored_folder_path + "/current/bet_df.pickle")
+    base_haraimodoshi_df.to_pickle(stored_folder_path + "/current/haraimodoshi_df.pickle")
+else:
+    start_dt = dt.strptime(start_date, "%Y/%m/%d")
+    end_dt = dt.strptime(end_date, "%Y/%m/%d")
+    days_num = (end_dt - start_dt).days + 1
 
-## currentファイル(exp_data取得)
-intermediate_folder = "E:\python/intermediate"
-if not os.path.exists(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm"): os.makedirs(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm")
-if not os.path.exists(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm"): os.makedirs(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm")
-if not os.path.exists(stored_folder_path + "/current/lbr_v1_predict/race_lgm"): os.makedirs(stored_folder_path + "/current/lbr_v1_predict/race_lgm")
+    yearmonth_list = []
+    for i in range(days_num):
+        yearmonth_list.append((start_dt + timedelta(days=i)).strftime("%Y%m"))
 
-int_end_date = (dt.now() + timedelta(days=0)).strftime('%Y%m%d')
+    yearmonth_list = sorted(list(set(yearmonth_list)))
+    for ym in yearmonth_list:
+        print("Yearmonth:", ym)
+        ym_race_df = base_race_df[base_race_df["年月"] == ym]
+        ym_race_df.to_pickle(stored_folder_path + "/race/" + ym + ".pickle")
+        ym_raceuma_df = base_raceuma_df[base_raceuma_df["年月"] == ym]
+        ym_raceuma_df.to_pickle(stored_folder_path + "/raceuma/" + ym + ".pickle")
+        ym_bet_df = base_bet_df[base_bet_df["年月"] == ym]
+        ym_bet_df.to_pickle(stored_folder_path + "/bet/" + ym + ".pickle")
+        ym_haraimodoshi_df = base_haraimodoshi_df[base_haraimodoshi_df["年月"] == ym]
+        ym_haraimodoshi_df.to_pickle(stored_folder_path + "/haraimodoshi/" + ym + ".pickle")
 
-if os.path.exists(intermediate_folder + "/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
-    shutil.copy(intermediate_folder + "/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", stored_folder_path + "/current/lb_v4_predict/raceuma_lgm/")
-if os.path.exists(intermediate_folder + "/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
-    shutil.copy(intermediate_folder + "/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", stored_folder_path + "/current/lb_v5_predict/raceuma_lgm/")
-if os.path.exists(intermediate_folder + "/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl"):
-    shutil.copy(intermediate_folder + "/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl", stored_folder_path + "/current/lbr_v1_predict/race_lgm/")
+    ## currentファイル(exp_data取得)
+    intermediate_folder = "E:\python/intermediate"
+    if not os.path.exists(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm"): os.makedirs(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm")
+    if not os.path.exists(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm"): os.makedirs(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm")
+    if not os.path.exists(stored_folder_path + "/current/lbr_v1_predict/race_lgm"): os.makedirs(stored_folder_path + "/current/lbr_v1_predict/race_lgm")
+
+    int_end_date = (dt.now() + timedelta(days=0)).strftime('%Y%m%d')
+
+    if os.path.exists(intermediate_folder + "/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
+        shutil.copy(intermediate_folder + "/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", stored_folder_path + "/current/lb_v4_predict/raceuma_lgm/")
+    if os.path.exists(intermediate_folder + "/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
+        shutil.copy(intermediate_folder + "/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", stored_folder_path + "/current/lb_v5_predict/raceuma_lgm/")
+    if os.path.exists(intermediate_folder + "/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl"):
+        shutil.copy(intermediate_folder + "/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl", stored_folder_path + "/current/lbr_v1_predict/race_lgm/")
 
 
 ## ftp upload
@@ -111,47 +118,57 @@ def connect():
 if not test_flag:
     ftp = connect()
     ftp.cwd('site/wwwroot/static/data/')
-    # race
-    race_list = os.listdir(stored_folder_path + "/race/")
-    ftp.cwd('./race/')
-    for file in race_list:
-        with open(stored_folder_path + "/race/" + file, 'rb') as f:
-            ftp.storbinary('STOR {}'.format(file), f)
+    if run_mode == "real":
+        with open(stored_folder_path + "/current/race_df.pickle", 'rb') as f:
+            ftp.storbinary('STOR {}'.format("race_df.pickle"), f)
+        with open(stored_folder_path + "/current/raceuma_df.pickle", 'rb') as f:
+            ftp.storbinary('STOR {}'.format("raceuma_df.pickle"), f)
+        with open(stored_folder_path + "/current/bet_df.pickle", 'rb') as f:
+            ftp.storbinary('STOR {}'.format("bet_df.pickle"), f)
+        with open(stored_folder_path + "/current/haraimodoshi_df.pickle", 'rb') as f:
+            ftp.storbinary('STOR {}'.format("haraimodoshi_df.pickle"), f)
+    else:
+        # race
+        race_list = os.listdir(stored_folder_path + "/race/")
+        ftp.cwd('./race/')
+        for file in race_list:
+            with open(stored_folder_path + "/race/" + file, 'rb') as f:
+                ftp.storbinary('STOR {}'.format(file), f)
 
-    # raceuma
-    raceuma_list = os.listdir(stored_folder_path + "/raceuma/")
-    ftp.cwd('../raceuma/')
-    for file in raceuma_list:
-        with open(stored_folder_path + "/raceuma/" + file, 'rb') as f:
-            ftp.storbinary('STOR {}'.format(file), f)
+        # raceuma
+        raceuma_list = os.listdir(stored_folder_path + "/raceuma/")
+        ftp.cwd('../raceuma/')
+        for file in raceuma_list:
+            with open(stored_folder_path + "/raceuma/" + file, 'rb') as f:
+                ftp.storbinary('STOR {}'.format(file), f)
 
-    # bet
-    bet_list = os.listdir(stored_folder_path + "/bet/")
-    ftp.cwd('../bet/')
-    for file in bet_list:
-        with open(stored_folder_path + "/bet/" + file, 'rb') as f:
-            ftp.storbinary('STOR {}'.format(file), f)
+        # bet
+        bet_list = os.listdir(stored_folder_path + "/bet/")
+        ftp.cwd('../bet/')
+        for file in bet_list:
+            with open(stored_folder_path + "/bet/" + file, 'rb') as f:
+                ftp.storbinary('STOR {}'.format(file), f)
 
-    # haraimodoshi
-    haraimodoshi_list = os.listdir(stored_folder_path + "/haraimodoshi/")
-    ftp.cwd('../haraimodoshi/')
-    for file in haraimodoshi_list:
-        with open(stored_folder_path + "/haraimodoshi/" + file, 'rb') as f:
-            ftp.storbinary('STOR {}'.format(file), f)
+        # haraimodoshi
+        haraimodoshi_list = os.listdir(stored_folder_path + "/haraimodoshi/")
+        ftp.cwd('../haraimodoshi/')
+        for file in haraimodoshi_list:
+            with open(stored_folder_path + "/haraimodoshi/" + file, 'rb') as f:
+                ftp.storbinary('STOR {}'.format(file), f)
 
-    # current
-    if os.path.exists(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
-        ftp.cwd('../current/lb_v4/')
-        with open(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
-            ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
-    if os.path.exists(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
-        ftp.cwd('../lb_v5/')
-        with open(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
-            ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
-    if os.path.exists(stored_folder_path + "/current/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl"):
-        ftp.cwd('../lbr_v1/')
-        with open(stored_folder_path + "/current/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
-            ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
+        # current
+        if os.path.exists(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
+            ftp.cwd('../current/lb_v4/')
+            with open(stored_folder_path + "/current/lb_v4_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
+                ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
+        if os.path.exists(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl"):
+            ftp.cwd('../lb_v5/')
+            with open(stored_folder_path + "/current/lb_v5_predict/raceuma_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
+                ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
+        if os.path.exists(stored_folder_path + "/current/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl"):
+            ftp.cwd('../lbr_v1/')
+            with open(stored_folder_path + "/current/lbr_v1_predict/race_lgm/" + int_end_date + "_exp_data.pkl", 'rb') as f:
+                ftp.storbinary('STOR {}'.format(int_end_date + "_exp_data.pkl"), f)
 
     ftp.quit()
 
