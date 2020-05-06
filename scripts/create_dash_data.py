@@ -8,7 +8,7 @@ from ftplib import FTP_TLS
 import my_config as mc
 import shutil
 
-test_flag = True # Trueの場合はＦＴＰアップを行わない
+test_flag = False # Trueの場合はＦＴＰアップを行わない
 
 args = sys.argv
 print("------------- upload file to Azure ----------------")
