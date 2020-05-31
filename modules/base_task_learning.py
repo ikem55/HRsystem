@@ -3,7 +3,6 @@ from luigi.mock import MockTarget
 from modules.base_slack import OperationSlack
 
 import os
-import shutil
 import pickle
 from luigi.util import requires
 from datetime import datetime as dt

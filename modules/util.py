@@ -538,3 +538,67 @@ def get_haraimodoshi_dict(haraimodoshi_df):
     dict_haraimodoshi = {"tansho_df": tansho_df, "fukusho_df": fukusho_df, "umaren_df": umaren_df,
                          "wide_df": wide_df, "umatan_df": umatan_df, "sanrenpuku_df": sanrenpuku_df, "sanrentan_df": sanrentan_df}
     return dict_haraimodoshi
+
+def create_folder(folder_path):
+    try:
+        os.makedirs(folder_path)
+    except FileExistsError:
+        pass
+
+def encode_rap_type(type):
+    if type == "一貫":
+        return "0"
+    elif type == "L4加速":
+        return "1"
+    elif type == "L3加速":
+        return "2"
+    elif type == "L2加速":
+        return "3"
+    elif type == "L1加速":
+        return "4"
+    elif type == "L4失速":
+        return "5"
+    elif type == "L3失速":
+        return "6"
+    elif type == "L2失速":
+        return "7"
+    elif type == "L1失速":
+        return "8"
+    else:
+        return "9"
+
+def _encode_zengo_bias(num):
+    if num < -3:
+        return "0" #"超前有利"
+    elif num < -1.2:
+        return "1" #"前有利"
+    elif num > 3:
+        return "4" ##"超後有利"
+    elif num > 1.2:
+        return "3" #"後有利"
+    else:
+        return "2" #"フラット"
+
+def _calc_uchisoto_bias(num):
+    if num < -1.8:
+        return "0" #"超内有利"
+    elif num < -0.6:
+        return "1" #"内有利"
+    elif num > 1.8:
+        return "4" #"超外有利"
+    elif num > 0.6:
+        return "3" #"外有利"
+    else:
+        return "2" #"フラット"
+
+def _encode_race_pace(val):
+    if val == "11": return "1"
+    elif val == "12": return "2"
+    elif val == "13": return "3"
+    elif val == "21": return "4"
+    elif val == "22": return "5"
+    elif val == "23": return "6"
+    elif val == "31": return "7"
+    elif val == "32": return "8"
+    elif val == "33": return "9"
+    else: return "0"

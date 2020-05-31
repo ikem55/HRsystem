@@ -56,14 +56,19 @@ class BaseSkProc(object):
         self.dict_path = mc.return_base_path(test_flag)
         self._set_folder_path(version_str)
         self.model_folder = self.model_path + model_name + '/'
+        mu.create_folder(self.model_folder)
         self.ld = self._get_load_object(version_str, start_date, end_date, mock_flag, test_flag)
         self.mock_flag = mock_flag
+        self.test_flag = test_flag
         self.obj_column_list = obj_column_list
 
     def _set_folder_path(self, version_str):
         self.dict_folder = self.dict_path + 'dict/' + version_str + '/'
         self.model_path = self.dict_path + 'model/' + version_str + '/'
         self.ens_folder_path = self.dict_path + 'model/' + version_str + '/'
+        mu.create_folder(self.dict_folder)
+        mu.create_folder(self.model_path)
+        mu.create_folder(self.ens_folder_path)
 
     def _get_load_object(self, version_str, start_date, end_date, mock_flag, test_flag):
         print("-- check! this is BaseSkProc class: " + sys._getframe().f_code.co_name)

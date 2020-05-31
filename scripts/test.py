@@ -1,26 +1,19 @@
-from scripts.lb_v1 import SkModel
-import modules.util as mu
-
-import pickle
-
-import os
-import sys
-
-basedir = os.path.dirname(__file__)[:-8]
-print(basedir)
-sys.path.append(basedir)
-
-MODEL_NAME = 'raceuma_ens'
-start_date = '2018/01/01'
-end_date = '2018/01/11'
-mock_flag = False
-MODEL_VERSION = 'lb_v1'
-test_flag = True
-
-sk_model = SkModel(MODEL_NAME, MODEL_VERSION, start_date, end_date, mock_flag, test_flag)
-
-df = sk_model.create_predict_data()
-
 import pandas as pd
-pd.set_option('display.max_rows', 500)
-print(df.iloc[0])
+pd.set_option('display.max_columns', 3000)
+pd.set_option('display.max_rows', 3000)
+
+from scripts.jra_raceuma_mark import Ld
+
+start_date = '2012/01/01'
+end_date = '2018/12/31'
+model_version = 'jra_ru_mark'
+test_flag = True
+mock_flag = False
+
+ld = Ld(model_version, start_date, end_date, mock_flag, test_flag)
+ld.set_race_df()
+ld.set_raceuma_df()
+ld.set_horse_df()
+ld.set_prev_df()
+
+

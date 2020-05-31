@@ -23,7 +23,6 @@ class LBSkProc(BaseSkProc):
         self.base_df.drop(['血統登録番号'], axis=1, inplace=True)
 
     def _merge_df(self):
-        print("-- check! this is LBSkProc class: " + sys._getframe().f_code.co_name)
         self.base_df = pd.merge(self.ld.race_df, self.ld.raceuma_df, on="競走コード")
         self.base_df = pd.merge(self.base_df, self.ld.horse_df, on="血統登録番号")
         self.base_df = pd.merge(self.base_df, self.ld.prev1_raceuma_df, on=["競走コード", "馬番"], how='left')
@@ -32,7 +31,6 @@ class LBSkProc(BaseSkProc):
 
     def _create_feature(self):
         """ マージしたデータから特徴量を生成する """
-        print("-- check! this is LBSkProc class: " + sys._getframe().f_code.co_name)
         self.base_df.loc[:, "継続騎乗"] = (self.base_df["騎手名"] == self.base_df["騎手名_1"]).astype(int)
         self.base_df.loc[:, "同場騎手"] = (self.base_df["騎手所属場コード"] == self.base_df["場コード"]).astype(int)
         self.base_df.loc[:, "同所属場"] = (self.base_df["調教師所属場コード"] == self.base_df["場コード"]).astype(int)
@@ -51,14 +49,12 @@ class LBSkProc(BaseSkProc):
             axis=1)
 
     def _drop_columns_base_df(self):
-        print("-- check! this is LBSkProc class: " + sys._getframe().f_code.co_name)
         print(self.base_df.iloc[0])
         self.base_df.drop(["場名", "発走時刻", "登録頭数", "回次", "日次", "データ作成年月日", "年月日", "近走競走コード1",
                            "近走馬番1", "近走競走コード2", "近走馬番2", "近走競走コード3", "近走馬番3", "近走競走コード4", "近走馬番4", "近走競走コード5", "近走馬番5",
                         "調教師所属場コード_1", "調教師所属場コード_2"], axis=1, inplace=True)
 
     def _scale_df(self):
-        print("-- check! this is LBSkProc class: " + sys._getframe().f_code.co_name)
         mmsc_columns = ["距離", "競走番号", "頭数", "初出走頭数", "枠番", "予想タイム指数順位", "休養後出走回数", "予想人気", "先行指数順位", "馬齢", "距離増減"
             , "前走着順", "前走人気", "前走頭数", "騎手ランキング", "調教師ランキング", "得点V1順位", "得点V2順位", "デフォルト得点順位", "得点V3順位"]
         mmsc_dict_name = "sc_base_mmsc"

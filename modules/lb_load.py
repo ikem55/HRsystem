@@ -23,9 +23,22 @@ class LBLoad(BaseLoad):
         tf = Tf(start_date, end_date)
         return tf
 
+    def set_race_df(self):
+        """  race_dfを作成するための処理。race_dfに処理がされたデータをセットする """
+        race_base_df = self.ext.get_race_before_table_base()
+        race_base_df = race_base_df.drop("データ区分", axis=1)
+        self.race_df = self._proc_race_df(race_base_df)
+        print("set_race_df: race_df", self.race_df.shape)
+
+    def set_raceuma_df(self):
+        """ raceuma_dfを作成するための処理。raceuma_dfに処理がされたデータをセットする """
+        raceuma_base_df = self.ext.get_raceuma_before_table_base()
+        raceuma_base_df = raceuma_base_df.drop("データ区分", axis=1)
+        self.raceuma_df = self._proc_raceuma_df(raceuma_base_df)
+        print("set_raceuma_df: raceuma_df", self.raceuma_df.shape)
+
     def set_prev_df(self):
         """  prev_dfを作成するための処理。prev1_raceuma_df,prev2_raceuma_dfに処理がされたデータをセットする。過去２走のデータと過去走を集計したデータをセットする  """
-        print("-- check! this is LBLoad class: " + sys._getframe().f_code.co_name)
         race_result_df, raceuma_result_df = self._get_prev_base_df(2)
         self.prev2_raceuma_df = self._get_prev_df(2, race_result_df, raceuma_result_df)
         self.prev2_raceuma_df.rename(columns=lambda x: x + "_2", inplace=True)

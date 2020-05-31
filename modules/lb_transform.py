@@ -77,7 +77,6 @@ class LBTransform(BaseTransform):
         :param dataframe race_df:
         :return: dataframe
         """
-        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
         temp_race_df = race_df.copy()
         temp_race_df.loc[:, '月'] = race_df['月日'].apply(lambda x: x.month)
         temp_race_df.loc[:, "非根幹"] = race_df["距離"].apply(lambda x: 0 if x % 400 == 0 else 1)
@@ -194,15 +193,12 @@ class LBTransform(BaseTransform):
         temp_race_df = race_df.copy()
         return temp_race_df
 
-
-    
     def choose_raceuma_result_column(self, raceuma_df):
         """  レース馬データから必要な列に絞り込む。
 
         :param dataframe raceuma_df:
         :return: dataframe
         """
-        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
         temp_raceuma_df = raceuma_df[
             ['データ区分', '競走コード', '馬番', '年月日', '血統登録番号', 'タイム指数', '単勝オッズ', '単勝人気', '確定着順', '着差', '休養週数', '先行率', 'タイム',
              'ペース偏差値', '展開コード', 'クラス変動', '騎手所属場コード', '騎手名', 'テン乗り', '負担重量', '馬体重', '馬体重増減', 'コーナー順位4', '距離増減', '所属', '調教師所属場コード',
@@ -231,7 +227,6 @@ class LBTransform(BaseTransform):
         :param dataframe raceuma_df:
         :return: dataframe
         """
-        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
         grouped_df = raceuma_df[['競走コード', '負担重量', 'タイム指数', 'デフォルト得点', '得点V1', '得点V2', '得点V3']].groupby('競走コード').agg(
             ['mean', 'std']).reset_index()
         grouped_df.columns = ['競走コード', '負担重量_mean', '負担重量_std', 'タイム指数_mean', 'タイム指数_std', 'デフォルト得点_mean',
@@ -282,7 +277,6 @@ class LBTransform(BaseTransform):
         :param dataframe raceuma_df:
         :return: dataframe
         """
-        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
         temp_raceuma_df = raceuma_df.copy()
         temp_raceuma_df.loc[:, '騎手名'] = mu.label_encoding(raceuma_df['騎手名'], '騎手名', dict_folder).astype(str)
         temp_raceuma_df.loc[:, '調教師名'] = mu.label_encoding(raceuma_df['調教師名'], '調教師名', dict_folder).astype(str)
@@ -316,7 +310,6 @@ class LBTransform(BaseTransform):
 
     
     def drop_columns_raceuma_df(self, raceuma_df):
-        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
         return raceuma_df
 
     
@@ -337,7 +330,6 @@ class LBTransform(BaseTransform):
         :param dataframe raceuma_df:
         :return: dataframe
         """
-        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
         temp_raceuma_df = raceuma_df.copy()
         temp_raceuma_df.loc[:, "馬番グループ"] = raceuma_df["馬番"] // 4
         temp_raceuma_df.loc[:, "予想人気グループ"] = raceuma_df["予想人気"].apply(lambda x : self._convert_ninki_group(x))
@@ -372,7 +364,6 @@ class LBTransform(BaseTransform):
         :param dataframe raceuma_df:
         :return: dataframe
         """
-        print("-- check! this is BaseTransform class: " + sys._getframe().f_code.co_name)
         temp_horse_df = horse_df[['血統登録番号', '繁殖登録番号1', '繁殖登録番号5', '東西所属コード', '生産者コード', '馬主コード']]
         return temp_horse_df
 

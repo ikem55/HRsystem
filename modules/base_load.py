@@ -50,11 +50,7 @@ class BaseLoad(object):
         return tf
 
     def set_race_df(self):
-        """  race_dfを作成するための処理。race_dfに処理がされたデータをセットする """
-        race_base_df = self.ext.get_race_before_table_base()
-        race_base_df = race_base_df.drop("データ区分", axis=1)
-        self.race_df = self._proc_race_df(race_base_df)
-        print("set_race_df: race_df", self.race_df.shape)
+        print("-- check! this is BaseLoad class: " + sys._getframe().f_code.co_name)
 
     def _proc_race_df(self, race_base_df):
         print("-- check! this is BaseLoad class: " + sys._getframe().f_code.co_name)
@@ -62,11 +58,7 @@ class BaseLoad(object):
         return race_df
 
     def set_raceuma_df(self):
-        """ raceuma_dfを作成するための処理。raceuma_dfに処理がされたデータをセットする """
-        raceuma_base_df = self.ext.get_raceuma_before_table_base()
-        raceuma_base_df = raceuma_base_df.drop("データ区分", axis=1)
-        self.raceuma_df = self._proc_raceuma_df(raceuma_base_df)
-        print("set_raceuma_df: raceuma_df", self.raceuma_df.shape)
+        print("-- check! this is BaseLoad class: " + sys._getframe().f_code.co_name)
 
     def _proc_raceuma_df(self, raceuma_base_df):
         raceuma_df = self.tf.encode_raceuma_before_df(raceuma_base_df, self.dict_folder)
