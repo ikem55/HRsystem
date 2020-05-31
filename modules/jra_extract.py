@@ -9,13 +9,15 @@ from collections import deque
 import unicodedata
 import shutil
 import glob
+import my_config as mc
 
 class JRAExtract(BaseExtract):
     """
     JRAに関するデータ抽出処理。JRDBデータをもとに処理を行う。Azure上で動かしたいのでSQLは使わずにファイルベースで処理する
     """
     mock_path = '../mock_data/jra/'
-    jrdb_folder_path = 'E:\python/jrdb_data/'
+    dict_path = mc.return_jrdb_path()
+    jrdb_folder_path = dict_path + 'jrdb_data/'
     pred_folder_path = 'E:\python/for_test_pred/'
     race_df = pd.DataFrame()
     race_before_df = pd.DataFrame()
