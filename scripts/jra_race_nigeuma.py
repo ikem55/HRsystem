@@ -446,7 +446,7 @@ if __name__ == "__main__":
         if test_flag:
             print("Test mode")
             start_date = '2018/01/01'
-            end_date = '2018/12/31'
+            end_date = '2018/01/31'
         else:
             start_date = '2012/01/01'
             end_date = '2018/12/31'
@@ -462,8 +462,8 @@ if __name__ == "__main__":
     elif mode == "predict":
         if test_flag:
             print("Test mode")
-            start_date = '2018/01/01'
-            end_date = '2018/12/31'
+            start_date = '2018/02/01'
+            end_date = '2018/02/28'
         else:
             base_start_date = '2019/01/01'
             start_date = SkModel.get_recent_day(base_start_date)
