@@ -90,7 +90,8 @@ class JRAExtract(BaseExtract):
             if len(self.race_before_df.index) == 0:
                 bac_df = self._get_type_df("BAC")
                 kab_df = self._get_type_df("KAB").drop(["NENGAPPI", "開催区分", "データ区分"], axis=1)
-                self.race_before_df = pd.merge(bac_df, kab_df, on=["KAISAI_KEY", "target_date"])
+                race_before_df = pd.merge(bac_df, kab_df, on=["KAISAI_KEY", "target_date"])
+                self.race_before_df = race_before_df.drop_duplicates(subset='RACE_KEY', keep='last')
         return self.race_before_df
 
     def get_raceuma_table_base(self):
