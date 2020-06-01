@@ -119,11 +119,11 @@ class JRASkProc(BaseSkProc):
             ram_imp_num_boost_round = 5
             early_stopping_rounds = 3
         else:
-            num_boost_round = 50
+            num_boost_round = 100
             n_rum = 15
             threshold = 30
-            ram_imp_num_boost_round = 50
-            early_stopping_rounds = 20
+            ram_imp_num_boost_round = 100
+            early_stopping_rounds = 50
 
         # データセットを生成する
         lgb_train = lgb.Dataset(self.X_train, self.y_train)
@@ -194,8 +194,8 @@ class JRASkProc(BaseSkProc):
             num_boost_round=5
             early_stopping_rounds = 3
         else:
-            num_boost_round=500
-            early_stopping_rounds = 20
+            num_boost_round=1000
+            early_stopping_rounds = 50
 
         # 上記のパラメータでモデルを学習する
         best_params, history = {}, []
