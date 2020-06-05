@@ -43,7 +43,7 @@ class Tf(JRATransform):
         :param dataframe raceuma_df:
         :return: dataframe
         """
-        temp_raceuma_df = raceuma_df.copy()
+        temp_raceuma_df = raceuma_df.query("頭数 != 0")
         temp_raceuma_df.loc[:, "非根幹"] = temp_raceuma_df["距離"].apply(lambda x: 0 if x % 400 == 0 else 1)
         temp_raceuma_df.loc[:, "距離グループ"] = temp_raceuma_df["距離"] // 400
         temp_raceuma_df.loc[:, "先行率"] = (temp_raceuma_df["コーナー順位４"] / temp_raceuma_df["頭数"])
@@ -392,7 +392,8 @@ if __name__ == "__main__":
             end_date = '2018/02/28'
         else:
             base_start_date = '2019/01/01'
-            start_date = SkModel.get_recent_day(base_start_date)
+            pred_folder = dict_path + 'pred/' + MODEL_VERSION
+            start_date = SkModel.get_recent_day(base_start_date, pred_folder)
             end_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
             if start_date > end_date:
                 print("change start_date")

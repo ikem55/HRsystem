@@ -6,6 +6,7 @@ import glob
 import numpy as np
 import pandas as pd
 import pickle
+import math
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import category_encoders as ce
@@ -101,17 +102,14 @@ def hash_eoncoding(df, oh_columns, num, dict_name, dict_folder):
 
 
 
-def setup_basic_auth(url):
+def setup_basic_auth(url, id, pw):
     """ ベーシック認証のあるURLにアクセス
 
     :param str url:
     """
     password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
     password_mgr.add_password(
-        realm=None,
-        uri=os.environ["base_uri"],
-        user=os.environ["jrdb_id"],
-        passwd=os.environ["jrdb_pw"]
+        realm=None, uri = url, user = id, passwd = pw
     )
     auth_handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
     opener = urllib.request.build_opener(auth_handler)
@@ -602,3 +600,96 @@ def _encode_race_pace(val):
     elif val == "32": return "8"
     elif val == "33": return "9"
     else: return "0"
+
+
+def decode_rap_type(num):
+    if num == 0:
+        return "00一貫"
+    elif num == 1:
+        return "01L4加"
+    elif num == 2:
+        return "02L3加"
+    elif num ==3:
+        return "03L2加"
+    elif num == 4:
+        return "04L1加"
+    elif num == 5:
+        return "05L4失"
+    elif num == 6:
+        return "06L3失"
+    elif num == 7:
+        return "07L2失"
+    elif num == 8:
+        return "08L1失"
+    else:
+        return "09其他"
+
+def _decode_zengo_bias(num):
+    if num == 0:
+        return "00超前" #"超前有利"
+    elif num == 1:
+        return "01　前" #"前有利"
+    elif num == 4:
+        return "02超後" ##"超後有利"
+    elif num  == 3:
+        return "03　後" #"後有利"
+    else:
+        return "04なし" #"フラット"
+
+def _decode_uchisoto_bias(num):
+    if num == 0:
+        return "00超内" #"超内有利"
+    elif num == 1:
+        return "01　内" #"内有利"
+    elif num == 4:
+        return "02超外" #"超外有利"
+    elif num == 3:
+        return "03　外" #"外有利"
+    else:
+        return "04なし" #"フラット"
+
+def _decode_race_pace(val):
+    if val == 1: return "00／　"
+    elif val == 2: return "01／￣"
+    elif val == 3: return "02／＼"
+    elif val == 4: return "03＿／"
+    elif val == 5: return "04ーー"
+    elif val == 6: return "05￣＼"
+    elif val == 7: return "06＼／"
+    elif val == 8: return "07＼＿"
+    elif val == 9: return "08＼　"
+    else: return "09　　"
+
+def convert_jrdb_id(jrdb_race_key, nengappi):
+    """ JRDBのRACE_KEYからTarget用のRaceIDに変換する """
+    ba_code = jrdb_race_key[0:2]
+    kai = jrdb_race_key[4:5]
+    nichi = jrdb_race_key[5:6]
+    raceno = jrdb_race_key[6:8]
+    return nengappi + ba_code + convert_kaiji(kai) + convert_kaiji(nichi) + raceno
+
+
+def convert_kaiji(kai):
+    if kai == 'a': return '10'
+    if kai == 'b': return '11'
+    if kai == 'c': return '12'
+    if kai == 'd': return '13'
+    if kai == 'e': return '14'
+    if kai == 'f': return '15'
+    else: return '0' + kai
+
+def convert_target_file(jrdb_race_key):
+    """ JRDBのRaceKeyからtargetのレース、馬印２用のファイル名を生成する """
+    yearkai = jrdb_race_key[2:5]
+    ba_code = jrdb_race_key[0:2]
+    if ba_code == '01': ba = "札"
+    if ba_code == '02': ba = "函"
+    if ba_code == '03': ba = "福"
+    if ba_code == '04': ba = "新"
+    if ba_code == '05': ba = "東"
+    if ba_code == '06': ba = "中"
+    if ba_code == '07': ba = "名"
+    if ba_code == '08': ba = "京"
+    if ba_code == '09': ba = "阪"
+    if ba_code == '10': ba = "小"
+    return yearkai + ba

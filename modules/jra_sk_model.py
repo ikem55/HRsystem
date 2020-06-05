@@ -4,6 +4,9 @@ from modules.jra_extract import JRAExtract
 import pandas as pd
 import modules.util as mu
 import os
+import glob
+from datetime import datetime as dt
+from datetime import timedelta
 
 class JRASkModel(BaseSkModel):
     """
@@ -79,6 +82,17 @@ class JRASkModel(BaseSkModel):
         check_df.loc[:, "的中"] = check_df["result"].apply(lambda x: 1 if x == 1 else 0)
         return check_df
 
+    @classmethod
+    def get_recent_day(cls, base_start_date, pred_folder):
+        file_list = glob.glob(pred_folder + "/*.pickle")
+        file_df = pd.DataFrame({"filename": file_list})
+        if file_df.empty:
+            return base_start_date
+        else:
+            file_df.loc[:, "target_date"] = file_df["filename"].str[-15:-7]
+            max_date = file_df["target_date"].max()
+            start_date = (dt.strptime(max_date, '%Y%m%d') + timedelta(days=1)).strftime('%Y/%m/%d')
+            return start_date
 """
     def del_create_import_data(self, all_df): #いらない？
         all_df.dropna(inplace=True)

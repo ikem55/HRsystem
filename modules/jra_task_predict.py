@@ -66,9 +66,6 @@ class End_baoz_predict(luigi.Task):
             exp_data = pd.read_pickle(self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl')
             # 予測を実施して予測結果ファイルを作成
             all_df = self.skmodel.proc_predict_sk_model(exp_data)
-            pd.set_option('display.max_columns', 3000)
-            pd.set_option('display.max_rows', 3000)
-            print(all_df.head(20))
             if self.test_flag:
                 print("精度チェック")
                 self.skmodel.eval_pred_data(all_df)

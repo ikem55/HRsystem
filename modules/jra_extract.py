@@ -18,11 +18,12 @@ class JRAExtract(BaseExtract):
     mock_path = '../mock_data/jra/'
     dict_path = mc.return_jrdb_path()
     jrdb_folder_path = dict_path + 'jrdb_data/'
-    pred_folder_path = 'E:\python/for_test_pred/'
+    pred_folder_path = 'E:\python/pred/'
     race_df = pd.DataFrame()
     race_before_df = pd.DataFrame()
     raceuma_df = pd.DataFrame()
     raceuma_before_df = pd.DataFrame()
+    haraimodoshi_df = pd.DataFrame()
 
     def __init__(self, start_date, end_date, mock_flag):
         self.start_date = dt.datetime.strptime(start_date, '%Y/%m/%d')
@@ -184,8 +185,8 @@ class JRAExtract(BaseExtract):
         if self.mock_flag:
             self.haraimodoshi_df = pd.read_pickle(self.mock_path_haraimodoshi)
         else:
-            if len(self.haraimodoshi_df.index) == 0:
-                self.haraimodoshi_df = self._get_type_df("HJC")
+            #if len(self.haraimodoshi_df.index) == 0:
+            self.haraimodoshi_df = self._get_type_df("HJC")
         return self.haraimodoshi_df
 
     def get_pred_df(self, model_version, target):
@@ -1264,7 +1265,7 @@ class JRAExtract(BaseExtract):
                  'ワイド馬番３２', 'ワイド払戻３', 'ワイド馬番４１', 'ワイド馬番４２', 'ワイド払戻４', 'ワイド馬番５１', 'ワイド馬番５２', 'ワイド払戻５', 'ワイド馬番６１', 'ワイド馬番６２', 'ワイド払戻６', 'ワイド馬番７１',
                  'ワイド馬番７２', 'ワイド払戻７', '馬単馬番１１', '馬単馬番１２',
                       '馬単払戻１', '馬単馬番２１', '馬単馬番２２', '馬単払戻２', '馬単馬番３１', '馬単馬番３２', '馬単払戻３', '馬単馬番４１', '馬単馬番４２', '馬単払戻４', '馬単馬番５１', '馬単馬番５２', '馬単払戻５', '馬単馬番６１',
-                 '馬単馬番６２', '馬単払戻６', '３連複馬番１１', '３連複馬番１２', '３連複馬番１３', '３連複払戻１', '３連複馬番２１', '３連複馬番２１', '３連複馬番２３', '３連複払戻２', '３連複馬番３１', '３連複馬番３２', '３連複馬番３３',
+                 '馬単馬番６２', '馬単払戻６', '３連複馬番１１', '３連複馬番１２', '３連複馬番１３', '３連複払戻１', '３連複馬番２１', '３連複馬番２２', '３連複馬番２３', '３連複払戻２', '３連複馬番３１', '３連複馬番３２', '３連複馬番３３',
                  '３連複払戻３', '３連単馬番１１', '３連単馬番１２', '３連単馬番１３', '３連単払戻１', '３連単馬番２１', '３連単馬番２２', '３連単馬番２３', '３連単払戻２', '３連単馬番３１', '３連単馬番３２', '３連単馬番３３', '３連単払戻３',
                  '３連単馬番４１', '３連単馬番４２', '３連単馬番４３', '３連単払戻４', '３連単馬番５１', '３連単馬番５２', '３連単馬番５３', '３連単払戻５', '３連単馬番６１', '３連単馬番６２', '３連単馬番６３', '３連単払戻６', 'target_date']
         if filename[-3:] == "pkl":
@@ -1859,7 +1860,7 @@ class JRAExtract(BaseExtract):
         :return: dataframe
         """
         sanrenpuku1 = df[["RACE_KEY", "３連複馬番１１", "３連複馬番１２", "３連複馬番１３", "３連複払戻１"]]
-        sanrenpuku2 = df[["RACE_KEY", "３連複馬番２１", "３連複馬番２１", "３連複馬番２３", "３連複払戻２"]]
+        sanrenpuku2 = df[["RACE_KEY", "３連複馬番２１", "３連複馬番２２", "３連複馬番２３", "３連複払戻２"]]
         sanrenpuku3 = df[["RACE_KEY", "３連複馬番３１", "３連複馬番３２", "３連複馬番３３", "３連複払戻３"]]
         df_list = [sanrenpuku1, sanrenpuku2, sanrenpuku3]
         return_df = self.arrange_return3_df(df_list)
