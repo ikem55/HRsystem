@@ -233,7 +233,7 @@ if __name__ == "__main__":
             start_date = '2018/01/01'
             end_date = '2018/01/31'
         else:
-            start_date = '2010/01/01'
+            start_date = '2016/01/01'
             end_date = '2018/12/31'
         if mock_flag:
             print("use mock data")

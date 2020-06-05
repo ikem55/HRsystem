@@ -19,6 +19,7 @@ race_base_df.loc[:, "RACE_ID"] = race_base_df.apply(lambda x: mu.convert_jrdb_id
 race_base_df.loc[:, "file_id"] = race_base_df["RACE_KEY"].apply(lambda x: mu.convert_target_file(x))
 race_base_df.loc[:, "nichiji"] = race_base_df["RACE_KEY"].apply(lambda x: mu.convert_kaiji(x[5:6]))
 race_base_df.loc[:, "race_no"] = race_base_df["RACE_KEY"].str[6:8]
+race_base_df.loc[:, "rc_file_id"] = race_base_df["RACE_KEY"].apply(lambda x: "RC" + x[0:5])
 
 update_start_date = '20200521'
 update_end_date = '20200601'
@@ -26,6 +27,7 @@ update_term_df = race_base_df.query(f"NENGAPPI >= '{update_start_date}' and NENG
 print(update_term_df.shape)
 file_list = update_term_df["file_id"].drop_duplicates()
 date_list = update_term_df["NENGAPPI"].drop_duplicates()
+rc_file_list = update_term_df["rc_file_id"].drop_duplicates()
 
 def return_mark(num):
     if num == 1: return "◎"
@@ -41,6 +43,27 @@ def create_rm_file(df, folder_path):
         print(file)
         file_text = ""
         temp_df = df.query(f"file_id == '{file}'")
+        nichiji_list = temp_df["nichiji"].drop_duplicates().sort_values()
+        for nichiji in nichiji_list:
+            line_text = ""
+            temp2_df = temp_df.query(f"nichiji == '{nichiji}'").sort_values("race_no")
+            race_list = sorted(temp2_df["RACE_KEY"].drop_duplicates())
+            for race in race_list:
+                temp3_sr = temp2_df.query(f"RACE_KEY =='{race}'").iloc[0]
+                if temp3_sr["val"] == temp3_sr["val"]:
+                    line_text += temp3_sr["val"]
+                else:
+                    line_text += "      "
+            file_text += line_text + "\r\n"
+        with open(folder_path + "RM" + file + ".DAT", mode='w', encoding="shift-jis") as f:
+            f.write(file_text.replace('\r', ''))
+
+def create_rc_file(df, folder_path):
+    """ レースコメントを作成 """
+    for file in rc_file_list:
+        print(file)
+        file_text = ""
+        temp_df = df.query(f"rc_file_id == '{file}'")[["RACE_KEY", "レースコメント"]].sort_values("RACE_KEY")
         nichiji_list = temp_df["nichiji"].drop_duplicates().sort_values()
         for nichiji in nichiji_list:
             line_text = ""
@@ -87,6 +110,38 @@ def create_um_mark_file(df, folder_path):
         with open(folder_path + "UM" + file + ".DAT", mode='w', encoding="shift-jis") as f:
             f.write(file_text.replace('\r', ''))
 
+
+def create_main_mark_file(race_df, raceuma_df, folder_path):
+    """ 馬１、レース１用のファイルを作成 """
+    raceuma_df.loc[:, "predict_std"] = raceuma_df["predict_std"].round(2)
+    raceuma_df.loc[:, "predict_rank"] = raceuma_df["predict_rank"].astype(int)
+    for file in file_list:
+        print(file)
+        file_text = ""
+        temp_df = race_df.query(f"file_id == '{file}'")
+        nichiji_list = sorted(temp_df["nichiji"].drop_duplicates())
+        for nichiji in nichiji_list:
+            temp2_df = temp_df.query(f"nichiji == '{nichiji}'")
+            race_list = sorted(temp2_df["RACE_KEY"].drop_duplicates())
+            for race in race_list:
+                line_text = ""
+                temp3_sr = temp2_df.query(f"RACE_KEY =='{race}'").iloc[0]
+                if temp3_sr["val"] == temp3_sr["val"]:
+                    line_text += temp3_sr["val"]
+                else:
+                    line_text += "      "
+                temp3_df = raceuma_df.query(f"RACE_KEY == '{race}'").sort_values("UMABAN")
+                i = 0
+                for idx, val in temp3_df.iterrows():
+                    line_text += return_mark(val["predict_rank"])
+                    i += 1
+                if i != 18:
+                    for j in range(i, 18):
+                        line_text += "  "
+                file_text += line_text + '\r\n'
+        with open(folder_path + "UM" + file + ".DAT", mode='w', encoding="shift-jis") as f:
+            f.write(file_text.replace('\r', ''))
+
 ############ 予想データ作成：レース ###############
 raptype_df = ext.get_pred_df("jra_rc_raptype", "RAP_TYPE")[["RACE_KEY", "CLASS", "predict_rank"]].rename(columns={"CLASS": "val"})
 raptype_df.loc[:, "val"] = raptype_df["val"].apply(lambda x: mu.decode_rap_type(x))
@@ -122,7 +177,7 @@ ana_df.loc[:, "predict_rank"] = ana_df["predict_rank"].astype(int)
 
 nigeuma_df = ext.get_pred_df("jra_ru_nigeuma", "NIGEUMA")
 agari_df = ext.get_pred_df("jra_ru_nigeuma", "AGARI_SAISOKU")
-#ten_df = ext.get_pred_df("jra_ru_nigeuma", "TEN_SAISOKU")
+ten_df = ext.get_pred_df("jra_ru_nigeuma", "TEN_SAISOKU")
 
 score_df = pd.merge(win_df.rename(columns={"predict_std": "win_std"}), jiku_df.rename(columns={"predict_std": "jiku_std"}), on="RACEUMA_ID")
 score_df = pd.merge(score_df, ana_df.rename(columns={"predict_std": "ana_std"}), on="RACEUMA_ID")
@@ -145,6 +200,7 @@ factory_analyze_race_result_df = tf.factory_analyze_race_result_df(result_df, di
 
 raceuma_result_df = cluster_raceuma_result_df[["RACE_KEY", "UMABAN", "ru_cluster", "ＩＤＭ結果", "レース馬コメント"]]
 race_result_df = factory_analyze_race_result_df[["RACE_KEY", "target_date", "fa_1", "fa_2", "fa_3", "fa_4", "fa_5", "RAP_TYPE", "TRACK_BIAS_ZENGO", "TRACK_BIAS_UCHISOTO", "レースペース流れ", "レースコメント"]]
+race_result_df.loc[:, "val"] = race_result_df["RAP_TYPE"].apply(lambda x: mu.decode_rap_type(x))
 race_result_df.loc[: ,"TB_ZENGO"] = race_result_df["TRACK_BIAS_ZENGO"].apply(lambda x: mu._decode_zengo_bias(int(mu._encode_zengo_bias(x))))
 race_result_df.loc[: ,"TB_UCHISOTO"] = race_result_df["TRACK_BIAS_UCHISOTO"].apply(lambda x: mu._decode_uchisoto_bias(int(mu._calc_uchisoto_bias(x))))
 race_result_df.loc[: ,"RACE_PACE"] = race_result_df["レースペース流れ"].apply(lambda x: mu._decode_race_pace(int(mu._encode_race_pace(x))))
@@ -162,36 +218,38 @@ fa_df = raceuma_result_df[["RACEUMA_ID", "fa_1", "fa_2", "fa_3", "fa_4", "fa_5",
 ############ 予想ファイル作成：レース ###############
 print("---- raptype_df --------")
 raptype_mark_folder = target_path + "RMark2/"
-#create_rm_file(raptype_df_1st, raptype_mark_folder)
+create_rm_file(raptype_df_1st, raptype_mark_folder)
 print("---- tb_uchisoto_df --------")
 tb_uchisoto_mark_folder = target_path + "RMark2/"
-#create_rm_file(tb_uchisoto_df_1st, tb_uchisoto_mark_folder)
+create_rm_file(tb_uchisoto_df_1st, tb_uchisoto_mark_folder)
 print("---- tb_zengo_df --------")
 tb_zengo_mark_folder = target_path + "RMark3/"
-#create_rm_file(tb_zengo_df_1st, tb_zengo_mark_folder)
+create_rm_file(tb_zengo_df_1st, tb_zengo_mark_folder)
 
 ########## 予想ファイル作成：レース馬指数 ##################
 print("---- win_df --------")
 win_mark_path = target_path + "UmaMark2/"
-#create_um_mark_file(win_df, win_mark_path)
+create_um_mark_file(win_df, win_mark_path)
 print("---- jiku_df --------")
 jiku_mark_path = target_path + "UmaMark3/"
-#create_um_mark_file(jiku_df, jiku_mark_path)
+create_um_mark_file(jiku_df, jiku_mark_path)
 print("---- ana_df --------")
 ana_mark_path = target_path + "UmaMark4/"
-#create_um_mark_file(ana_df, ana_mark_path)
+create_um_mark_file(ana_df, ana_mark_path)
 print("---- nigeuma_df --------")
 nigeuma_mark_path = target_path + "UmaMark5/"
-#create_um_mark_file(nigeuma_df, nigeuma_mark_path)
+create_um_mark_file(nigeuma_df, nigeuma_mark_path)
 print("---- agari_df --------")
 agari_mark_path = target_path + "UmaMark6/"
-#create_um_mark_file(agari_df, agari_mark_path)
-#print("---- ten_df --------")
-#ten_mark_path = target_path + "UmaMark7/"
-#create_um_mark_file(ten_df, ten_mark_path)
+create_um_mark_file(agari_df, agari_mark_path)
+print("---- ten_df --------")
+ten_mark_path = target_path + "UmaMark7/"
+create_um_mark_file(ten_df, ten_mark_path)
+
+########## 予想ファイル作成：メイン指数 ##################
 print("---- score_df --------")
 score_mark_path = target_path
-create_um_mark_file(score_df, score_mark_path)
+create_main_mark_file(race_result_df, score_df, score_mark_path)
 
 print("---- 予想外部指数作成 --------")
 for date in date_list:
@@ -233,7 +291,6 @@ for date in date_list:
 
 print("---- result ru_cluster --------")
 ru_cluster_path = target_path + "UmaMark8/"
-#file_list = raceuma_result_df["file_id"].drop_duplicates()
 for file in file_list:
     print(file)
     file_text = ""
@@ -259,3 +316,8 @@ for file in file_list:
     with open(ru_cluster_path + "UM" + file + ".DAT", mode='w', encoding="shift-jis") as f:
         f.write(file_text.replace('\r', ''))
 
+######### コメントファイル作成：レース ####################
+for file in rc_file_list:
+    print(file)
+    race_comment_df = race_result_df.query(f"rc_file_id == '{file}'")[["RACE_KEY", "レースコメント"]].sort_values("RACE_KEY")
+    race_comment_df.to_csv(target_path + "RACE_COM/20" + file[4:6] + "/" + file + ".dat", header=False, index=False, encoding="shift_jis")
