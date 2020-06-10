@@ -158,8 +158,8 @@ class SkProc(JRASkProc):
         return df
 
     def _sub_create_pred_df(self, temp_df, y_pred):
-        pred_df = pd.DataFrame(y_pred, columns=range(y_pred.shape[1]))
-        base_df = pd.DataFrame({"RACE_KEY": temp_df["RACE_KEY"], "target_date": temp_df["target_date"]})
+        pred_df = pd.DataFrame(y_pred, columns=range(y_pred.shape[1])).reset_index(drop=True)
+        base_df = pd.DataFrame({"RACE_KEY": temp_df["RACE_KEY"], "target_date": temp_df["target_date"]}).reset_index(drop=True)
         pred_df = pd.concat([base_df, pred_df], axis=1)
         pred_df = pred_df.set_index(["RACE_KEY", "target_date"])
         pred_df = pred_df.stack().reset_index().rename(columns={"level_2": "CLASS", 0: "prob"})
@@ -174,6 +174,7 @@ class SkProc(JRASkProc):
         """
         grouped = df.groupby("RACE_KEY")
         grouped_df = grouped.describe()['prob'].reset_index()
+        print(grouped_df.shape)
         merge_df = pd.merge(df, grouped_df, on="RACE_KEY")
         merge_df['predict_std'] = (
             merge_df['prob'] - merge_df['mean']) / merge_df['std'] * 10 + 50
@@ -242,9 +243,7 @@ if __name__ == "__main__":
             base_start_date = '2019/01/01'
             pred_folder = dict_path + 'pred/' + MODEL_VERSION
             start_date = SkModel.get_recent_day(base_start_date, pred_folder)
-            end_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
-            start_date = '2019/01/05'
-            end_date = '2019/01/06'
+            end_date = (dt.now() + timedelta(days=1)).strftime('%Y/%m/%d')
             if start_date > end_date:
                 print("change start_date")
                 start_date = end_date

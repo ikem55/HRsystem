@@ -234,7 +234,7 @@ class JRASkProc(BaseSkProc):
                 imp_features = pickle.load(f)
             exp_df = temp_df.drop(self.index_list, axis=1)
             exp_df = exp_df[imp_features].to_numpy()
-            print(self.model_folder)
+            # print(self.model_folder)
             if os.path.exists(self.model_folder + this_model_name + '.pickle'):
                 with open(self.model_folder + this_model_name + '.pickle', 'rb') as f:
                     model = pickle.load(f)

@@ -76,9 +76,9 @@ class JRAExtract(BaseExtract):
             self.race_df = pd.read_pickle(self.mock_path_race)
         else:
             if len(self.race_df.index) == 0:
-                srb_df = self._get_type_df("SRB").drop(["KAISAI_KEY", "連続何日目", "芝種類", "草丈", "転圧", "凍結防止剤", "中間降水量", "１着算入賞金"], axis=1)
+                srb_df = self._get_type_df("SRB").drop(["KAISAI_KEY", "連続何日目", "芝種類", "草丈", "転圧", "凍結防止剤", "中間降水量", "１着算入賞金"], axis=1).copy()
                 if len(self.race_before_df.index) == 0:
-                    self.race_before_df = self.get_race_before_table_base()
+                    self.race_before_df = self.get_race_before_table_base().copy()
                 self.race_df = pd.merge(self.race_before_df, srb_df, on=["RACE_KEY", "target_date"])
         return self.race_df
 
@@ -90,7 +90,7 @@ class JRAExtract(BaseExtract):
         else:
             if len(self.race_before_df.index) == 0:
                 bac_df = self._get_type_df("BAC")
-                kab_df = self._get_type_df("KAB").drop(["NENGAPPI", "開催区分", "データ区分"], axis=1)
+                kab_df = self._get_type_df("KAB").drop(["NENGAPPI", "開催区分", "データ区分"], axis=1).copy()
                 race_before_df = pd.merge(bac_df, kab_df, on=["KAISAI_KEY", "target_date"])
                 self.race_before_df = race_before_df.drop_duplicates(subset='RACE_KEY', keep='last')
         return self.race_before_df

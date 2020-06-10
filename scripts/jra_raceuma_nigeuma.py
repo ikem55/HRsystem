@@ -281,7 +281,7 @@ if __name__ == "__main__":
             base_start_date = '2019/01/01'
             pred_folder = dict_path + 'pred/' + MODEL_VERSION
             start_date = SkModel.get_recent_day(base_start_date, pred_folder)
-            end_date = (dt.now() + timedelta(days=0)).strftime('%Y/%m/%d')
+            end_date = (dt.now() + timedelta(days=1)).strftime('%Y/%m/%d')
             if start_date > end_date:
                 print("change start_date")
                 start_date = end_date
