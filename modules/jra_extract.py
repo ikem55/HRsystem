@@ -312,7 +312,8 @@ class JRAExtract(BaseExtract):
             df = df.astype(
                 {'頭数': 'int8', '１着賞金': 'int32', '２着賞金': 'int16', '３着賞金': 'int16', '４着賞金': 'int16', '５着賞金': 'int16',
                  '１着算入賞金': 'int16', '２着算入賞金': 'int16'})
-            df.to_pickle(self.jrdb_folder_path + 'BAC/' + filename + ".pkl")
+            if len(df.query("データ区分 == '3'")) >= 10:
+                df.to_pickle(self.jrdb_folder_path + 'BAC/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'BAC/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
@@ -356,7 +357,8 @@ class JRAExtract(BaseExtract):
             df = df.astype(
                 {'調教Ｆ': 'int16', 'テンＦ': 'int16', '中間Ｆ': 'int16', '終いＦ': 'int16', 'テンＦ指数': 'int16', '中間Ｆ指数': 'int16',
                  '終いＦ指数': 'int16', '追切指数': 'int8'})
-            df.to_pickle(self.jrdb_folder_path + 'CHA/' + filename + ".pkl")
+            if len(df.index) >= 60:
+                df.to_pickle(self.jrdb_folder_path + 'CHA/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'CHA/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
@@ -399,7 +401,8 @@ class JRAExtract(BaseExtract):
             df = df.astype({'調教コース坂': 'int8', '調教コースW': 'int8', '調教コースダ': 'int8', '調教コース芝': 'int8', '調教コースプール': 'int8',
                             '調教コース障害': 'int8',
                             '調教コースポリ': 'int8', '追切指数': 'int8', '仕上指数': 'int8'})
-            df.to_pickle(self.jrdb_folder_path + 'CYB/' + filename + ".pkl")
+            if len(df.index) >= 60:
+                df.to_pickle(self.jrdb_folder_path + 'CYB/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'CYB/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
@@ -439,7 +442,8 @@ class JRAExtract(BaseExtract):
                     ], index=names)
                     df = df.append(sr, ignore_index=True)
             df = df.astype({'厩舎ＢＢ◎単勝回収率': 'int16', '厩舎ＢＢ◎連対率': 'int16', '騎手ＢＢ◎単勝回収率': 'int16', '騎手ＢＢ◎連対率': 'int16'})
-            df.to_pickle(self.jrdb_folder_path + 'JOA/' + filename + ".pkl")
+            if len(df.index) >= 60:
+                df.to_pickle(self.jrdb_folder_path + 'JOA/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'JOA/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
@@ -489,7 +493,8 @@ class JRAExtract(BaseExtract):
                     ], index=names)
                     df = df.append(sr, ignore_index=True)
             df = df.astype({"芝馬場差": 'int8', "ダ馬場差": 'int8', "連続何日目": 'int8', "中間降水量": 'float16', "草丈": 'float16'})
-            df.to_pickle(self.jrdb_folder_path + 'KAB/' + filename + ".pkl")
+            if len(df.query("データ区分 == '4'")) >= 1:
+                df.to_pickle(self.jrdb_folder_path + 'KAB/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'KAB/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
@@ -646,7 +651,8 @@ class JRAExtract(BaseExtract):
                  '調教師馬主別成績１着': 'int16', '調教師馬主別成績２着': 'int16', '調教師馬主別成績３着': 'int16',
                  '調教師馬主別成績着外': 'int16', '父馬産駒芝連対率': 'int8', '父馬産駒ダ連対率': 'int8', '父馬産駒連対平均距離': 'int16',
                  '母父馬産駒芝連対率': 'int8', '母父馬産駒ダ連対率': 'int8', '母父馬産駒連対平均距離': 'int16'})
-            df.to_pickle(self.jrdb_folder_path + 'KKA/' + filename + ".pkl")
+            if len(df.index) >= 60:
+                df.to_pickle(self.jrdb_folder_path + 'KKA/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'KKA/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
@@ -826,7 +832,14 @@ class JRAExtract(BaseExtract):
                                 'ゴール差': 'int8', '激走順位': 'int8', 'LS指数順位': 'int8', 'テン指数順位': 'int8', 'ペース指数順位': 'int8',
                                 '上がり指数順位': 'int8', '位置指数順位': 'int8',
                                 '万券指数': 'int8', '厩舎ランク': 'int8'})
-                df.to_pickle(self.jrdb_folder_path + 'KYI/' + filename + ".pkl")
+                if len(df.index) <= 60:
+                    print("--- 予測データ不足!!")
+                    # archiveフォルダとpickle化したファイルを削除
+                    archive_file = self.jrdb_folder_path + 'archive/PACI' + filename[3:9] + ".zip"
+                    if os.path.exists(archive_file):
+                        os.remove(archive_file)
+                else:
+                    df.to_pickle(self.jrdb_folder_path + 'KYI/' + filename + ".pkl")
                 shutil.move(self.jrdb_folder_path + 'KYI/' + filename, self.jrdb_folder_path + 'backup/' + filename)
             else:
                 df = pd.DataFrame()
@@ -868,7 +881,8 @@ class JRAExtract(BaseExtract):
                         , self.get_kaisai_date(filename)  # target_date
                     ], index=names)
                     df = df.append(sr, ignore_index=True)
-            df.to_pickle(self.jrdb_folder_path + 'UKC/' + filename + ".pkl")
+            if len(df.index) >= 60:
+                df.to_pickle(self.jrdb_folder_path + 'UKC/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'UKC/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
@@ -1004,7 +1018,8 @@ class JRAExtract(BaseExtract):
                      '馬体重': 'int16', '馬体重増減': 'int8', '単勝': 'int32', '複勝': 'int16', '本賞金': 'int32', '収得賞金': 'int32',
                      "テン指数結果順位": 'int8', "上がり指数結果順位": 'int8', "ペース指数結果順位": 'int8'
                      })
-                df.to_pickle(self.jrdb_folder_path + type + '/' + filename + ".pkl")
+                if df["ＩＤＭ結果"].mean() != 0:
+                    df.to_pickle(self.jrdb_folder_path + type + '/' + filename + ".pkl")
                 shutil.move(self.jrdb_folder_path + type + '/' + filename, self.jrdb_folder_path + 'backup/' + filename)
             else:
                 df = pd.DataFrame()
@@ -1129,7 +1144,13 @@ class JRAExtract(BaseExtract):
 
                 # factory analyzer用のデータを作成する
                 if target_df["ＩＤＭ結果"].mean() == 0:
-                    print("--- 結果データ不備!!")
+                    print("--- 結果データ不足!!")
+                    # archiveフォルダとpickle化したファイルを削除
+                    archive_file = self.jrdb_folder_path + 'archive/SED' + filename[3:9] + ".zip"
+                    if os.path.exists(archive_file):
+                        os.remove(archive_file)
+                    if os.path.exists(sed_file_name):
+                        os.remove(sed_file_name)
                     df = pd.DataFrame()
                     return df
 
