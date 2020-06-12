@@ -61,7 +61,7 @@ if rep.check_flag:
     if now_time > rep.final_race_time:
         print("ok")
         post_summary()
-        # slack.stop_hrsystem_vm()
+        slack.stop_hrsystem_vm()
 
 else:
     post_text = "no data"
