@@ -33,9 +33,9 @@ def post_summary():
 
         post_text += todays_bet_text + "\r\n"
         post_text += recent_bet_text + "\r\n"
-        post_text += trend_text + "\r\n"
-        post_text +=target_text + "\r\n"
-        post_text += summary_text + "\r\n"
+        #post_text += trend_text + "\r\n"
+        #post_text +=target_text + "\r\n"
+        #post_text += summary_text + "\r\n"
 
     else:
         post_text = "no data"
@@ -55,13 +55,13 @@ if rep.check_flag:
 
     post_text += current_text + "\r\n"
     post_text += bet_text + "\r\n"
-    post_text +=target_text
+    # post_text +=target_text
     print(now_time + timedelta(days=1))
     print(rep.final_race_time)
     if now_time > rep.final_race_time:
         print("ok")
         post_summary()
-        slack.stop_hrsystem_vm()
+        # slack.stop_hrsystem_vm()
 
 else:
     post_text = "no data"
