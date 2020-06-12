@@ -1,11 +1,11 @@
 import luigi
 from luigi.util import requires
 
-import modules.util as mu
 from modules.base_slack import OperationSlack
 import modules.util as mu
 
 import pandas as pd
+import os
 from datetime import datetime as dt
 
 class Sub_get_exp_data(luigi.Task):
@@ -31,8 +31,9 @@ class Sub_get_exp_data(luigi.Task):
             slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") + " start predict job:" + self.skmodel.version_str)
         with self.output().open("w") as target:
             predict_df = self.skmodel.create_predict_data()
-            print("Sub_get_exp_data run: predict_df", predict_df.shape)
-            predict_df.to_pickle(self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl')
+            if not predict_df.empty:
+                print("Sub_get_exp_data run: predict_df", predict_df.shape)
+                predict_df.to_pickle(self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl')
             print(__class__.__name__ + " says: task finished".format(task=self.__class__.__name__))
 
     def output(self):
@@ -63,16 +64,17 @@ class End_baoz_predict(luigi.Task):
         """
         print("---" + __class__.__name__ + ": run")
         with self.output().open("w") as target:
-            exp_data = pd.read_pickle(self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl')
-            # 予測を実施して予測結果ファイルを作成
-            all_df = self.skmodel.proc_predict_sk_model(exp_data)
-            if self.test_flag:
-                print("精度チェック")
-                self.skmodel.eval_pred_data(all_df)
-            else:
-                slack = OperationSlack()
-                slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") +
-                    " finish predict job:" + self.skmodel.version_str)
+            if os.path.exists(self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl'):
+                exp_data = pd.read_pickle(self.intermediate_folder + mu.convert_date_to_str(self.end_date) + '_exp_data.pkl')
+                # 予測を実施して予測結果ファイルを作成
+                all_df = self.skmodel.proc_predict_sk_model(exp_data)
+                if self.test_flag:
+                    print("精度チェック")
+                    self.skmodel.eval_pred_data(all_df)
+                else:
+                    slack = OperationSlack()
+                    slack.post_slack_text(dt.now().strftime("%Y/%m/%d %H:%M:%S") +
+                        " finish predict job:" + self.skmodel.version_str)
             print(__class__.__name__ + " says: task finished".format(task=self.__class__.__name__))
 
     def output(self):

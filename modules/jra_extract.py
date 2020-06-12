@@ -76,7 +76,8 @@ class JRAExtract(BaseExtract):
             self.race_df = pd.read_pickle(self.mock_path_race)
         else:
             if len(self.race_df.index) == 0:
-                srb_df = self._get_type_df("SRB").drop(["KAISAI_KEY", "連続何日目", "芝種類", "草丈", "転圧", "凍結防止剤", "中間降水量", "１着算入賞金"], axis=1).copy()
+                srb_df = self._get_type_df("SRB")
+                srb_df = srb_df.drop(["KAISAI_KEY", "連続何日目", "芝種類", "草丈", "転圧", "凍結防止剤", "中間降水量", "１着算入賞金"], axis=1)
                 if len(self.race_before_df.index) == 0:
                     self.race_before_df = self.get_race_before_table_base().copy()
                 self.race_df = pd.merge(self.race_before_df, srb_df, on=["RACE_KEY", "target_date"])
@@ -90,7 +91,10 @@ class JRAExtract(BaseExtract):
         else:
             if len(self.race_before_df.index) == 0:
                 bac_df = self._get_type_df("BAC")
-                kab_df = self._get_type_df("KAB").drop(["NENGAPPI", "開催区分", "データ区分"], axis=1).copy()
+                if bac_df.empty:
+                    return pd.DataFrame()
+                kab_df = self._get_type_df("KAB")
+                kab_df = kab_df.drop(["NENGAPPI", "開催区分", "データ区分"], axis=1)
                 race_before_df = pd.merge(bac_df, kab_df, on=["KAISAI_KEY", "target_date"])
                 self.race_before_df = race_before_df.drop_duplicates(subset='RACE_KEY', keep='last')
         return self.race_before_df
@@ -101,8 +105,12 @@ class JRAExtract(BaseExtract):
             self.raceuma_df = pd.read_pickle(self.mock_path_raceuma)
         else:
             if len(self.raceuma_df.index) == 0:
-                sed_df = self._get_type_df("SED").drop(["血統登録番号", "NENGAPPI", "クラスコード", "騎手名", "騎手コード", "調教師名", "調教師コード", "収得賞金", "馬名"], axis=1)
-                skb_df = self._get_type_df("SKB").drop(["血統登録番号", "NENGAPPI"], axis=1)
+                sed_df = self._get_type_df("SED")
+                if sed_df.empty:
+                    return pd.DataFrame()
+                sed_df = sed_df.drop(["血統登録番号", "NENGAPPI", "クラスコード", "騎手名", "騎手コード", "調教師名", "調教師コード", "収得賞金", "馬名"], axis=1)
+                skb_df = self._get_type_df("SKB")
+                skb_df = skb_df.drop(["血統登録番号", "NENGAPPI"], axis=1)
                 if len(self.raceuma_before_df.index) == 0:
                     self.raceuma_before_df = self.get_raceuma_before_table_base()
                 raceuma_df = pd.merge(self.raceuma_before_df, sed_df, on=["RACE_KEY", "UMABAN", "target_date"])
@@ -116,9 +124,13 @@ class JRAExtract(BaseExtract):
         else:
             if len(self.raceuma_before_df.index) == 0:
                 kyi_df = self._get_type_df("KYI")
-                joa_df = self._get_type_df("JOA").drop(["血統登録番号", "基準オッズ", "基準複勝オッズ"], axis=1)
+                if kyi_df.empty:
+                    return pd.DataFrame()
+                joa_df = self._get_type_df("JOA")
+                joa_df = joa_df.drop(["血統登録番号", "基準オッズ", "基準複勝オッズ"], axis=1)
                 cha_df = self._get_type_df("CHA")
-                cyb_df = self._get_type_df("CYB").drop(["追切指数"], axis=1)
+                cyb_df = self._get_type_df("CYB")
+                cyb_df = cyb_df.drop(["追切指数"], axis=1)
                 kka_df = self._get_type_df("KKA")
                 raceuma_df = pd.merge(kyi_df, joa_df, on=["RACE_KEY", "UMABAN", "target_date"])
                 raceuma_df = pd.merge(raceuma_df, cha_df, on=["RACE_KEY", "UMABAN", "target_date"])
@@ -132,6 +144,8 @@ class JRAExtract(BaseExtract):
             df = pd.read_pickle(self.mock_path_chokuzen)
         else:
             tyb_df = self._get_type_df("TYB")
+            if tyb_df.empty:
+                return pd.DataFrame()
             df = tyb_df.copy()
         return df
 
@@ -141,7 +155,10 @@ class JRAExtract(BaseExtract):
             df = pd.read_pickle(self.mock_path_zenso)
         else:
             zed_df = self._get_type_df("ZED")
-            zkb_df = self._get_type_df("ZKB").drop(["RACE_KEY", "UMABAN", "血統登録番号", "NENGAPPI"], axis=1)
+            if zed_df.empty:
+                return pd.DataFrame()
+            zkb_df = self._get_type_df("ZKB")
+            zkb_df = zkb_df.drop(["RACE_KEY", "UMABAN", "血統登録番号", "NENGAPPI"], axis=1)
             df = pd.merge(zed_df, zkb_df, on=["KYOSO_RESULT_KEY", "target_date"])
             target_date_list = zed_df["NENGAPPI"].drop_duplicates()
             all_srb_df = pd.DataFrame()

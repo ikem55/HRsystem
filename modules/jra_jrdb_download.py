@@ -58,7 +58,7 @@ class JrdbDownload(object):
                         type.title(), row['url'], row['filename'])
 
     def download_jrdb_file(self, type, url, filename):
-        """ 指定したJRDBファイルのダウンロードと解凍を実施
+        """ 指定したJRDBファイルのダウンcdロードと解凍を実施
 
         :param str type: JRDBファイルの種類
         :type str type: str

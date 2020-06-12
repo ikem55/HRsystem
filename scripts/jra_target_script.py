@@ -1072,24 +1072,31 @@ class CreateFile(object):
             print(date)
             win_temp_df = win_df.query(f"target_date == '{date}'")[
                 ["RACEUMA_ID", "predict_std", "predict_rank"]].sort_values("RACEUMA_ID")
+            win_temp_df.loc[:, "predict_std"] = win_temp_df["predict_std"].round(0).astype("int")
             win_temp_df.to_csv(self.ext_score_path + "pred_win/" + date + ".csv", header=False, index=False)
             jiku_temp_df = jiku_df.query(f"target_date == '{date}'")[
                 ["RACEUMA_ID", "predict_std", "predict_rank"]].sort_values("RACEUMA_ID")
+            jiku_temp_df.loc[:, "predict_std"] = jiku_temp_df["predict_std"].round(0).astype("int")
             jiku_temp_df.to_csv(self.ext_score_path + "pred_jiku/" + date + ".csv", header=False, index=False)
             ana_temp_df = ana_df.query(f"target_date == '{date}'")[
                 ["RACEUMA_ID", "predict_std", "predict_rank"]].sort_values("RACEUMA_ID")
+            ana_temp_df.loc[:, "predict_std"] = ana_temp_df["predict_std"].round(0).astype("int")
             ana_temp_df.to_csv(self.ext_score_path + "pred_ana/" + date + ".csv", header=False, index=False)
             score_temp_df = score_df.query(f"target_date == '{date}'")[
                 ["RACEUMA_ID", "predict_std", "predict_rank"]].sort_values("RACEUMA_ID")
+            score_temp_df.loc[:, "predict_std"] = score_temp_df["predict_std"].round(0).astype("int")
             score_temp_df.to_csv(self.ext_score_path + "pred_score/" + date + ".csv", header=False, index=False)
             nigeuma_temp_df = nigeuma_df.query(f"target_date == '{date}'")[
                 ["RACEUMA_ID", "predict_std", "predict_rank"]].sort_values("RACEUMA_ID")
+            nigeuma_temp_df.loc[:, "predict_std"] = nigeuma_temp_df["predict_std"].round(0).astype("int")
             nigeuma_temp_df.to_csv(self.ext_score_path + "pred_nige/" + date + ".csv", header=False, index=False)
             agari_temp_df = agari_df.query(f"target_date == '{date}'")[
                 ["RACEUMA_ID", "predict_std", "predict_rank"]].sort_values("RACEUMA_ID")
+            agari_temp_df.loc[:, "predict_std"] = agari_temp_df["predict_std"].round(0).astype("int")
             agari_temp_df.to_csv(self.ext_score_path + "pred_agari/" + date + ".csv", header=False, index=False)
             ten_temp_df = ten_df.query(f"target_date == '{date}'")[
                 ["RACEUMA_ID", "predict_std", "predict_rank"]].sort_values("RACEUMA_ID")
+            ten_temp_df.loc[:, "predict_std"] = ten_temp_df["predict_std"].round(0).astype("int")
             ten_temp_df.to_csv(self.ext_score_path + "pred_ten/" + date + ".csv", header=False, index=False)
 
     def export_race_mark(self, result_tb_df, tb_df, race_result_df, raptype_df_1st):
@@ -1185,7 +1192,7 @@ class CreateFile(object):
                     sim_df = self.create_sim_score(temp3_df)
                     i = 0
                     for idx, val in sim_df.iterrows():
-                        line_text += str(val["sim_score"])
+                        line_text += val["sim_score"]
                         i += 1
                     if i != 18:
                         for j in range(i, 18):
@@ -1228,8 +1235,8 @@ class CreateFile(object):
             if (np.linalg.norm(jiku_np) * np.linalg.norm(all_np[i])) == 0:
                 cos_sim = 0
             else:
-                cos_sim = np.dot(jiku_np, all_np[i]) / (np.linalg.norm(jiku_np) * np.linalg.norm(all_np[i]))
-            cos_list.append(cos_sim.round(2))
+                cos_sim = (np.dot(jiku_np, all_np[i]) / (np.linalg.norm(jiku_np) * np.linalg.norm(all_np[i]))).round(2)
+            cos_list.append(cos_sim)
         if second_flag:
             sec_df = df[["枠番", "テン指数", "ペース指数", "上がり指数", "位置指数", "nige_std", "agari_std", "ten_std", "win_std", "jiku_std", "ana_std"]].copy()
             sec_df.loc[:, "類似値"] = cos_list
@@ -1240,8 +1247,8 @@ class CreateFile(object):
                 if (np.linalg.norm(jiku_np) * np.linalg.norm(all_np[i])) == 0:
                     cos_sim = 0
                 else:
-                    cos_sim = np.dot(jiku_np, all_np[i]) / (np.linalg.norm(jiku_np) * np.linalg.norm(all_np[i]))
-                cos_list.append(cos_sim.round(2))
+                    cos_sim = (np.dot(jiku_np, all_np[i]) / (np.linalg.norm(jiku_np) * np.linalg.norm(all_np[i]))).round(2)
+                cos_list.append(cos_sim)
         sim_df = pd.DataFrame({"RACE_KEY": df["RACE_KEY"], "UMABAN": df["UMABAN"], "sim_score": cos_list})
         return sim_df
 
