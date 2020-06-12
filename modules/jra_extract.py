@@ -329,7 +329,7 @@ class JRAExtract(BaseExtract):
             df = df.astype(
                 {'頭数': 'int8', '１着賞金': 'int32', '２着賞金': 'int16', '３着賞金': 'int16', '４着賞金': 'int16', '５着賞金': 'int16',
                  '１着算入賞金': 'int16', '２着算入賞金': 'int16'})
-            if len(df.query("データ区分 == '3'")) >= 10:
+            if len(df.query("データ区分 == '4'")) >= 10:
                 df.to_pickle(self.jrdb_folder_path + 'BAC/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'BAC/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df

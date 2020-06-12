@@ -36,6 +36,7 @@ class JRALoad(BaseLoad):
     def set_race_df(self):
         """  race_dfを作成するための処理。race_dfに処理がされたデータをセットする """
         self.race_base_df = self.ext.get_race_before_table_base()
+        print(self.race_base_df.shape)
         self.race_df = self._proc_race_df(self.race_base_df)
         print("set_race_df: race_df", self.race_df.shape)
 
