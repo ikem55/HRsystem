@@ -18,7 +18,7 @@ class JRAExtract(BaseExtract):
     mock_path = '../mock_data/jra/'
     dict_path = mc.return_jrdb_path()
     jrdb_folder_path = dict_path + 'jrdb_data/'
-    pred_folder_path = 'E:\python/pred/'
+    pred_folder_path = dict_path + 'pred/'
     race_df = pd.DataFrame()
     race_before_df = pd.DataFrame()
     raceuma_df = pd.DataFrame()
