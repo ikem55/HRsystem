@@ -149,6 +149,18 @@ class JRAExtract(BaseExtract):
             df = tyb_df.copy()
         return df
 
+    def get_odds_df(self, type):
+        """ オッズファイルを読み込む """
+        if type == "馬連":
+            df = self._get_type_df("OZ")
+        elif type == "三連複":
+            df = self._get_type_df("OT")
+        elif type == "ワイド":
+            df = self._get_type_df("OW")
+        elif type == "馬単":
+            df = self._get_type_df("OU")
+        return df
+
     def get_raceuma_zenso_table_base(self):
         """ レースに関する前走データを取得する。TYファイルを読み込む """
         if self.mock_flag:
@@ -251,6 +263,10 @@ class JRAExtract(BaseExtract):
                 temp_df = self.get_ot_df(filename)
             elif type =="OZ":
                 temp_df = self.get_oz_df(filename)
+            elif type =="OU":
+                temp_df = self.get_ou_df(filename)
+            elif type =="OW":
+                temp_df = self.get_ow_df(filename)
             elif type =="SED":
                 temp_df = self.get_sed_df(filename, "SED")
             elif type =="SKB":
@@ -275,7 +291,10 @@ class JRAExtract(BaseExtract):
         folder_path = self.jrdb_folder_path + type + "/"
         filelist = os.listdir(folder_path)
         file_df = pd.DataFrame({"filename": filelist})
-        file_df.loc[:, "date"] = file_df["filename"].apply(lambda x: dt.datetime.strptime('20' + x[3:9], '%Y%m%d'))
+        if type in ("OZ", "OT", "OW", "OU"):
+            file_df.loc[:, "date"] = file_df["filename"].apply(lambda x: dt.datetime.strptime('20' + x[2:8], '%Y%m%d'))
+        else:
+            file_df.loc[:, "date"] = file_df["filename"].apply(lambda x: dt.datetime.strptime('20' + x[3:9], '%Y%m%d'))
         target_filelist = file_df[(file_df["date"] >= self.start_date) & (file_df["date"] <= self.end_date)]["filename"].tolist()
         return sorted(target_filelist)
 
@@ -1051,6 +1070,7 @@ class JRAExtract(BaseExtract):
         if filename[-3:] == "pkl":
             df = pd.read_pickle(self.jrdb_folder_path + 'SRB/' + filename)
         else:
+            print(filename)
             if os.path.exists(self.jrdb_folder_path + 'SRB/' + filename):
                 with open(self.jrdb_folder_path + 'SRB/' + filename, 'r', encoding="ms932") as fh:
                     df = pd.DataFrame(index=[], columns=names)
@@ -1157,6 +1177,8 @@ class JRAExtract(BaseExtract):
                 if os.path.exists(self.jrdb_folder_path + "SED/" + sed_file_name + ".pkl"):
                     sed_file_name = sed_file_name + ".pkl"
                 sed_df = self.get_sed_df(sed_file_name, "SED")
+                if sed_df.empty:
+                    return pd.DataFrame()
                 target_df = sed_df.query("着順 in (1,2,3,4,5)")#.drop("着順", axis=1)
 
                 # factory analyzer用のデータを作成する
@@ -1585,11 +1607,12 @@ class JRAExtract(BaseExtract):
         names = ['RACE_KEY', 'UMABAN', '単勝オッズ', '複勝オッズ', '馬連オッズ０１', '馬連オッズ０２', '馬連オッズ０３', '馬連オッズ０４', '馬連オッズ０５', '馬連オッズ０６', '馬連オッズ０７',
                       '馬連オッズ０８', '馬連オッズ０９', '馬連オッズ１０', '馬連オッズ１１', '馬連オッズ１２', '馬連オッズ１３', '馬連オッズ１４', '馬連オッズ１５', '馬連オッズ１６', '馬連オッズ１７', '馬連オッズ１８', 'target_date']
         if filename[-3:] == "pkl":
-            df = pd.read_pickle(self.jrdb_folder_path + 'OZ/' + filename)
+            odds_df = pd.read_pickle(self.jrdb_folder_path + 'OZ/' + filename)
         else:
             print(filename)
             with open(self.jrdb_folder_path + 'OZ/' + filename, 'r', encoding="ms932") as fh:
                 df = pd.DataFrame(index=[], columns=names)
+                target_date = self.get_kaisai_date_for_oz(filename)
                 for line in fh:
                     new_line = self.replace_line(line)
                     race_key = new_line[0:8]
@@ -1613,13 +1636,23 @@ class JRAExtract(BaseExtract):
                             bul[uma2] = self.float_null(odds_umaren_list.popleft())
                         sr = pd.Series([
                             race_key, str(uma1).zfill(2), base_tansho_odds, base_fukusho_odds, bul[1], bul[2], bul[3], bul[4], bul[5], bul[6], bul[7], bul[
-                                8], bul[9], bul[10], bul[11], bul[12], bul[13], bul[14], bul[15], bul[16], bul[17], bul[18]
+                                8], bul[9], bul[10], bul[11], bul[12], bul[13], bul[14], bul[15], bul[16], bul[17], bul[18], target_date
                         ], index=names)
                         df = df.append(sr, ignore_index=True)
-                df["target_date"] = self.get_kaisai_date(filename)  # target_date
-            df.to_pickle(self.jrdb_folder_path + 'OZ/' + filename + ".pkl")
+                race_key_list = df["RACE_KEY"].drop_duplicates()
+                odds_columns = ['馬連オッズ０１', '馬連オッズ０２', '馬連オッズ０３', '馬連オッズ０４', '馬連オッズ０５', '馬連オッズ０６', '馬連オッズ０７',
+                      '馬連オッズ０８', '馬連オッズ０９', '馬連オッズ１０', '馬連オッズ１１', '馬連オッズ１２', '馬連オッズ１３', '馬連オッズ１４', '馬連オッズ１５', '馬連オッズ１６', '馬連オッズ１７', '馬連オッズ１８']
+                odds_df = pd.DataFrame()
+                for race_key in race_key_list:
+                    temp_df = df.query(f"RACE_KEY == '{race_key}'").reset_index(drop=True).copy()
+                    odds_np = temp_df[odds_columns].to_numpy()
+                    odds_np_t = odds_np.T
+                    temp_odds_df = pd.DataFrame(odds_np + odds_np_t, columns=odds_columns)
+                    temp_odds_df = pd.concat([temp_df[["RACE_KEY", "UMABAN", "単勝オッズ", "複勝オッズ", "target_date"]], temp_odds_df], axis=1)
+                    odds_df = pd.concat([odds_df, temp_odds_df])
+            odds_df.to_pickle(self.jrdb_folder_path + 'OZ/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'OZ/' + filename, self.jrdb_folder_path + 'backup/' + filename)
-        return df
+        return odds_df
     
 
     def get_ot_df(self, filename):
@@ -1631,6 +1664,7 @@ class JRAExtract(BaseExtract):
             print(filename)
             with open(self.jrdb_folder_path + 'OT/' + filename, 'r', encoding="ms932") as fh:
                 df = pd.DataFrame(index=[], columns=names)
+                target_date = self.get_kaisai_date_for_oz(filename)
                 print(dt.datetime.now())
                 for line in fh:
                     new_line = self.replace_line(line)
@@ -1646,12 +1680,72 @@ class JRAExtract(BaseExtract):
                                 if base_odds != None:
                                     sr = pd.Series([
                                         race_key, str(uma1).zfill(2), str(uma2).zfill(2), str(
-                                            uma3).zfill(2), base_odds
+                                            uma3).zfill(2), base_odds, target_date
                                     ], index=names)
                                     df = df.append(sr, ignore_index=True)
-                df["target_date"] = self.get_kaisai_date(filename)  # target_date
             df.to_pickle(self.jrdb_folder_path + 'OT/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'OT/' + filename, self.jrdb_folder_path + 'backup/' + filename)
+        return df
+
+
+    def get_ow_df(self, filename):
+        names = ['RACE_KEY', 'UMABAN_1', 'UMABAN_2', 'ワイドオッズ', 'target_date']
+        if filename[-3:] == "pkl":
+            df = pd.read_pickle(self.jrdb_folder_path + 'OW/' + filename)
+        else:
+            print(filename)
+            with open(self.jrdb_folder_path + 'OW/' + filename, 'r', encoding="ms932") as fh:
+                df = pd.DataFrame(index=[], columns=names)
+                target_date = self.get_kaisai_date_for_oz(filename)
+                print(dt.datetime.now())
+                for line in fh:
+                    new_line = self.replace_line(line)
+                    race_key = new_line[0:8]
+                    odds_text = new_line[10:775]
+                    base_odds_list = deque([odds_text[i: i + 5]
+                                            for i in range(0, len(odds_text), 5)])
+                    for uma1 in range(1, 18):
+                        for uma2 in range(uma1 + 1, 19):
+                            base_odds = self.float_null(
+                                base_odds_list.popleft())
+                            if base_odds != None:
+                                sr = pd.Series([
+                                    race_key, str(uma1).zfill(2), str(uma2).zfill(2), base_odds, target_date
+                                ], index=names)
+                                df = df.append(sr, ignore_index=True)
+            df.to_pickle(self.jrdb_folder_path + 'OW/' + filename + ".pkl")
+            shutil.move(self.jrdb_folder_path + 'OW/' + filename, self.jrdb_folder_path + 'backup/' + filename)
+        return df
+
+
+    def get_ou_df(self, filename):
+        names = ['RACE_KEY', 'UMABAN_1', 'UMABAN_2', '馬単オッズ', 'target_date']
+        if filename[-3:] == "pkl":
+            df = pd.read_pickle(self.jrdb_folder_path + 'OU/' + filename)
+        else:
+            print(filename)
+            with open(self.jrdb_folder_path + 'OU/' + filename, 'r', encoding="ms932") as fh:
+                df = pd.DataFrame(index=[], columns=names)
+                target_date = self.get_kaisai_date_for_oz(filename)
+                print(dt.datetime.now())
+                for line in fh:
+                    new_line = self.replace_line(line)
+                    race_key = new_line[0:8]
+                    odds_text = new_line[10:1846]
+                    base_odds_list = deque([odds_text[i: i + 6]
+                                            for i in range(0, len(odds_text), 6)])
+                    for uma1 in range(1, 19):
+                        for uma2 in range(1, 19):
+                            if uma1 != uma2:
+                                base_odds = self.float_null(
+                                    base_odds_list.popleft())
+                                if base_odds != None:
+                                    sr = pd.Series([
+                                        race_key, str(uma1).zfill(2), str(uma2).zfill(2), base_odds, target_date
+                                    ], index=names)
+                                    df = df.append(sr, ignore_index=True)
+            df.to_pickle(self.jrdb_folder_path + 'OU/' + filename + ".pkl")
+            shutil.move(self.jrdb_folder_path + 'OU/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
 
@@ -1737,6 +1831,15 @@ class JRAExtract(BaseExtract):
         :return:
         """
         return '20' + filename[3:9]
+
+
+    def get_kaisai_date_for_oz(self, filename):
+        """ ファイル名から開催年月日を取得する(ex.20181118)
+
+        :param str filename:
+        :return:
+        """
+        return '20' + filename[2:8]
 
     def int_bataiju_zogen(self, str):
         """ 文字列の馬体重増減を数字に変換する

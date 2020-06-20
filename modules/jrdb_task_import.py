@@ -2,7 +2,7 @@ import luigi
 from luigi.mock import MockTarget
 
 from modules.jra_jrdb_download import JrdbDownload
-from modules.jrdb_import import JrdbImport
+from modules.del_jrdb_import import JrdbImport
 from modules.jrdb_transform_procedure import TRANSFORM_PROCEDURE
 
 import modules.jrdb_sql as msf

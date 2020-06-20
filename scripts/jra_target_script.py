@@ -10,8 +10,7 @@ import sys
 import pandas as pd
 import numpy as np
 import math
-import scipy
-import os
+import pickle
 from sklearn import preprocessing
 
 class Ext(JRAExtract):
@@ -70,6 +69,10 @@ class Tf(JRATransform):
         return raceuma_df
 
     def normalize_raceuma_df(self, raceuma_df):
+        return raceuma_df
+
+    def drop_columns_raceuma_df(self, raceuma_df):
+        raceuma_df = raceuma_df.drop(["騎手名", "調教師名", "枠確定馬体重", "枠確定馬体重増減", "取消フラグ", "調教年月日", "調教コメント", "コメント年月日"], axis=1)
         return raceuma_df
 
     def encode_raceuma_result_df(self, raceuma_df, dict_folder):
@@ -218,18 +221,6 @@ class Ld(JRALoad):
         raceuma_5_prev_df = self.tf.cluster_course_df(raceuma_5_prev_df, self.dict_path)
         raceuma_5_prev_df = self.tf.cluster_raceuma_result_df(raceuma_5_prev_df, self.dict_path)
         raceuma_5_prev_df = self.tf.factory_analyze_race_result_df(raceuma_5_prev_df, self.dict_path)
-#        self.prev5_raceuma_df = self._get_prev_df(5, raceuma_5_prev_df, "")
-#        self.prev5_raceuma_df.rename(columns=lambda x: x + "_5", inplace=True)
-#        self.prev5_raceuma_df.rename(columns={"RACE_KEY_5": "RACE_KEY", "UMABAN_5": "UMABAN", "target_date_5": "target_date"}, inplace=True)
-#        self.prev4_raceuma_df = self._get_prev_df(4, raceuma_5_prev_df, "")
-#        self.prev4_raceuma_df.rename(columns=lambda x: x + "_4", inplace=True)
-#        self.prev4_raceuma_df.rename(columns={"RACE_KEY_4": "RACE_KEY", "UMABAN_4": "UMABAN", "target_date_4": "target_date"}, inplace=True)
-#        self.prev3_raceuma_df = self._get_prev_df(3, raceuma_5_prev_df, "")
-#        self.prev3_raceuma_df.rename(columns=lambda x: x + "_3", inplace=True)
-#        self.prev3_raceuma_df.rename(columns={"RACE_KEY_3": "RACE_KEY", "UMABAN_3": "UMABAN", "target_date_3": "target_date"}, inplace=True)
-#        self.prev2_raceuma_df = self._get_prev_df(2, raceuma_5_prev_df, "")
-#        self.prev2_raceuma_df.rename(columns=lambda x: x + "_2", inplace=True)
-#        self.prev2_raceuma_df.rename(columns={"RACE_KEY_2": "RACE_KEY", "UMABAN_2": "UMABAN", "target_date_2": "target_date"}, inplace=True)
         self.prev1_raceuma_df = self._get_prev_df(1, raceuma_5_prev_df, "")
         self.prev1_raceuma_df.rename(columns=lambda x: x + "_1", inplace=True)
         self.prev1_raceuma_df.rename(columns={"RACE_KEY_1": "RACE_KEY", "UMABAN_1": "UMABAN", "target_date_1": "target_date"}, inplace=True)
@@ -406,15 +397,14 @@ class Ld(JRALoad):
             lambda x: mu._decode_race_pace(int(mu._encode_race_pace(x))))
         race_result_df.loc[:, "TB"] = race_result_df.apply(lambda x: mu.convert_bias(x["TB_UCHISOTO"], x["TB_ZENGO"]),
                                                            axis=1)
-        #race_result_df = race_result_df.groupby("RACE_KEY").first().reset_index()
 
         race_file_df = self.race_file_df.copy()
         race_result_df = pd.merge(race_result_df, race_file_df, on="RACE_KEY")
 
-        result_uchisoto_df = race_result_df[["RACE_KEY", "TB_UCHISOTO", "file_id", "nichiji", "race_no"]].rename(
-            columns={"TB_UCHISOTO": "val"})
-        result_zengo_df = race_result_df[["RACE_KEY", "TB_ZENGO", "file_id", "nichiji", "race_no"]].rename(
-            columns={"TB_ZENGO": "val"})
+#        result_uchisoto_df = race_result_df[["RACE_KEY", "TB_UCHISOTO", "file_id", "nichiji", "race_no"]].rename(
+#            columns={"TB_UCHISOTO": "val"})
+#        result_zengo_df = race_result_df[["RACE_KEY", "TB_ZENGO", "file_id", "nichiji", "race_no"]].rename(
+#            columns={"TB_ZENGO": "val"})
         result_tb_df = race_result_df[["RACE_KEY", "TB", "file_id", "nichiji", "race_no"]].rename(columns={"TB": "val"})
 
         raceuma_result_df = pd.merge(raceuma_result_df, race_result_df, on="RACE_KEY")
@@ -437,10 +427,6 @@ class Ld(JRALoad):
         raceuma_df = pd.merge(raceuma_df, self.race_file_df, on=["RACE_KEY", "NENGAPPI"])
         raceuma_df = pd.merge(raceuma_df, self.horse_df, on=["血統登録番号", "target_date"])
         raceuma_df = pd.merge(raceuma_df, self.prev1_raceuma_df, on=["RACE_KEY", "UMABAN", "target_date"], how='left')
-#        raceuma_df = pd.merge(raceuma_df, self.prev2_raceuma_df, on=["RACE_KEY", "UMABAN", "target_date"], how='left')
-#        raceuma_df = pd.merge(raceuma_df, self.prev3_raceuma_df, on=["RACE_KEY", "UMABAN", "target_date"], how='left')
-#        raceuma_df = pd.merge(raceuma_df, self.prev4_raceuma_df, on=["RACE_KEY", "UMABAN", "target_date"], how='left')
-#        raceuma_df = pd.merge(raceuma_df, self.prev5_raceuma_df, on=["RACE_KEY", "UMABAN", "target_date"], how='left')
         raceuma_df = pd.merge(raceuma_df, self.prev_feature_raceuma_df, on =["RACE_KEY", "UMABAN"], how='left')
 
         raceuma_df = pd.merge(raceuma_df, self.nigeuma_df[["RACE_KEY", "UMABAN", "predict_std"]].rename(
@@ -455,13 +441,19 @@ class Ld(JRALoad):
         raceuma_df = self.tf.drop_columns_cbs_df(raceuma_df)
         self.raceuma_cbf_df = raceuma_df.copy()
 
+    def set_haraimodoshi_df(self):
+        """ result_dfを作成するための処理。result_dfに処理がされたデータをセットする """
+        print("set_result_df")
+        haraimodoshi_df = self.ext.get_haraimodoshi_table_base()
+        self.dict_haraimodoshi = self.ext.get_haraimodoshi_dict(haraimodoshi_df)
+
 
 class CreateFile(object):
     def __init__(self, start_date, end_date, test_flag):
         self.start_date = start_date
         self.end_date = end_date
         self.test_flag = test_flag
-        self.dict_path = mc.return_base_path(test_flag)
+        self.dict_path = mc.return_jra_path(test_flag)
         self.target_path = mc.TARGET_PATH
         self.ext_score_path = self.target_path + 'ORIGINAL_DATA/'
 
@@ -1202,6 +1194,7 @@ class CreateFile(object):
                 f.write(file_text.replace('\r', ''))
 
     def create_sim_score(self, df):
+        # 偏りを作るために血統と調教のみで類似度を計算
         jiku_df = df.query(f"predict_rank == 1")#.index.values[0]
         if jiku_df.empty:
             sim_df = df[["RACE_KEY", "UMABAN"]].copy()
@@ -1213,17 +1206,20 @@ class CreateFile(object):
             categorical_feats = df.dtypes[df.dtypes == "object"].index.tolist()
             num_target_df = df[num_columns_list].fillna(0)
             text_target_df = df[categorical_feats].fillna("")
-            text_sim_df = self.create_text_sim_score(text_target_df, jiku_index, categorical_feats)
+            # text_sim_df = self.create_text_sim_score(text_target_df, jiku_index, categorical_feats)
             text_sim_ketto = ["RACE_KEY", "UMABAN", "NENGAPPI", "RACEUMA_ID", "target_date", "脚質", "蹄コード", "父馬名", "母父馬名", "父系統コード", "母父系統コード", "距離増減"]
             text_sim_ketto_df = self.create_text_sim_score(text_target_df, jiku_index, text_sim_ketto).rename(columns={"sim_score": "ketto_score"})
             text_sim_chokyo = ["RACE_KEY", "UMABAN", "NENGAPPI", "RACEUMA_ID", "target_date", "調教師所属", "放牧先", "調教コースコード", "追切種類", "調教タイプ", "調教コース種別", "調教距離", "調教重点", "調教量評価", "距離増減"]
             text_sim_chokyo_df = self.create_text_sim_score(text_target_df, jiku_index, text_sim_chokyo).rename(columns={"sim_score": "chokyo_score"})
-            first_sim_df = self.create_cos_sim_score(num_target_df, jiku_index, True)
-            sim_df = pd.merge(first_sim_df, text_sim_df, on =["RACE_KEY", "UMABAN"])
-            sim_df = pd.merge(sim_df, text_sim_ketto_df, on =["RACE_KEY", "UMABAN"])
-            sim_df = pd.merge(sim_df, text_sim_chokyo_df, on =["RACE_KEY", "UMABAN"])
-            sim_df = self.create_cos_sim_score(sim_df, jiku_index, False)
-            sim_df.loc[:, "sim_score"] = sim_df["sim_score"].apply(lambda x: self._return_mark(1 + int((10 - x * 10) * 3)) if not np.isnan(x) else '  ')
+            # first_sim_df = self.create_cos_sim_score(num_target_df, jiku_index, True)
+            # sim_df = pd.merge(first_sim_df, text_sim_df, on =["RACE_KEY", "UMABAN"])
+            # sim_df = pd.merge(sim_df, text_sim_ketto_df, on =["RACE_KEY", "UMABAN"])
+            # sim_df = pd.merge(sim_df, text_sim_chokyo_df, on =["RACE_KEY", "UMABAN"])
+            sim_df = pd.merge(text_sim_ketto_df, text_sim_chokyo_df, on =["RACE_KEY", "UMABAN"])
+            sim_df.loc[:, "sim_score"] = sim_df["chokyo_score"] + sim_df["ketto_score"] * 2
+            # sim_df = self.create_cos_sim_score(sim_df, jiku_index, False)
+            sim_df.loc[:, "sim_score"] = sim_df["sim_score"].apply(lambda x: "◎" if x == 3 else (self._return_mark(1 + int((10 - x * 10) * 2) if not np.isnan(x) else '  ')))
+#           sim_df.loc[:, "sim_score"] = sim_df["sim_score"].apply(lambda x: self._return_mark(1 + int((10 - x * 10) * 3)) if not np.isnan(x) else '  ')
         return sim_df
 
     def create_cos_sim_score(self, df, jiku_index,second_flag):
@@ -1315,6 +1311,103 @@ class CreateFile(object):
 
         return float(ab / (a * b))
 
+    def get_raceuma_df_for_gui(self):
+        ld = Ld("dummy", self.start_date, self.end_date, False, self.test_flag)
+        ld.set_race_file_df()
+        ld.set_pred_df()
+        ld.set_contents_based_filtering_df()
+
+        race_df = pd.merge(ld.race_df, ld.are_df[["RACE_KEY", "umaren_are", "umatan_are", "sanrenpuku_are"]],
+                           on="RACE_KEY")
+        race_df = pd.merge(race_df, ld.tb_df[["RACE_KEY", "uc", "zg"]], on="RACE_KEY")
+        race_df = pd.merge(race_df, ld.raptype_df_1st[["RACE_KEY", "val"]], on="RACE_KEY")
+        race_df.drop(
+            ["コース", "開催区分", "NENGAPPI", "曜日", "場名", "芝馬場状態内", "芝馬場状態中", "芝馬場状態外", "直線馬場差最内", "直線馬場差内", "直線馬場差中",
+             "直線馬場差外",
+             "直線馬場差大外", "ダ馬場状態内", "ダ馬場状態中", "ダ馬場状態外", "連続何日目", "中間降水量"], axis=1, inplace=True)
+
+        raceuma_df = pd.merge(ld.raceuma_df, ld.score_df[
+            ["RACE_KEY", "UMABAN", "RACEUMA_ID", "win_std", "jiku_std", "ana_std", "predict_rank", "predict_std"]],
+                              on=["RACE_KEY", "UMABAN"])
+        raceuma_df = pd.merge(raceuma_df,
+                              ld.nigeuma_df[["RACEUMA_ID", "predict_std"]].rename(columns={"predict_std": "nige_std"}),
+                              on="RACEUMA_ID")
+        raceuma_df = pd.merge(raceuma_df,
+                              ld.agari_df[["RACEUMA_ID", "predict_std"]].rename(columns={"predict_std": "agari_std"}),
+                              on="RACEUMA_ID")
+        raceuma_df = pd.merge(raceuma_df,
+                              ld.ten_df[["RACEUMA_ID", "predict_std"]].rename(columns={"predict_std": "ten_std"}),
+                              on="RACEUMA_ID")
+        raceuma_df = raceuma_df[
+            ["RACE_KEY", "UMABAN", "馬名", "win_std", "jiku_std", "ana_std", "predict_rank", "predict_std", "nige_std",
+             "agari_std", "ten_std"]]
+        raceuma_df.loc[:, "win_rank"] = raceuma_df.groupby("RACE_KEY")["win_std"].rank("dense", ascending=False)
+        raceuma_df.loc[:, "jiku_rank"] = raceuma_df.groupby("RACE_KEY")["jiku_std"].rank("dense", ascending=False)
+        raceuma_df.loc[:, "ana_rank"] = raceuma_df.groupby("RACE_KEY")["ana_std"].rank("dense", ascending=False)
+        raceuma_df.loc[:, "nige_rank"] = raceuma_df.groupby("RACE_KEY")["nige_std"].rank("dense", ascending=False)
+        raceuma_df.loc[:, "agari_rank"] = raceuma_df.groupby("RACE_KEY")["agari_std"].rank("dense", ascending=False)
+        raceuma_df.loc[:, "ten_rank"] = raceuma_df.groupby("RACE_KEY")["ten_std"].rank("dense", ascending=False)
+
+        raceuma_df = pd.merge(race_df, raceuma_df, on="RACE_KEY")
+        raceuma_df.loc[:, "勝印"] = raceuma_df.apply(
+            lambda x: self._create_win_flag(x["course_cluster"], x["条件"], x["win_std"], x["ana_std"], x["nige_std"],
+                                          x["ten_std"], x["agari_std"]), axis=1)
+        raceuma_df.loc[:, "軸印"] = raceuma_df.apply(
+            lambda x: self._create_jiku_flag(x["course_cluster"], x["条件"], x["jiku_std"], x["ana_std"], x["nige_std"],
+                                           x["ten_std"], x["agari_std"]), axis=1)
+        raceuma_df.loc[:, "内外印"] = raceuma_df.apply(
+            lambda x: self._create_tb_us_flag(x["course_cluster"], x["uc"], x["jiku_std"], x["ana_std"], x["nige_std"],
+                                            x["ten_std"], x["agari_std"]), axis=1)
+        raceuma_df.loc[:, "前後印"] = raceuma_df.apply(
+            lambda x: self._create_tb_zg_flag(x["course_cluster"], x["zg"], x["jiku_std"], x["ana_std"], x["nige_std"],
+                                            x["ten_std"], x["agari_std"]), axis=1)
+        raceuma_df.loc[:, "印"] = raceuma_df["predict_rank"].apply(lambda x: self._return_mark(x))
+        raceuma_df.loc[:, "逃印"] = raceuma_df["nige_rank"].apply(lambda x: self._return_mark(x))
+        raceuma_df.loc[:, "上印"] = raceuma_df["ten_rank"].apply(lambda x: self._return_mark(x))
+
+        sim_score_df = self.create_sim_score(ld.raceuma_cbf_df)
+        raceuma_df = pd.merge(raceuma_df, sim_score_df, on=["RACE_KEY", "UMABAN"])
+        return raceuma_df
+
+
+    def get_term_data_for_gui(self):
+        ld = Ld("dummy", self.start_date, self.end_date, False, self.test_flag)
+        raceuma_df = self.get_raceuma_df_for_gui()
+        res_raceuma_df = ld.ext.get_raceuma_table_base()[["RACE_KEY", "UMABAN", "着順", "確定単勝オッズ", "確定単勝人気順位", "レース脚質", "単勝", "複勝", "テン指数結果順位", "上がり指数結果順位"]].copy()
+        res_raceuma_df = pd.merge(raceuma_df, res_raceuma_df, on=["RACE_KEY", "UMABAN"])
+        res_raceuma_df.loc[:, "yearmonth"] = res_raceuma_df["target_date"].str[0:6]
+
+        ld.set_haraimodoshi_df()
+        res_haraimodoshi_dict = ld.dict_haraimodoshi
+        return res_raceuma_df, res_haraimodoshi_dict
+
+    def export_pred_score_for_ksc(self, win_df, jiku_df, ana_df, score_df, nigeuma_df, agari_df, ten_df):
+        print("---- 予想外部指数作成 --------")
+        ksc_path = "C:\keibasoftcom/KSCAutoBetPlus/TCSV/"
+        for date in self.date_list:
+            print(date)
+            win_temp_df = win_df.query(f"target_date == '{date}'")[
+                ["RACEUMA_ID", "predict_rank"]].sort_values("RACEUMA_ID")
+            win_temp_df.to_csv(ksc_path + "win" + date + ".csv", header=False, index=False)
+            jiku_temp_df = jiku_df.query(f"target_date == '{date}'")[
+                ["RACEUMA_ID", "predict_rank"]].sort_values("RACEUMA_ID")
+            jiku_temp_df.to_csv(ksc_path + "jiku" + date + ".csv", header=False, index=False)
+            ana_temp_df = ana_df.query(f"target_date == '{date}'")[
+                ["RACEUMA_ID", "predict_rank"]].sort_values("RACEUMA_ID")
+            ana_temp_df.to_csv(ksc_path + "ana" + date + ".csv", header=False, index=False)
+            score_temp_df = score_df.query(f"target_date == '{date}'")[
+                ["RACEUMA_ID", "predict_rank"]].sort_values("RACEUMA_ID")
+            score_temp_df.to_csv(ksc_path + "score" + date + ".csv", header=False, index=False)
+            nigeuma_temp_df = nigeuma_df.query(f"target_date == '{date}'")[
+                ["RACEUMA_ID", "predict_rank"]].sort_values("RACEUMA_ID")
+            nigeuma_temp_df.to_csv(ksc_path + "nige" + date + ".csv", header=False, index=False)
+            agari_temp_df = agari_df.query(f"target_date == '{date}'")[
+                ["RACEUMA_ID", "predict_rank"]].sort_values("RACEUMA_ID")
+            agari_temp_df.to_csv(ksc_path + "agari" + date + ".csv", header=False, index=False)
+            ten_temp_df = ten_df.query(f"target_date == '{date}'")[
+                ["RACEUMA_ID", "predict_rank"]].sort_values("RACEUMA_ID")
+            ten_temp_df.to_csv(ksc_path + "ten" + date + ".csv", header=False, index=False)
+
 
 if __name__ == "__main__":
     args = sys.argv
@@ -1323,7 +1416,7 @@ if __name__ == "__main__":
     mock_flag = False
     test_flag = False
     mode = args[1]
-    dict_path = mc.return_base_path(test_flag)
+    dict_path = mc.return_jra_path(test_flag)
     version_str = "dummy" #dict_folderを取得するのに使用
     pd.set_option('display.max_columns', 3000)
     pd.set_option('display.max_rows', 3000)

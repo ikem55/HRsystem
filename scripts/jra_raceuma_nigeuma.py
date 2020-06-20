@@ -249,7 +249,7 @@ if __name__ == "__main__":
     mode = args[1]
     mock_flag = strtobool(args[2])
     test_flag = strtobool(args[3])
-    dict_path = mc.return_base_path(test_flag)
+    dict_path = mc.return_jra_path(test_flag)
     INTERMEDIATE_FOLDER = dict_path + 'intermediate/' + MODEL_VERSION + '_' + args[1] + '/' + MODEL_NAME + '/'
     print("intermediate_folder:" + INTERMEDIATE_FOLDER)
 

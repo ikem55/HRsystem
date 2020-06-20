@@ -1,6 +1,6 @@
 import os
 
-from modules.jrdb_schema import BAC, CHA, CYB, JOA, KAB, KKA, KYI, UKC, SED, SRB, SKB, HJC, TYB, OZ, OT
+from modules.del_jrdb_schema import BAC, CHA, CYB, JOA, KAB, KKA, KYI, UKC, SED, SRB, SKB, HJC, TYB, OZ, OT
 import modules.util as mu
 import modules.jrdb_sql as msf
 

@@ -213,7 +213,7 @@ if __name__ == "__main__":
     mode = args[1]
     mock_flag = strtobool(args[2])
     test_flag = strtobool(args[3])
-    dict_path = mc.return_base_path(test_flag)
+    dict_path = mc.return_jra_path(test_flag)
     INTERMEDIATE_FOLDER = dict_path + 'intermediate/' + MODEL_VERSION + '_' + args[1] + '/' + MODEL_NAME + '/'
     print("intermediate_folder:" + INTERMEDIATE_FOLDER)
 
@@ -243,7 +243,8 @@ if __name__ == "__main__":
             base_start_date = '2019/01/01'
             pred_folder = dict_path + 'pred/' + MODEL_VERSION
             start_date = SkModel.get_recent_day(base_start_date, pred_folder)
-            end_date = (dt.now() + timedelta(days=1)).strftime('%Y/%m/%d')
+            # end_date = (dt.now() + timedelta(days=1)).strftime('%Y/%m/%d')
+            end_date = (dt.now() + timedelta(days=2)).strftime('%Y/%m/%d') #日曜データがうまく削除できないので伸ばしてみる。
             if start_date > end_date:
                 print("change start_date")
                 start_date = end_date

@@ -14,7 +14,7 @@ mock_flag = False
 test_flag = False
 ext = JRAExtract(start_date, end_date, mock_flag)
 tf = JRATransform(start_date, end_date)
-dict_path = mc.return_base_path(test_flag)
+dict_path = mc.return_jra_path(test_flag)
 target_path = mc.TARGET_PATH
 ext_score_path = target_path + 'ORIGINAL_DATA/'
 
