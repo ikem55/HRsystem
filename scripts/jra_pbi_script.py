@@ -217,7 +217,7 @@ if __name__ == "__main__":
     print("MODE:" + str(args[1]) + "  start_date:" + start_date + " end_date:" + end_date)
 
     pe = PbiExport(start_date, end_date, test_flag)
-    #pe.export_race_pred_data()
-    #pe.export_race_result_data()
+    pe.export_race_pred_data()
+    pe.export_race_result_data()
     pe.export_raceuma_result_data()
-    #pe.export_bet_data()
+    pe.export_bet_data()
