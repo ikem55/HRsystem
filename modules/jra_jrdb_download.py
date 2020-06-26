@@ -34,7 +34,9 @@ class JrdbDownload(object):
     def procedure_download_sokuho(self):
         """ 速報データのダウンロードをまとめた手順 """
         print("============== DOWNLOAD JRDB SOKUHO ====================")
-        typelist = ["TYB"]
+        self.download_path = mc.return_jrdb_path() + "jrdb_data/sokuho/"
+        self.archive_path = mc.return_jrdb_path() + "jrdb_data/sokuho/archive/"
+        typelist = ["TYB", "SED", "HJC"]
         target_date = dt.date.today().strftime('%Y%m%d')
         print(target_date)
         for type in typelist:
@@ -43,6 +45,9 @@ class JrdbDownload(object):
             url = target_date[0:4] + '/' + filename
             print(url)
             self.download_jrdb_file(type.title(), url, filename)
+        for p in glob.glob(self.archive_path + "/*.zip"):
+            if os.path.isfile(p):
+                os.remove(p)
 
     def procedure_download(self):
         """ 通常データのダウンロードをまとめた手順  """

@@ -1,4 +1,5 @@
 from scripts.jra_target_script import Ext, Ld as TargetLd, CreateFile
+from modules.jra_jrdb_download import JrdbDownload
 import my_config as mc
 import modules.util as mu
 import pandas as pd
@@ -6,6 +7,7 @@ import pandas as pd
 from datetime import datetime as dt
 from datetime import timedelta
 import sys
+import os
 
 class Ld(TargetLd):
     target_path = mc.TARGET_PATH
@@ -554,6 +556,96 @@ class AutoVote(Simlation):
         if str == '09': return "HANSHIN"
         if str == '10': return "KOKURA"
 
+    def export_pbi_data(self):
+        race_df = self.ld.race_df.copy()
+        print(race_df.iloc[0])
+        race_df.loc[:, "場名"] = race_df["場名"].apply(lambda x: mu.convert_basho(x))
+        race_df.loc[:, "レースNo"] = race_df["RACE_KEY"].str[6:8]
+        race_df.loc[:, "種別"] = race_df["種別"].apply(lambda x: mu.convert_shubetsu(x))
+        race_df.loc[:, "条件"] = race_df["条件"].apply(lambda x: self._convert_joken(x))
+        race_df.loc[:, "芝ダ"] = race_df["芝ダ障害コード"].apply(lambda x: mu.convert_shida(x))
+        race_df.loc[:, "コース名"] = race_df.apply(lambda x: self._get_course_name(x), axis=1)
+        race_df = pd.merge(race_df, self.ld.race_file_df[["RACE_KEY", "RACE_ID"]], on="RACE_KEY")
+        race_df = race_df[["RACE_ID", "RACE_KEY", "場名", "レースNo", "距離", "芝ダ", "種別", "条件", "target_date", "コース名"]].copy()
+        race_df.to_csv(self.auto_bet_path + "race.csv", index=False, header=True)
+        raceuma_df = self.ld.ext.get_raceuma_before_table_base()[["RACE_KEY", "UMABAN", "基準オッズ", "騎手名", "調教師名", "馬名"]].copy()
+        raceuma_df = pd.merge(raceuma_df, self.target_mark_df, on=["RACE_KEY", "UMABAN"])
+        print(race_df.iloc[0])
+        print(raceuma_df.iloc[0])
+        raceuma_df.to_csv(self.auto_bet_path + "raceuma.csv", index=False, header=True)
+
+    def _convert_joken(self, joken):
+        if joken == 1: return "A1"
+        if joken == 2: return "A2"
+        if joken == 3: return "A3"
+        if joken == 99: return "OP"
+        if joken == 5: return "500万下"
+        if joken == 10: return "1000万下"
+        if joken == 16: return "1600万下"
+        else: return ""
+
+    def _get_course_name(self, sr):
+        soto = "外" if sr["内外"] == "2" else ""
+        return sr["場名"] + sr["芝ダ"] + str(sr["距離"]) +"m" + soto
+
+class Sokuho(object):
+    def __init__(self, target_date, test_flag):
+        self.ext = Ext(target_date, target_date, test_flag)
+        self.dict_path = mc.return_jra_path(test_flag)
+        self.target_path = mc.TARGET_PATH
+        self.auto_bet_path = self.target_path + 'AUTO_BET/'
+
+    def export_pbi_real_data(self):
+        #jrdb = JrdbDownload()
+        #jrdb.procedure_download_sokuho()
+        filelist = os.listdir(self.dict_path + "jrdb_data/sokuho/")
+        for file in filelist:
+            if file[0:3] == "SED":
+                temp_df = self.ext.get_sed_sokuho_df(file)
+                temp_df.to_csv(self.auto_bet_path + "result.csv", index=False, header=True)
+            #elif file[0:3] == "TYB":
+            #    temp_df = self.ext.get_tyb_sokuho_df(file)
+            # elif file[0:3] == "SRB":
+            #     temp_df = self.ext.get_srb_sokuho_df(file)
+            elif file[0:3] == "HJC":
+                temp_df = self.ext.get_hjc_sokuho_df(file)
+                dict_haraimodoshi = self.ext.get_haraimodoshi_dict(temp_df)
+                tansho_df = dict_haraimodoshi["tansho_df"]
+                tansho_df.loc[:, "NENGAPPI"] = "20" + file[3:9]
+                tansho_df.loc[:, "RACE_ID"] = tansho_df.apply(lambda x: mu.convert_jrdb_id(x["RACE_KEY"], x["NENGAPPI"]), axis=1)
+                tansho_df.to_csv(self.auto_bet_path + "tansho.csv", index=False, header=True)
+                fukusho_df = dict_haraimodoshi["fukusho_df"]
+                fukusho_df.loc[:, "NENGAPPI"] = "20" + file[3:9]
+                fukusho_df.loc[:, "RACE_ID"] = fukusho_df.apply(lambda x: mu.convert_jrdb_id(x["RACE_KEY"], x["NENGAPPI"]), axis=1)
+                fukusho_df.to_csv(self.auto_bet_path + "fukusho.csv", index=False, header=True)
+                umaren_df = dict_haraimodoshi["umaren_df"]
+                umaren_df.loc[:, "NENGAPPI"] = "20" + file[3:9]
+                umaren_df.loc[:, "RACE_ID"] = umaren_df.apply(lambda x: mu.convert_jrdb_id(x["RACE_KEY"], x["NENGAPPI"]), axis=1)
+                umaren_df.loc[:, "馬1"] = umaren_df["UMABAN"].apply(lambda x: int(x[0]))
+                umaren_df.loc[:, "馬2"] = umaren_df["UMABAN"].apply(lambda x: int(x[1]))
+                umaren_df.to_csv(self.auto_bet_path + "umaren.csv", index=False, header=True)
+                wide_df = dict_haraimodoshi["wide_df"]
+                wide_df.loc[:, "NENGAPPI"] = "20" + file[3:9]
+                wide_df.loc[:, "RACE_ID"] = wide_df.apply(lambda x: mu.convert_jrdb_id(x["RACE_KEY"], x["NENGAPPI"]), axis=1)
+                wide_df.loc[:, "馬1"] = wide_df["UMABAN"].apply(lambda x: int(x[0]))
+                wide_df.loc[:, "馬2"] = wide_df["UMABAN"].apply(lambda x: int(x[1]))
+                wide_df.to_csv(self.auto_bet_path + "wide.csv", index=False, header=True)
+                umatan_df = dict_haraimodoshi["umatan_df"]
+                umatan_df.loc[:, "NENGAPPI"] = "20" + file[3:9]
+                umatan_df.loc[:, "RACE_ID"] = umatan_df.apply(lambda x: mu.convert_jrdb_id(x["RACE_KEY"], x["NENGAPPI"]), axis=1)
+                umatan_df.loc[:, "馬1"] = umatan_df["UMABAN"].apply(lambda x: int(x[0]))
+                umatan_df.loc[:, "馬2"] = umatan_df["UMABAN"].apply(lambda x: int(x[1]))
+                umatan_df.to_csv(self.auto_bet_path + "umatan.csv", index=False, header=True)
+                sanrenpuku_df = dict_haraimodoshi["sanrenpuku_df"]
+                sanrenpuku_df.loc[:, "NENGAPPI"] = "20" + file[3:9]
+                sanrenpuku_df.loc[:, "RACE_ID"] = sanrenpuku_df.apply(lambda x: mu.convert_jrdb_id(x["RACE_KEY"], x["NENGAPPI"]), axis=1)
+                sanrenpuku_df.loc[:, "馬1"] = sanrenpuku_df["UMABAN"].apply(lambda x: int(x[0]))
+                sanrenpuku_df.loc[:, "馬2"] = sanrenpuku_df["UMABAN"].apply(lambda x: int(x[1]))
+                sanrenpuku_df.loc[:, "馬3"] = sanrenpuku_df["UMABAN"].apply(lambda x: int(x[2]))
+                sanrenpuku_df.to_csv(self.auto_bet_path + "sanrenpuku.csv", index=False, header=True)
+            else:
+                continue
+
 
 if __name__ == "__main__":
     args = sys.argv
@@ -586,28 +678,7 @@ if __name__ == "__main__":
     print("MODE:" + str(args[1]) + "  update_start_date:" + term_start_date + " update_end_date:" + term_end_date)
 
     av = AutoVote(start_date, end_date, term_start_date, term_end_date, test_flag)
-    av.export_bet_csv()
-    """
-    sim = Simlation(start_date, end_date, term_start_date, term_end_date, test_flag)
-    target_mark_df = sim.target_mark_df.copy()
-    umaren_base_df = sim.get_sim_umaren_df(target_mark_df, target_mark_df)
-    umaren_bet_sim_df = umaren_base_df.query(
-        "印_1 == '◎ ' and 印_2 in ['△ ', '▲ ', '○ '] and 軸_1 != '◎ ' and 軸_2  not in ['◎ ', '▲ '] and オッズ >= 50").copy()
-#    bet_df = umaren_base_df.query(
-#        "印_1 == '◎ ' and 印_2 in ['△ ', '▲ ', '○ '] and 軸_1 != '◎ ' and 軸_2 not in ['◎ ', '▲ '] and オッズ >= 50").copy()
-    print(umaren_bet_sim_df[["target_date", "RACE_KEY", "結果", "UMABAN_1", "印_1", "軸_1", "UMABAN_2", "印_2", "軸_2", "オッズ"]].sort_values(["target_date", "RACE_KEY"]).head(30))
-    sr = sim.calc_umaren_result(umaren_bet_sim_df)
-    print(sr)
-
-    umaren_bet_sim_df.loc[:, "投資"] = umaren_bet_sim_df["結果"] - 100
-    umaren_bet_sim_df.loc[:, "購入金額"] = 100
-    umaren_bet_sim_df.loc[:, "年月日"] = pd.to_datetime(umaren_bet_sim_df["target_date"], format='%Y%m%d')
-    umaren_bet_daily_sim_df = umaren_bet_sim_df.groupby("年月日")["投資"].sum()
-    umaren_bet_daily_sim_df = umaren_bet_daily_sim_df.cumsum()
-    umaren_bet_daily_sim_df = umaren_bet_daily_sim_df.reset_index()
-    umaren_bet_monthly_sim_df = umaren_bet_sim_df.groupby("年月")[["購入金額", "結果", "投資"]].sum()
-    umaren_bet_monthly_sim_df.loc[:, "回収率"] = umaren_bet_monthly_sim_df.apply(lambda x: x["結果"] / x["購入金額"] * 100,
-                                                                              axis=1)
-    print(umaren_bet_monthly_sim_df.reset_index())
-    """
-
+    # av.export_bet_csv()
+    av.export_pbi_data()
+    sokuho = Sokuho(end_date, test_flag)
+    sokuho.export_pbi_real_data()

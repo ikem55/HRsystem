@@ -1062,6 +1062,29 @@ class JRAExtract(BaseExtract):
         return df
 
 
+    def get_sed_sokuho_df(self, filename):
+        names = ['RACE_KEY', 'UMABAN','着順', '異常区分', '確定単勝オッズ', '確定単勝人気順位']
+        if os.path.exists(self.jrdb_folder_path + 'sokuho/' + filename):
+            with open(self.jrdb_folder_path + 'sokuho/' + filename, 'r', encoding="ms932") as fh:
+                df = pd.DataFrame(index=[], columns=names)
+                for line in fh:
+                    new_line = self.replace_line(line)
+                    sr = pd.Series([
+                        new_line[0:8]  # RACE_KEY
+                        , self.str_null(new_line[8:10])  # UMABAN
+                        , self.int_0(new_line[140:142])  # CHAKUJUN
+                        , self.str_null(new_line[142:143])  # IJO_KUBUN
+                        , self.float_null(new_line[174:180])  # KAKUTEI_TANSHO_ODDS
+                        , self.int_0(new_line[180:182]) # KAKUTEI_TANSHO_NINKIJUN
+                    ], index=names)
+                    df = df.append(sr, ignore_index=True)
+            df = df.astype(
+                {'着順': 'int8', '確定単勝人気順位': 'int8'})
+        else:
+            df = pd.DataFrame()
+        return df
+
+
     def get_srb_df(self, filename):
         names = ['RACE_KEY', 'KAISAI_KEY', 'ハロンタイム０１', 'ハロンタイム０２', 'ハロンタイム０３', 'ハロンタイム０４', 'ハロンタイム０５', 'ハロンタイム０６', 'ハロンタイム０７', 'ハロンタイム０８', 'ハロンタイム０９', 'ハロンタイム１０',
                  'ハロンタイム１１', 'ハロンタイム１２', 'ハロンタイム１３', 'ハロンタイム１４', 'ハロンタイム１５', 'ハロンタイム１６', 'ハロンタイム１７', 'ハロンタイム１８', '１コーナー', '２コーナー', '３コーナー',
@@ -1250,6 +1273,100 @@ class JRAExtract(BaseExtract):
                 return f"{max_index + 5}" #f"L{max_index + 1}失速"
         else:
             return "9" #"その他"
+
+
+    def get_srb_sokuho_df(self, filename):
+        names = ['RACE_KEY', 'KAISAI_KEY', 'ハロンタイム０１', 'ハロンタイム０２', 'ハロンタイム０３', 'ハロンタイム０４', 'ハロンタイム０５', 'ハロンタイム０６', 'ハロンタイム０７', 'ハロンタイム０８', 'ハロンタイム０９', 'ハロンタイム１０',
+                 'ハロンタイム１１', 'ハロンタイム１２', 'ハロンタイム１３', 'ハロンタイム１４', 'ハロンタイム１５', 'ハロンタイム１６', 'ハロンタイム１７', 'ハロンタイム１８', '１コーナー', '２コーナー', '３コーナー',
+                      '４コーナー', 'ペースアップ位置', '１角１', '１角２', '１角３', '２角１', '２角２', '２角３', '向正１', '向正２', '向正３', '３角１', '３角２', '３角３', '４角０', '４角１', '４角２', '４角３',
+                 '４角４', '直線０', '直線１', '直線２', '直線３', '直線４', 'レースコメント', 'target_date']
+        print(filename)
+        if os.path.exists(self.jrdb_folder_path + 'sokuho/' + filename):
+            with open(self.jrdb_folder_path + 'sokuho/' + filename, 'r', encoding="ms932") as fh:
+                df = pd.DataFrame(index=[], columns=names)
+                for line in fh:
+                    new_line = self.replace_line(line)
+                    sr = pd.Series([
+                        new_line[0:8]  # RACE_KEY
+                        , new_line[0:6]  # KAISAI_KEY
+                        , self.int_0(new_line[8:11])  # HARON_01
+                        , self.int_0(new_line[11:14])  # HARON_02
+                        , self.int_0(new_line[14:17])  # HARON_03
+                        , self.int_0(new_line[17:20])  # HARON_04
+                        , self.int_0(new_line[20:23])  # HARON_05
+                        , self.int_0(new_line[23:26])  # HARON_06
+                        , self.int_0(new_line[26:29])  # HARON_07
+                        , self.int_0(new_line[29:32])  # HARON_08
+                        , self.int_0(new_line[32:35])  # HARON_09
+                        , self.int_0(new_line[35:38])  # HARON_10
+                        , self.int_0(new_line[38:41])  # HARON_11
+                        , self.int_0(new_line[41:44])  # HARON_12
+                        , self.int_0(new_line[44:47])  # HARON_13
+                        , self.int_0(new_line[47:50])  # HARON_14
+                        , self.int_0(new_line[50:53])  # HARON_15
+                        , self.int_0(new_line[53:56])  # HARON_16
+                        , self.int_0(new_line[56:59])  # HARON_17
+                        , self.int_0(new_line[59:62])  # HARON_18
+                        , self.str_null(new_line[62:126])  # CORNER_1
+                        , self.str_null(new_line[126:190])  # CORNER_2
+                        , self.str_null(new_line[190:254])  # CORNER_3
+                        , self.str_null(new_line[254:318])  # CORNER_4
+                        , self.int_null(new_line[318:320])  # PACE_UP_POINT
+                        , self.str_null(new_line[320:321])  # TRACK_BIAS_1KAKU
+                        , self.str_null(new_line[321:322])  # TRACK_BIAS_1KAKU
+                        , self.str_null(new_line[322:323])  # TRACK_BIAS_1KAKU
+                        , self.str_null(new_line[323:324])  # TRACK_BIAS_2KAKU
+                        , self.str_null(new_line[324:325])  # TRACK_BIAS_2KAKU
+                        , self.str_null(new_line[325:326])  # TRACK_BIAS_2KAKU
+                        , self.str_null(new_line[326:327])  # TRACK_BIAS_MUKAI
+                        , self.str_null(new_line[327:328])  # TRACK_BIAS_MUKAI
+                        , self.str_null(new_line[328:329])  # TRACK_BIAS_MUKAI
+                        , self.str_null(new_line[329:330])  # TRACK_BIAS_3KAKU
+                        , self.str_null(new_line[330:331])  # TRACK_BIAS_3KAKU
+                        , self.str_null(new_line[331:332])  # TRACK_BIAS_3KAKU
+                        , self.str_null(new_line[332:333])  # TRACK_BIAS_4KAKU
+                        , self.str_null(new_line[333:334])  # TRACK_BIAS_4KAKU
+                        , self.str_null(new_line[334:335])  # TRACK_BIAS_4KAKU
+                        , self.str_null(new_line[335:336])  # TRACK_BIAS_4KAKU
+                        , self.str_null(new_line[336:337])  # TRACK_BIAS_4KAKU
+                        , self.str_null(new_line[337:338])  # TRACK_BIAS_CHOKUSEN
+                        , self.str_null(new_line[338:339])  # TRACK_BIAS_CHOKUSEN
+                        , self.str_null(new_line[339:340])  # TRACK_BIAS_CHOKUSEN
+                        , self.str_null(new_line[340:341])  # TRACK_BIAS_CHOKUSEN
+                        , self.str_null(new_line[341:342])  # TRACK_BIAS_CHOKUSEN
+                        , self.str_null(new_line[342:842])#.replace(" ", "")  # RACE_COMMENT
+                        , self.get_kaisai_date(filename)  # NENGAPPI
+                    ], index=names)
+                    df = df.append(sr, ignore_index=True)
+            haron_list = ['ハロンタイム０１', 'ハロンタイム０２', 'ハロンタイム０３', 'ハロンタイム０４', 'ハロンタイム０５', 'ハロンタイム０６', 'ハロンタイム０７', 'ハロンタイム０８',
+                        'ハロンタイム０９', 'ハロンタイム１０',
+                        'ハロンタイム１１', 'ハロンタイム１２', 'ハロンタイム１３', 'ハロンタイム１４', 'ハロンタイム１５', 'ハロンタイム１６', 'ハロンタイム１７', 'ハロンタイム１８']
+            df.loc[:, "ラップリスト"] = df.apply(lambda x: x[haron_list].tolist(), axis=1)
+            df.loc[:, "ラップリスト"] = df["ラップリスト"].apply(lambda x: [s for s in x if s != 0])
+            df.loc[:, "ラスト５ハロン"] = df["ラップリスト"].apply(lambda x: x[-5] if len(x) >= 5 else 0)
+            df.loc[:, "ラスト４ハロン"] = df["ラップリスト"].apply(lambda x: x[-4] if len(x) >= 5 else 0)
+            df.loc[:, "ラスト３ハロン"] = df["ラップリスト"].apply(lambda x: x[-3] if len(x) >= 5 else 0)
+            df.loc[:, "ラスト２ハロン"] = df["ラップリスト"].apply(lambda x: x[-2] if len(x) >= 5 else 0)
+            df.loc[:, "ラスト１ハロン"] = df["ラップリスト"].apply(lambda x: x[-1] if len(x) >= 5 else 0)
+            df.loc[:, "ラップ差４ハロン"] = df["ラスト５ハロン"] - df["ラスト４ハロン"]
+            df.loc[:, "ラップ差３ハロン"] = df["ラスト４ハロン"] - df["ラスト３ハロン"]
+            df.loc[:, "ラップ差２ハロン"] = df["ラスト３ハロン"] - df["ラスト２ハロン"]
+            df.loc[:, "ラップ差１ハロン"] = df["ラスト２ハロン"] - df["ラスト１ハロン"]
+            df.loc[:, "abs_diff"] = df.apply(lambda x: np.abs([x["ラップ差４ハロン"], x["ラップ差３ハロン"], x["ラップ差２ハロン"], x["ラップ差１ハロン"]]), axis=1)
+            df.loc[:, "max_index"] = df["abs_diff"].apply(lambda x: np.argmax(x))
+            df.loc[:, "max_rap"] = df.apply(lambda x: x["ラップ差４ハロン"] if x["max_index"] == 0 else (x["ラップ差３ハロン"] if x["max_index"] == 1 else (x["ラップ差２ハロン"] if x["max_index"] == 2 else x["ラップ差１ハロン"])), axis=1)
+            df.loc[:, "RAP_TYPE"] = df.apply(lambda x: "一貫" if -5 <= x["max_rap"] <= 5  else (f"L{4 - x['max_index']}加速" if np.sign(x["max_rap"]) > 0 else f"L{4- x['max_index']}失速") , axis=1)
+            df.drop(["ラップリスト", "abs_diff", "max_index", "max_rap"], axis=1, inplace=True)
+            df = df.astype({'ハロンタイム０１': 'int16', 'ハロンタイム０２': 'int16', 'ハロンタイム０３': 'int16', 'ハロンタイム０４': 'int16',
+                            'ハロンタイム０５': 'int16',
+                            'ハロンタイム０６': 'int16', 'ハロンタイム０７': 'int16', 'ハロンタイム０８': 'int16', 'ハロンタイム０９': 'int16',
+                            'ハロンタイム１０': 'int16',
+                            'ハロンタイム１１': 'int16', 'ハロンタイム１２': 'int16', 'ハロンタイム１３': 'int16', 'ハロンタイム１４': 'int16',
+                            'ハロンタイム１５': 'int16',
+                            'ハロンタイム１６': 'int16', 'ハロンタイム１７': 'int16', 'ハロンタイム１８': 'int16'})
+        else:
+            df = pd.DataFrame()
+        return df
 
 
     def get_skb_df(self, filename, type):
@@ -1563,6 +1680,245 @@ class JRAExtract(BaseExtract):
             shutil.move(self.jrdb_folder_path + 'HJC/' + filename, self.jrdb_folder_path + 'backup/' + filename)
         return df
 
+    def get_hjc_sokuho_df(self, filename):
+        names = ['RACE_KEY', '単勝馬番１', '単勝払戻１', '単勝馬番２', '単勝払戻２', '単勝馬番３', '単勝払戻３', '複勝馬番１', '複勝払戻１', '複勝馬番２', '複勝払戻２', '複勝馬番３', '複勝払戻３', '複勝馬番４', '複勝払戻４',
+                 '複勝馬番５', '複勝払戻５', '枠連馬番１１', '枠連馬番１２', '枠連払戻１', '枠連馬番２１', '枠連馬番２２', '枠連払戻２', '枠連枠番３１', '枠連枠番３２', '枠連払戻３', '馬連馬番１１', '馬連馬番１２', '馬連払戻１',
+                 '馬連馬番２１', '馬連馬番２２', '馬連払戻２', '馬連馬番３１', '馬連馬番３２', '馬連払戻３', 'ワイド馬番１１', 'ワイド馬番１２', 'ワイド払戻１', 'ワイド馬番２１', 'ワイド馬番２２', 'ワイド払戻２', 'ワイド馬番３１',
+                 'ワイド馬番３２', 'ワイド払戻３', 'ワイド馬番４１', 'ワイド馬番４２', 'ワイド払戻４', 'ワイド馬番５１', 'ワイド馬番５２', 'ワイド払戻５', 'ワイド馬番６１', 'ワイド馬番６２', 'ワイド払戻６', 'ワイド馬番７１',
+                 'ワイド馬番７２', 'ワイド払戻７', '馬単馬番１１', '馬単馬番１２',
+                      '馬単払戻１', '馬単馬番２１', '馬単馬番２２', '馬単払戻２', '馬単馬番３１', '馬単馬番３２', '馬単払戻３', '馬単馬番４１', '馬単馬番４２', '馬単払戻４', '馬単馬番５１', '馬単馬番５２', '馬単払戻５', '馬単馬番６１',
+                 '馬単馬番６２', '馬単払戻６', '３連複馬番１１', '３連複馬番１２', '３連複馬番１３', '３連複払戻１', '３連複馬番２１', '３連複馬番２２', '３連複馬番２３', '３連複払戻２', '３連複馬番３１', '３連複馬番３２', '３連複馬番３３',
+                 '３連複払戻３', '３連単馬番１１', '３連単馬番１２', '３連単馬番１３', '３連単払戻１', '３連単馬番２１', '３連単馬番２２', '３連単馬番２３', '３連単払戻２', '３連単馬番３１', '３連単馬番３２', '３連単馬番３３', '３連単払戻３',
+                 '３連単馬番４１', '３連単馬番４２', '３連単馬番４３', '３連単払戻４', '３連単馬番５１', '３連単馬番５２', '３連単馬番５３', '３連単払戻５', '３連単馬番６１', '３連単馬番６２', '３連単馬番６３', '３連単払戻６', 'target_date']
+        print(filename)
+        with open(self.jrdb_folder_path + 'sokuho/' + filename, 'r', encoding="ms932") as fh:
+            df = pd.DataFrame(index=[], columns=names)
+            for line in fh:
+                new_line = self.replace_line(line)
+                sr = pd.Series([
+                    new_line[0:8]  # RACE_KEY
+                    # TANSHO1_UMABAN
+                    # TANSHO1_HARAIMODOSHI
+                    # TANSHO2_UMABAN
+                    # TANSHO2_HARAIMODOSHI
+                    # TANSHO3_UMABAN
+                    # TANSHO3_HARAIMODOSHI
+                    # FUKUSHO1_UMABAN
+                    # FUKUAHO1_HARAIMODOSHI
+                    # FUKUSHO2_UMABAN
+                    # FUKUAHO2_HARAIMODOSHI
+                    # FUKUSHO3_UMABAN
+                    # FUKUAHO3_HARAIMODOSHI
+                    # FUKUSHO4_UMABAN
+                    # FUKUAHO4_HARAIMODOSHI
+                    # FUKUSHO5_UMABAN
+                    # FUKUAHO5_HARAIMODOSHI
+                    # WAKUREN1_WAKUBAN1
+                    # WAKUREN1_WAKUBAN2
+                    # WAKUREN1_HARAIMODOSHI
+                    # WAKUREN2_WAKUBAN1
+                    # WAKUREN2_WAKUBAN2
+                    # WAKUREN2_HARAIMODOSHI
+                    # WAKUREN3_WAKUBAN1
+                    # WAKUREN3_WAKUBAN2
+                    # WAKUREN3_HARAIMODOSHI
+                    # UMAREN1_UMABAN1
+                    # UMAREN1_UMABAN2
+                    # UMAREN1_HARAIMODOSHI
+                    # UMAREN2_UMABAN1
+                    # UMAREN2_UMABAN2
+                    # UMAREN2_HARAIMODOSHI
+                    # UMAREN3_UMABAN1
+                    # UMAREN3_UMABAN2
+                    # UMAREN3_HARAIMODOSHI
+                    # WIDE1_UMABAN1
+                    # WIDE1_UMABAN2
+                    # WIDE1_HARAIMODOSHI
+                    # WIDE2_UMABAN1
+                    # WIDE2_UMABAN2
+                    # WIDE2_HARAIMODOSHI
+                    # WIDE3_UMABAN1
+                    # WIDE3_UMABAN2
+                    # WIDE3_HARAIMODOSHI
+                    # WIDE4_UMABAN1
+                    # WIDE4_UMABAN2
+                    # WIDE4_HARAIMODOSHI
+                    # WIDE5_UMABAN1
+                    # WIDE5_UMABAN2
+                    # WIDE5_HARAIMODOSHI
+                    # WIDE6_UMABAN1
+                    # WIDE6_UMABAN2
+                    # WIDE6_HARAIMODOSHI
+                    # WIDE7_UMABAN1
+                    # WIDE7_UMABAN2
+                    # WIDE7_HARAIMODOSHI
+                    # UMATAN1_UMABAN1
+                    # UMATAN1_UMABAN2
+                    # UMATAN1_HARAIMODOSHI
+                    # UMATAN2_UMABAN1
+                    # UMATAN2_UMABAN2
+                    # UMATAN2_HARAIMODOSHI
+                    # UMATAN3_UMABAN1
+                    # UMATAN3_UMABAN2
+                    # UMATAN3_HARAIMODOSHI
+                    # UMATAN4_UMABAN1
+                    # UMATAN4_UMABAN2
+                    # UMATAN4_HARAIMODOSHI
+                    # UMATAN5_UMABAN1
+                    # UMATAN5_UMABAN2
+                    # UMATAN5_HARAIMODOSHI
+                    # UMATAN6_UMABAN1
+                    # UMATAN6_UMABAN2
+                    # UMATAN6_HARAIMODOSHI
+                    # SANRENPUKU1_UMABAN1
+                    # SANRENPUKU1_UMABAN2
+                    # SANRENPUKU1_UMABAN3
+                    # SANRENPUKU1_HARAIMODOSHI
+                    # SANRENPUKU2_UMABAN1
+                    # SANRENPUKU2_UMABAN2
+                    # SANRENPUKU2_UMABAN3
+                    # SANRENPUKU2_HARAIMODOSHI
+                    # SANRENPUKU3_UMABAN1
+                    # SANRENPUKU3_UMABAN2
+                    # SANRENPUKU3_UMABAN3
+                    # SANRENPUKU3_HARAIMODOSHI
+                    # SANRENTAN1_UMABAN1
+                    # SANRENTAN1_UMABAN2
+                    # SANRENTAN1_UMABAN3
+                    # SANRENTAN1_HARAIMODOSHI
+                    # SANRENTAN2_UMABAN1
+                    # SANRENTAN2_UMABAN2
+                    # SANRENTAN2_UMABAN3
+                    # SANRENTAN2_HARAIMODOSHI
+                    # SANRENTAN3_UMABAN1
+                    # SANRENTAN3_UMABAN2
+                    # SANRENTAN3_UMABAN3
+                    # SANRENTAN3_HARAIMODOSHI
+                    # SANRENTAN4_UMABAN1
+                    # SANRENTAN4_UMABAN2
+                    # SANRENTAN4_UMABAN3
+                    # SANRENTAN4_HARAIMODOSHI
+                    # SANRENTAN5_UMABAN1
+                    # SANRENTAN5_UMABAN2
+                    # SANRENTAN5_UMABAN3
+                    # SANRENTAN5_HARAIMODOSHI
+                    # SANRENTAN6_UMABAN1
+                    # SANRENTAN6_UMABAN2
+                    # SANRENTAN6_UMABAN3
+                    # SANRENTAN6_HARAIMODOSHI
+                    ,               new_line[8 + 2 * 0 + 7 * 0: 8 + 2 * 1 + 7 * 0]
+                    , self.int_0(new_line[8 + 2 * 1 + 7 * 0: 8 + 2 * 1 + 7 * 1])
+                    ,               new_line[8 + 2 * 1 + 7 * 1: 8 + 2 * 2 + 7 * 1]
+                    , self.int_0(new_line[8 + 2 * 2 + 7 * 1: 8 + 2 * 2 + 7 * 2])
+                    ,               new_line[8 + 2 * 2 + 7 * 2: 8 + 2 * 3 + 7 * 2]
+                    , self.int_0(new_line[8 + 2 * 3 + 7 * 2: 8 + 2 * 3 + 7 * 3])
+                    ,               new_line[35 + 2 * 0 + 7 * 0: 35 + 2 * 1 + 7 * 0]
+                    , self.int_0(new_line[35 + 2 * 1 + 7 * 0: 35 + 2 * 1 + 7 * 1])
+                    ,               new_line[35 + 2 * 1 + 7 * 1: 35 + 2 * 2 + 7 * 1]
+                    , self.int_0(new_line[35 + 2 * 2 + 7 * 1: 35 + 2 * 2 + 7 * 2])
+                    ,               new_line[35 + 2 * 2 + 7 * 2: 35 + 2 * 3 + 7 * 2]
+                    , self.int_0(new_line[35 + 2 * 3 + 7 * 2: 35 + 2 * 3 + 7 * 3])
+                    ,               new_line[35 + 2 * 3 + 7 * 3: 35 + 2 * 4 + 7 * 3]
+                    , self.int_0(new_line[35 + 2 * 4 + 7 * 3: 35 + 2 * 4 + 7 * 4])
+                    ,               new_line[35 + 2 * 4 + 7 * 4: 35 + 2 * 5 + 7 * 4]
+                    , self.int_0(new_line[35 + 2 * 5 + 7 * 4: 35 + 2 * 5 + 7 * 5])
+                    ,               new_line[80 + 1 * 0 + 7 * 0: 80 + 1 * 1 + 7 * 0]
+                    ,               new_line[80 + 1 * 1 + 7 * 0: 80 + 1 * 2 + 7 * 0]
+                    , self.int_0(new_line[80 + 1 * 2 + 7 * 0: 80 + 1 * 2 + 7 * 1])
+                    ,               new_line[80 + 1 * 2 + 7 * 1: 80 + 1 * 3 + 7 * 1]
+                    ,               new_line[80 + 1 * 3 + 7 * 1: 80 + 1 * 4 + 7 * 1]
+                    , self.int_0(new_line[80 + 1 * 4 + 7 * 1: 80 + 1 * 4 + 7 * 2])
+                    ,               new_line[80 + 1 * 4 + 7 * 2: 80 + 1 * 5 + 7 * 2]
+                    ,               new_line[80 + 1 * 5 + 7 * 2: 80 + 1 * 6 + 7 * 2]
+                    , self.int_0(new_line[80 + 1 * 6 + 7 * 2: 80 + 1 * 6 + 7 * 3])
+                    ,               new_line[107 + 2 * 0 + 8 * 0:107 + 2 * 1 + 8 * 0]
+                    ,               new_line[107 + 2 * 1 + 8 * 0:107 + 2 * 2 + 8 * 0]
+                    , self.int_0(new_line[107 + 2 * 2 + 8 * 0:107 + 2 * 2 + 8 * 1])
+                    ,               new_line[107 + 2 * 2 + 8 * 1:107 + 2 * 3 + 8 * 1]
+                    ,               new_line[107 + 2 * 3 + 8 * 1:107 + 2 * 4 + 8 * 1]
+                    , self.int_0(new_line[107 + 2 * 4 + 8 * 1:107 + 2 * 4 + 8 * 2])
+                    ,               new_line[107 + 2 * 4 + 8 * 2:107 + 2 * 5 + 8 * 2]
+                    ,               new_line[107 + 2 * 5 + 8 * 2:107 + 2 * 6 + 8 * 2]
+                    , self.int_0(new_line[107 + 2 * 6 + 8 * 2:107 + 2 * 6 + 8 * 3])
+                    ,               new_line[143 + 2 * 0 + 8 * 0: 143 + 2 * 1 + 8 * 0]
+                    ,               new_line[143 + 2 * 1 + 8 * 0: 143 + 2 * 2 + 8 * 0]
+                    , self.int_0(new_line[143 + 2 * 2 + 8 * 0: 143 + 2 * 2 + 8 * 1])
+                    ,               new_line[143 + 2 * 2 + 8 * 1: 143 + 2 * 3 + 8 * 1]
+                    ,               new_line[143 + 2 * 3 + 8 * 1: 143 + 2 * 4 + 8 * 1]
+                    , self.int_0(new_line[143 + 2 * 4 + 8 * 1: 143 + 2 * 4 + 8 * 2])
+                    ,               new_line[143 + 2 * 4 + 8 * 2: 143 + 2 * 5 + 8 * 2]
+                    ,               new_line[143 + 2 * 5 + 8 * 2: 143 + 2 * 6 + 8 * 2]
+                    , self.int_0(new_line[143 + 2 * 6 + 8 * 2: 143 + 2 * 6 + 8 * 3])
+                    ,               new_line[143 + 2 * 6 + 8 * 3: 143 + 2 * 7 + 8 * 3]
+                    ,               new_line[143 + 2 * 7 + 8 * 3: 143 + 2 * 8 + 8 * 3]
+                    , self.int_0(new_line[143 + 2 * 8 + 8 * 3: 143 + 2 * 8 + 8 * 4])
+                    ,               new_line[143 + 2 * 8 + 8 * 4: 143 + 2 * 9 + 8 * 4]
+                    ,               new_line[143 + 2 * 9 + 8 * 4: 143 + 2 * 10 + 8 * 4]
+                    , self.int_0(new_line[143 + 2 * 10 + 8 * 4: 143 + 2 * 10 + 8 * 5])
+                    ,               new_line[143 + 2 * 10 + 8 * 5: 143 + 2 * 11 + 8 * 5]
+                    ,               new_line[143 + 2 * 11 + 8 * 5: 143 + 2 * 12 + 8 * 5]
+                    , self.int_0(new_line[143 + 2 * 12 + 8 * 5: 143 + 2 * 12 + 8 * 6])
+                    ,               new_line[143 + 2 * 12 + 8 * 6: 143 + 2 * 13 + 8 * 6]
+                    ,               new_line[143 + 2 * 13 + 8 * 6: 143 + 2 * 14 + 8 * 6]
+                    , self.int_0(new_line[143 + 2 * 14 + 8 * 6: 143 + 2 * 14 + 8 * 7])
+                    ,               new_line[227 + 2 * 0 + 8 * 0: 227 + 2 * 1 + 8 * 0]
+                    ,               new_line[227 + 2 * 1 + 8 * 0: 227 + 2 * 2 + 8 * 0]
+                    , self.int_0(new_line[227 + 2 * 2 + 8 * 0: 227 + 2 * 2 + 8 * 1])
+                    ,               new_line[227 + 2 * 2 + 8 * 1: 227 + 2 * 3 + 8 * 1]
+                    ,               new_line[227 + 2 * 3 + 8 * 1: 227 + 2 * 4 + 8 * 1]
+                    , self.int_0(new_line[227 + 2 * 4 + 8 * 1: 227 + 2 * 4 + 8 * 2])
+                    ,               new_line[227 + 2 * 4 + 8 * 2: 227 + 2 * 5 + 8 * 2]
+                    ,               new_line[227 + 2 * 5 + 8 * 2: 227 + 2 * 6 + 8 * 2]
+                    , self.int_0(new_line[227 + 2 * 6 + 8 * 2: 227 + 2 * 6 + 8 * 3])
+                    ,               new_line[227 + 2 * 6 + 8 * 3: 227 + 2 * 7 + 8 * 3]
+                    ,               new_line[227 + 2 * 7 + 8 * 3: 227 + 2 * 8 + 8 * 3]
+                    , self.int_0(new_line[227 + 2 * 8 + 8 * 3: 227 + 2 * 8 + 8 * 4])
+                    ,               new_line[227 + 2 * 8 + 8 * 4: 227 + 2 * 9 + 8 * 4]
+                    ,               new_line[227 + 2 * 9 + 8 * 4: 227 + 2 * 10 + 8 * 4]
+                    , self.int_0(new_line[227 + 2 * 10 + 8 * 4: 227 + 2 * 10 + 8 * 5])
+                    ,               new_line[227 + 2 * 10 + 8 * 5: 227 + 2 * 11 + 8 * 5]
+                    ,               new_line[227 + 2 * 11 + 8 * 5: 227 + 2 * 12 + 8 * 5]
+                    , self.int_0(new_line[227 + 2 * 12 + 8 * 5: 227 + 2 * 12 + 8 * 6])
+                    ,               new_line[299 + 2 * 0 + 8 * 0: 299 + 2 * 1 + 8 * 0]
+                    ,               new_line[299 + 2 * 1 + 8 * 0: 299 + 2 * 2 + 8 * 0]
+                    ,               new_line[299 + 2 * 2 + 8 * 0: 299 + 2 * 3 + 8 * 0]
+                    , self.int_0(new_line[299 + 2 * 3 + 8 * 0: 299 + 2 * 3 + 8 * 1])
+                    ,               new_line[299 + 2 * 3 + 8 * 1: 299 + 2 * 4 + 8 * 1]
+                    ,               new_line[299 + 2 * 4 + 8 * 1: 299 + 2 * 5 + 8 * 1]
+                    ,               new_line[299 + 2 * 5 + 8 * 1: 299 + 2 * 6 + 8 * 1]
+                    , self.int_0(new_line[299 + 2 * 6 + 8 * 1: 299 + 2 * 6 + 8 * 2])
+                    ,               new_line[299 + 2 * 6 + 8 * 2: 299 + 2 * 7 + 8 * 2]
+                    ,               new_line[299 + 2 * 7 + 8 * 2: 299 + 2 * 8 + 8 * 2]
+                    ,               new_line[299 + 2 * 8 + 8 * 2: 299 + 2 * 9 + 8 * 2]
+                    , self.int_0(new_line[299 + 2 * 9 + 8 * 2: 299 + 2 * 9 + 8 * 3])
+                    ,               new_line[341 + 2 * 0 + 9 * 0: 341 + 2 * 1 + 9 * 0]
+                    ,               new_line[341 + 2 * 1 + 9 * 0: 341 + 2 * 2 + 9 * 0]
+                    ,               new_line[341 + 2 * 2 + 9 * 0: 341 + 2 * 3 + 9 * 0]
+                    , self.int_0(new_line[341 + 2 * 3 + 9 * 0: 341 + 2 * 3 + 9 * 1])
+                    ,               new_line[341 + 2 * 3 + 9 * 1: 341 + 2 * 4 + 9 * 1]
+                    ,               new_line[341 + 2 * 4 + 9 * 1: 341 + 2 * 5 + 9 * 1]
+                    ,               new_line[341 + 2 * 5 + 9 * 1: 341 + 2 * 6 + 9 * 1]
+                    , self.int_0(new_line[341 + 2 * 6 + 9 * 1: 341 + 2 * 6 + 9 * 2])
+                    ,               new_line[341 + 2 * 6 + 9 * 2: 341 + 2 * 7 + 9 * 2]
+                    ,               new_line[341 + 2 * 7 + 9 * 2: 341 + 2 * 8 + 9 * 2]
+                    ,               new_line[341 + 2 * 8 + 9 * 2: 341 + 2 * 9 + 9 * 2]
+                    , self.int_0(new_line[341 + 2 * 9 + 9 * 2: 341 + 2 * 9 + 9 * 3])
+                    ,               new_line[341 + 2 * 9 + 9 * 3: 341 + 2 * 10 + 9 * 3]
+                    ,               new_line[341 + 2 * 10 + 9 * 3: 341 + 2 * 11 + 9 * 3]
+                    ,               new_line[341 + 2 * 11 + 9 * 3: 341 + 2 * 12 + 9 * 3]
+                    , self.int_0(new_line[341 + 2 * 12 + 9 * 3: 341 + 2 * 12 + 9 * 4])
+                    ,               new_line[341 + 2 * 12 + 9 * 4: 341 + 2 * 13 + 9 * 4]
+                    ,               new_line[341 + 2 * 13 + 9 * 4: 341 + 2 * 14 + 9 * 4]
+                    ,               new_line[341 + 2 * 14 + 9 * 4: 341 + 2 * 15 + 9 * 4]
+                    , self.int_0(new_line[341 + 2 * 15 + 9 * 4: 341 + 2 * 15 + 9 * 5])
+                    ,               new_line[341 + 2 * 15 + 9 * 5: 341 + 2 * 16 + 9 * 5]
+                    ,               new_line[341 + 2 * 16 + 9 * 5: 341 + 2 * 17 + 9 * 5]
+                    ,               new_line[341 + 2 * 17 + 9 * 5: 341 + 2 * 18 + 9 * 5]
+                    , self.int_0(new_line[341 + 2 * 18 + 9 * 5: 341 + 2 * 18 + 9 * 6])
+                    , self.get_kaisai_date(filename)  # NENGAPPI
+                ], index=names)
+                df = df.append(sr, ignore_index=True)
+        return df
 
     def get_tyb_df(self, filename):
         names = ['RACE_KEY', 'UMABAN', 'オッズ指数', 'パドック指数', '総合指数', '馬具変更情報', '脚元情報', '取消フラグ', '騎手コード', '馬場状態コード',
@@ -1600,6 +1956,40 @@ class JRAExtract(BaseExtract):
                     df = df.append(sr, ignore_index=True)
             df.to_pickle(self.jrdb_folder_path + 'TYB/' + filename + ".pkl")
             shutil.move(self.jrdb_folder_path + 'TYB/' + filename, self.jrdb_folder_path + 'backup/' + filename)
+        return df
+
+
+    def get_tyb_sokuho_df(self, filename):
+        names = ['RACE_KEY', 'UMABAN', 'オッズ指数', 'パドック指数', '総合指数', '馬具変更情報', '脚元情報', '取消フラグ', '騎手コード', '馬場状態コード',
+                      '天候コード', '単勝オッズ', '複勝オッズ', 'オッズ取得時間', '馬体重', '馬体重増減', 'オッズ印', 'パドック印', '直前総合印', 'target_date']
+        print(filename)
+        with open(self.jrdb_folder_path + 'sokuho/' + filename, 'r', encoding="ms932") as fh:
+            df = pd.DataFrame(index=[], columns=names)
+            for line in fh:
+                new_line = self.replace_line(line)
+                sr = pd.Series([
+                    new_line[0:8]  # RACE_KEY
+                    , self.str_null(new_line[8:10])  # UMABAN
+                    , self.float_null(new_line[25:30])  # ODDS_RECORD
+                    , self.float_null(new_line[30:35])  # PADOC_RECORD
+                    , self.float_null(new_line[40:45])  # TOTAL_RECORD
+                    , self.str_null(new_line[45:46])  # BAGU_HENOU
+                    , self.str_null(new_line[46:47])  # ASHIMOTO_JOHO
+                    , self.str_null(new_line[47:48])  # TORIKESHI_FLAG
+                    , self.str_null(new_line[48:53])  # KISHU_CODE
+                    , self.str_null(new_line[69:71])  # BABA_JOTAI_CODE
+                    , self.str_null(new_line[71:72])  # TENKO_CODE
+                    , self.float_null(new_line[72:78])  # TANSHO_ODDS
+                    , self.float_null(new_line[78:84])  # FUKUSHO_ODDS
+                    , self.str_null(new_line[84:88])  # ODDS_TIME
+                    , self.int_0(new_line[88:91])  # BATAIJU
+                    , self.int_bataiju_zogen(new_line[91:94])  # ZOGEN
+                    , self.str_null(new_line[94:95])  # ODDS_MARK
+                    , self.str_null(new_line[95:96])  # PADOC_MARK
+                    , self.str_null(new_line[96:97])  # CHOKUZEN_MARK
+                    , self.get_kaisai_date(filename)  # target_date
+                ], index=names)
+                df = df.append(sr, ignore_index=True)
         return df
 
 
