@@ -675,10 +675,16 @@ if __name__ == "__main__":
         end_date = (dt.now() + timedelta(days=1)).strftime('%Y/%m/%d')
         term_start_date = (dt.now() + timedelta(days=-9)).strftime('%Y%m%d')
         term_end_date = (dt.now() + timedelta(days=1)).strftime('%Y%m%d')
+    elif mode == "sokuho":
+        start_date = (dt.now() + timedelta(days=-90)).strftime('%Y/%m/%d')
+        end_date = (dt.now() + timedelta(days=1)).strftime('%Y/%m/%d')
+        term_start_date = (dt.now()).strftime('%Y%m%d')
+        term_end_date = (dt.now()).strftime('%Y%m%d')
+        sokuho = Sokuho(end_date, test_flag)
+        sokuho.export_pbi_real_data()
+
     print("MODE:" + str(args[1]) + "  update_start_date:" + term_start_date + " update_end_date:" + term_end_date)
 
     av = AutoVote(start_date, end_date, term_start_date, term_end_date, test_flag)
-    # av.export_bet_csv()
+    av.export_bet_csv()
     av.export_pbi_data()
-    sokuho = Sokuho(end_date, test_flag)
-    sokuho.export_pbi_real_data()
