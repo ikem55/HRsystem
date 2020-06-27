@@ -60,7 +60,10 @@ class JRASkModel(BaseSkModel):
                     for date in date_list:
                         target_df = pred_df[pred_df["target_date"] == date]
                         target_df = target_df.sort_values(["RACE_KEY", "target", "predict_rank"])
-                        target_df.to_pickle(self.pred_folder + target + "_" + date + ".pickle")
+                        if len(target_df["RACE_KEY"].drop_duplicates().tolist()) <= 10:
+                            print("数が少ないのでスキップ")
+                        else:
+                            target_df.to_pickle(self.pred_folder + target + "_" + date + ".pickle")
                     all_df = pd.concat([all_df, pred_df]).round(3)
         return all_df
 

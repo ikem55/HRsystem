@@ -1093,7 +1093,7 @@ class JRAExtract(BaseExtract):
         if filename[-3:] == "pkl":
             df = pd.read_pickle(self.jrdb_folder_path + 'SRB/' + filename)
         else:
-            print(filename)
+            # print(filename)
             if os.path.exists(self.jrdb_folder_path + 'SRB/' + filename):
                 with open(self.jrdb_folder_path + 'SRB/' + filename, 'r', encoding="ms932") as fh:
                     df = pd.DataFrame(index=[], columns=names)

@@ -94,7 +94,6 @@ class PbiExport():
         race_df.loc[:, "芝種類"] = race_df["芝種類"].apply(lambda x: mu.convert_shibatype(x))
         race_df.loc[:, "コース名"] = race_df.apply(lambda x: self._get_course_name(x), axis=1)
         race_df.drop(["芝ダ障害コード", "芝馬場状態コード", "ダ馬場状態コード", "天候コード", "内外"], axis=1, inplace=True)
-        print(race_df.iloc[0])
         ym_list = race_df["年月"].drop_duplicates()
         for ym in ym_list:
             temp_df = race_df.query(f"年月 == '{ym}'").copy()
@@ -134,7 +133,6 @@ class PbiExport():
         raceuma_df.loc[:, "母父系統"] = raceuma_df["母父系統コード"].apply(lambda x: mu.convert_keito(x))
         raceuma_df.loc[:, "UMA_KEY"] = raceuma_df["血統登録番号"]
         raceuma_df.drop(["血統登録番号", "NENGAPPI", "性別コード", "レース脚質", "父系統コード", "母父系統コード"], axis=1, inplace=True)
-        print(raceuma_df.iloc[0])
         ym_list = raceuma_df["年月"].drop_duplicates()
         for ym in ym_list:
             temp_df = raceuma_df.query(f"年月 == '{ym}'").copy()

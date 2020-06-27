@@ -36,7 +36,8 @@ class JrdbDownload(object):
         print("============== DOWNLOAD JRDB SOKUHO ====================")
         self.download_path = mc.return_jrdb_path() + "jrdb_data/sokuho/"
         self.archive_path = mc.return_jrdb_path() + "jrdb_data/sokuho/archive/"
-        typelist = ["TYB", "SED", "HJC"]
+        # typelist = ["TYB", "SED", "HJC"]
+        typelist = ["SED", "HJC"]
         target_date = dt.date.today().strftime('%Y%m%d')
         print(target_date)
         for type in typelist:

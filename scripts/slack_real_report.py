@@ -14,6 +14,14 @@ post_text = ''
 
 now_time = dt.now()
 
+def export_to_dropbox():
+    start_date = dt.now().strftime('%Y/%m') + '/01'
+    end_date = dt.now().strftime('%Y/%m/%d')
+    mock_flag = False
+    rep = LBReport(start_date, end_date, mock_flag)
+    rep.export_bet_df()
+    rep.export_raceuma_df()
+
 def post_summary():
     n = -60
     start_date = (dt.now() + timedelta(days=n)).strftime('%Y/%m/%d')
@@ -60,6 +68,7 @@ if rep.check_flag:
     print(rep.final_race_time)
     if now_time > rep.final_race_time:
         print("ok")
+        export_to_dropbox()
         post_summary()
         slack.stop_hrsystem_vm()
 

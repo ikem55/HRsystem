@@ -1,8 +1,10 @@
 from modules.base_extract import BaseExtract
 from modules.lb_extract import LBExtract
 import modules.util as mu
+import my_config as mc
 
 import pandas as pd
+import dropbox
 from datetime import datetime as dt
 
 
@@ -27,7 +29,7 @@ class BaseReport(object):
 
     def _set__bet_df(self):
         base_bet_df = self.ext.get_bet_table_base()
-        bet_df = base_bet_df[["式別", "日付", "結果", "金額"]].copy()
+        bet_df = base_bet_df[["競走コード", "式別", "日付", "結果", "金額"]].copy()
         bet_df.loc[:, "結果"] = bet_df["結果"] * bet_df["金額"] / 100
         self.bet_df = bet_df
 
@@ -293,6 +295,35 @@ class LBReport(BaseReport):
         self.end_date = end_date
         self.ext = LBExtract(start_date, end_date, mock_flag)
         self._set_predata()
+        self.dbx = dropbox.Dropbox(mc.DROPBOX_KEY)
+
+    def export_bet_df(self):
+        bet_df = self.bet_df
+        bet_df.loc[:, "月日"] = bet_df["日付"].apply(lambda x: str(x.year) + str(x.month))
+        month_list = bet_df["月日"].drop_duplicates().tolist()
+        print(month_list)
+        folder_path = "/pbi/lb_bet/"
+        local_folder_path = "./scripts/data/lb_bet/"
+        for month in month_list:
+            temp_df = bet_df.query(f"月日 == '{month}'")
+            file_name = local_folder_path + month + ".csv"
+            temp_df.to_csv(file_name, header=True, index=False)
+#            with open(file_name, 'rb') as f:
+#                self.dbx.files_upload(f.read(), folder_path + month + ".csv")
+
+    def export_raceuma_df(self):
+        raceuma_df = self.raceuma_df[["競走コード", "馬番", "年月日", "得点", "馬券評価順位", "単勝配当", "複勝配当", "WIN_RATE", "JIKU_RATE", "ANA_RATE", "WIN_RANK", "JIKU_RANK", "ANA_RANK", "SCORE", "SCORE_RANK", "ck1", "ck2", "ck3", "場名", "距離"]].copy()
+        raceuma_df.loc[:, "月日"] = raceuma_df["年月日"].apply(lambda x: str(x.year) + str(x.month))
+        month_list = raceuma_df["月日"].drop_duplicates().tolist()
+        print(month_list)
+        folder_path = "/pbi/lb_raceuma/"
+        local_folder_path = "./scripts/data/lb_raceuma/"
+        for month in month_list:
+            temp_df = raceuma_df.query(f"月日 == '{month}'")
+            file_name = local_folder_path + month + ".csv"
+            temp_df.to_csv(file_name, header=True, index=False)
+            with open(file_name, 'rb') as f:
+                self.dbx.files_upload(f.read(), folder_path + month + ".csv")
 
 """
 pd.set_option('display.max_columns', 200)

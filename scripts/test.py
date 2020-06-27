@@ -1,9 +1,20 @@
+from modules.base_report import LBReport
 import pandas as pd
-from modules.jra_extract import JRAExtract
-start_date = '2019/01/01'
-end_date = '2020/06/20'
-mock_flag = False
-ext = JRAExtract(start_date, end_date, mock_flag)
+from datetime import datetime as dt
+from datetime import timedelta
 pd.set_option('display.max_columns', 3000)
 pd.set_option('display.max_rows', 3000)
 
+n = 0
+start_date = (dt.now() + timedelta(days=n)).strftime('%Y/%m/%d')
+end_date = dt.now().strftime('%Y/%m') + '/01'
+
+print(start_date)
+print(end_date)
+#br = LBReport(start_date, end_date, False)
+
+#print(br.bet_df.head())
+#print(br.haraimodoshi_dict)
+#print(br.raceuma_df.iloc[0])
+
+#br.export_raceuma_df()

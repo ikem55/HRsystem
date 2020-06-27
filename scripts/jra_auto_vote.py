@@ -558,7 +558,6 @@ class AutoVote(Simlation):
 
     def export_pbi_data(self):
         race_df = self.ld.race_df.copy()
-        print(race_df.iloc[0])
         race_df.loc[:, "場名"] = race_df["場名"].apply(lambda x: mu.convert_basho(x))
         race_df.loc[:, "レースNo"] = race_df["RACE_KEY"].str[6:8]
         race_df.loc[:, "種別"] = race_df["種別"].apply(lambda x: mu.convert_shubetsu(x))
@@ -570,8 +569,6 @@ class AutoVote(Simlation):
         race_df.to_csv(self.auto_bet_path + "race.csv", index=False, header=True)
         raceuma_df = self.ld.ext.get_raceuma_before_table_base()[["RACE_KEY", "UMABAN", "基準オッズ", "騎手名", "調教師名", "馬名"]].copy()
         raceuma_df = pd.merge(raceuma_df, self.target_mark_df, on=["RACE_KEY", "UMABAN"])
-        print(race_df.iloc[0])
-        print(raceuma_df.iloc[0])
         raceuma_df.to_csv(self.auto_bet_path + "raceuma.csv", index=False, header=True)
 
     def _convert_joken(self, joken):
@@ -596,8 +593,8 @@ class Sokuho(object):
         self.auto_bet_path = self.target_path + 'AUTO_BET/'
 
     def export_pbi_real_data(self):
-        #jrdb = JrdbDownload()
-        #jrdb.procedure_download_sokuho()
+        jrdb = JrdbDownload()
+        jrdb.procedure_download_sokuho()
         filelist = os.listdir(self.dict_path + "jrdb_data/sokuho/")
         for file in filelist:
             if file[0:3] == "SED":
