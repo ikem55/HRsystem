@@ -20,6 +20,7 @@ def export_to_dropbox():
     mock_flag = False
     rep = LBReport(start_date, end_date, mock_flag)
     rep.export_bet_df()
+    rep.export_race_df()
     rep.export_raceuma_df()
 
 def post_summary():
