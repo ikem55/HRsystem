@@ -308,8 +308,8 @@ class LBReport(BaseReport):
             temp_df = bet_df.query(f"月日 == '{month}'")
             file_name = local_folder_path + month + ".csv"
             temp_df.to_csv(file_name, header=True, index=False)
-#            with open(file_name, 'rb') as f:
-#                self.dbx.files_upload(f.read(), folder_path + month + ".csv")
+            with open(file_name, 'rb') as f:
+                self.dbx.files_upload(f.read(), folder_path + month + ".csv")
 
     def export_raceuma_df(self):
         raceuma_df = self.raceuma_df[["競走コード", "馬番", "年月日", "得点", "馬券評価順位", "単勝配当", "複勝配当", "WIN_RATE", "JIKU_RATE", "ANA_RATE", "WIN_RANK", "JIKU_RANK", "ANA_RANK", "SCORE", "SCORE_RANK", "ck1", "ck2", "ck3", "場名", "距離"]].copy()
