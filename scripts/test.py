@@ -17,4 +17,4 @@ br = LBReport(start_date, end_date, False)
 #print(br.haraimodoshi_dict)
 #print(br.raceuma_df.iloc[0])
 
-br.export_race_df()
+br.export_bet_df()
